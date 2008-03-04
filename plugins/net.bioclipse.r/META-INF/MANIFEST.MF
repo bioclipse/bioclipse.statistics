@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: R Plug-in
+Bundle-SymbolicName: net.bioclipse.r;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: net.bioclipse.r.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ net.bioclipse.core,
+ net.bioclipse.scripting,
+ net.bioclipse.ui
+Eclipse-LazyStart: true
+Export-Package: net.bioclipse.r
