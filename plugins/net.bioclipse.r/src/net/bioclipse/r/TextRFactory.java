@@ -17,8 +17,13 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 
+import org.apache.log4j.Logger;
+import net.bioclipse.core.util.LogUtils;
+
 public class TextRFactory implements IExecutableExtension, 
                                      IExecutableExtensionFactory {
+    
+    private static final Logger logger = Logger.getLogger(TextRFactory.class);
 
 	private Object textR;
 	
@@ -28,7 +33,7 @@ public class TextRFactory implements IExecutableExtension,
 		try {
 			textR = new TextR(null);
 		} catch (NoRException e) {
-			e.printStackTrace();
+		    LogUtils.debugTrace(logger, e);
 		}
 	}
 
