@@ -25,19 +25,19 @@ public class TextRFactory implements IExecutableExtension,
     
     private static final Logger logger = Logger.getLogger(TextRFactory.class);
 
-	private Object textR;
-	
-	public void setInitializationData(IConfigurationElement config,
-			String propertyName, Object data) throws CoreException {
-		
-		try {
-			textR = new TextR(null);
-		} catch (NoRException e) {
-		    LogUtils.debugTrace(logger, e);
-		}
-	}
+    private Object textR;
+    
+    public void setInitializationData(IConfigurationElement config,
+            String propertyName, Object data) throws CoreException {
+        
+        try {
+            textR = new TextR(null);
+        } catch (NoRException e) {
+            LogUtils.debugTrace(logger, e);
+        }
+    }
 
-	public Object create() throws CoreException {
-		return textR;
-	}
+    public Object create() throws CoreException {
+        return textR;
+    }
 }
