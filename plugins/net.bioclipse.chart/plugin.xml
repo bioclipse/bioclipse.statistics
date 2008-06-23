@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="net.bioclipse.chart"
+            name="Chart"/>
+      <view
+            category="net.bioclipse.chart"
+            class="net.bioclipse.plugins.views.ChartView"
+            icon="icons/chart.jpg"
+            id="net.bioclipse.plugins.views.ChartView"
+            name="Chart"/>
+   </extension>
+   <!--extension
+         point="net.bioclipse.bioclipseResources">
+    <itemType
+          class="net.bioclipse.model.type.EmptyResourceFactory"
+          fileExtension="EMPTY"
+          icon="icons/sample.gif"
+          id="bioclipse.EmptyResource"
+          level="1"
+          name="CDK Resource"
+          targetClass="java.io.File"/>
+   </extension-->
+</plugin>
