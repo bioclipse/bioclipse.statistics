@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension-point id="matrixImplementation" name="matrixImplementation" schema="schema/matrixImplementation.exsd"/>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="net.bioclipse.statistics"
+            name="Statistics"/>
+      <!--view
+            category="net.bioclipse.statistics"
+            class="net.bioclipse.plugins.views.EmptyView"
+            icon=""
+            id="net.bioclipse.plugins.views.EmptyView"
+            name="Empty View"/-->
+   </extension>
+   <extension
+         point="net.bioclipse.bioclipseResources">
+      <itemType
+            class="net.bioclipse.model.type.MatrixResourceFactory"
+            fileExtension="jam,csv"
+            icon="icons/spreadsheet2.png"
+            id="net.bioclipse.statistics.MatrixResource"
+            level="1"
+            name="Matrix Resource"
+            targetClass="java.io.File"/>
+   </extension>
+   <!--extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="net.bioclipse.editors.MatrixEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            extensions="jam"
+            icon="icons/spreadsheet.png"
+            id="net.bioclipse.editors.MatrixEditor"
+            name="Matrix Editor"/>
+   </extension-->
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="net.bioclipse.statistics.editors.MatrixGridEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            default="true"
+            extensions="jam,csv"
+            icon="icons/spreadsheet2.png"
+            id="net.bioclipse.editors.MatrixGridEditor"
+            name="Matrix Editor"/>
+   </extension>
+</plugin>

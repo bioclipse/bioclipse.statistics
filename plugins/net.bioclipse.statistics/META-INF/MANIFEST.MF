@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bioclipse Statistics
+Bundle-SymbolicName: net.bioclipse.statistics;singleton:=true
+Bundle-Version: 1.2.0
+Bundle-Vendor: The Bioclipse Team
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text,
+ com.tools.logging,
+ net.bioclipse,
+ org.eclipse.ui.views,
+ net.bioclipse.chart
+Eclipse-LazyStart: true
+Export-Package: net.bioclipse.statistics,
+ net.bioclipse.statistics.editors,
+ net.bioclipse.statistics.model,
+ net.bioclipse.statistics.model.type,
+ org.eclipse.nebula.widgets.grid,
+ org.eclipse.nebula.widgets.grid.internal
+Bundle-Activator: net.bioclipse.statistics.Bc_statisticalPlugin
+Bundle-ClassPath: .,
+ jars/org.eclipse.nebula.widgets.grid_1.0.0.jar
