@@ -19,8 +19,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import com.tools.logging.PluginLogManager;
-
 /**
  * Adds matrix power to Bioclipse.
  * 
@@ -30,7 +28,6 @@ public class Bc_jamaPlugin extends AbstractUIPlugin {
 	
 	private final String PLUGIN_ID="net.bioclipse.statistics.jama";
 	private final String LOG_PROPERTIES_FILE="logger.properties";
-	private PluginLogManager logManager;
 	
 	//The shared instance.
 	private static Bc_jamaPlugin plugin;
@@ -41,11 +38,6 @@ public class Bc_jamaPlugin extends AbstractUIPlugin {
 	public Bc_jamaPlugin() {
 		plugin = this;
 	}
-	
-	public static PluginLogManager getLogManager() {
-		return getDefault().logManager; 
-	}
-	
 	
 	/**
 	 * This method is called upon plug-in activation
@@ -97,7 +89,6 @@ public class Bc_jamaPlugin extends AbstractUIPlugin {
 				Properties props = new Properties();
 				props.load(propertiesInputStream);
 				propertiesInputStream.close();
-				this.logManager = new PluginLogManager(this, props);
 			}	
 		} 
 		catch (Exception e) {
