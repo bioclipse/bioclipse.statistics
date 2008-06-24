@@ -74,7 +74,7 @@ import org.eclipse.ui.part.EditorPart;
 public class MatrixEditor extends EditorPart implements /*BioResourceChangeListener,*/ ISelectionListener, ISelectionProvider  {
 
 	private static final Logger logger = 
-		Activator.getLogManager().getLogger( MatrixEditor.class.toString() );
+		Logger.getLogger( MatrixEditor.class.toString() );
 
 	private IEditorInput editorInput;
 	private boolean isDirty;

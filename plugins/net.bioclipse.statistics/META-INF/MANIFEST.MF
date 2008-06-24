@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface.text,
- com.tools.logging,
  org.eclipse.ui.views,
  net.bioclipse.chart,
  org.eclipse.ui.ide,
@@ -25,3 +24,4 @@ Export-Package: net.bioclipse.statistics,
 Bundle-Activator: net.bioclipse.statistics.Activator
 Bundle-ClassPath: .,
  jars/org.eclipse.nebula.widgets.grid_1.0.0.jar
+Import-Package: org.apache.log4j

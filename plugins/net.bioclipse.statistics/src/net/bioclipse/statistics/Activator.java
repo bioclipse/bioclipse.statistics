@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
-import com.tools.logging.PluginLogManager;
 
 /**
  * Adds matrix power to Bioclipse.
@@ -30,7 +29,6 @@ public class Activator extends AbstractUIPlugin {
 	
 	private final String PLUGIN_ID="net.bioclipse.statistics";
 	private final String LOG_PROPERTIES_FILE="logger.properties";
-	private PluginLogManager logManager;
 	
 	//The shared instance.
 	private static Activator plugin;
@@ -41,11 +39,6 @@ public class Activator extends AbstractUIPlugin {
 	public Activator() {
 		plugin = this;
 	}
-	
-	public static PluginLogManager getLogManager() {
-		return getDefault().logManager; 
-	}
-	
 	
 	/**
 	 * This method is called upon plug-in activation
@@ -97,7 +90,6 @@ public class Activator extends AbstractUIPlugin {
 				Properties props = new Properties();
 				props.load(propertiesInputStream);
 				propertiesInputStream.close();
-				this.logManager = new PluginLogManager(this, props);
 			}	
 		} 
 		catch (Exception e) {
@@ -108,6 +100,4 @@ public class Activator extends AbstractUIPlugin {
 					"Error while initializing log properties.",e);
 		}         
 	}	
-	
-
 }
