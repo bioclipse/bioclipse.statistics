@@ -15,7 +15,7 @@
             id="net.bioclipse.plugins.views.EmptyView"
             name="Empty View"/-->
    </extension>
-   <extension
+   <!--extension
          point="net.bioclipse.bioclipseResources">
       <itemType
             class="net.bioclipse.model.type.MatrixResourceFactory"
@@ -25,7 +25,7 @@
             level="1"
             name="Matrix Resource"
             targetClass="java.io.File"/>
-   </extension>
+   </extension-->
    <!--extension
          point="org.eclipse.ui.editors">
       <editor
@@ -40,7 +40,7 @@
    <extension
          point="org.eclipse.ui.editors">
       <editor
-            class="net.bioclipse.statistics.editors.MatrixGridEditor"
+            class="net.bioclipse.statistics.editors.MatrixEditor"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             default="true"
             extensions="jam,csv"

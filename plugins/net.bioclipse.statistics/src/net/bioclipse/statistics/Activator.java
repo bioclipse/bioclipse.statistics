@@ -26,19 +26,19 @@ import com.tools.logging.PluginLogManager;
  * 
  * @author egonw
  */
-public class Bc_statisticalPlugin extends AbstractUIPlugin {
+public class Activator extends AbstractUIPlugin {
 	
 	private final String PLUGIN_ID="net.bioclipse.statistics";
 	private final String LOG_PROPERTIES_FILE="logger.properties";
 	private PluginLogManager logManager;
 	
 	//The shared instance.
-	private static Bc_statisticalPlugin plugin;
+	private static Activator plugin;
 	
 	/**
 	 * The constructor.
 	 */
-	public Bc_statisticalPlugin() {
+	public Activator() {
 		plugin = this;
 	}
 	
@@ -70,7 +70,7 @@ public class Bc_statisticalPlugin extends AbstractUIPlugin {
 	/**
 	 * Returns the shared instance.
 	 */
-	public static Bc_statisticalPlugin getDefault() {
+	public static Activator getDefault() {
 		return plugin;
 	}
 	

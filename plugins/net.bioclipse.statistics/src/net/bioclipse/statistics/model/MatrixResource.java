@@ -10,32 +10,49 @@
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
 
-import net.bioclipse.
+import net.bioclipse.core.domain.BioObject;
+import net.bioclipse.statistics.Activator;
 //import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.views.properties.IPropertySource;
+
 
 /**
  * Concept of a mathematical matrix.
  * 
  * @author egonw
  */
-public class MatrixResource extends BioResource {
+public class MatrixResource extends BioObject {
 	
-	private static final Logger logger = Bc_statisticalPlugin.getLogManager().getLogger(MatrixResource.class.toString());
+	//Bioclipse 1 logger
+	//private static final Logger logger = Activator.getLogManager().getLogger(MatrixResource.class.toString());
+	
+	private static final Logger logger = Logger.getLogger(MatrixResource.class);
+	
+	private String name;
+	private boolean isParsed;
+	private IFileEditorInput input;
 	
 	public static String ID = "net.bioclipse.statistics.MatrixResource";
 	
@@ -43,72 +60,92 @@ public class MatrixResource extends BioResource {
 	
 	private IMatrixImplementationResource matrixImpl;
 	
-	public MatrixResource(String name) {
-		super(name);
+	public MatrixResource(String name, IFileEditorInput input) {
+//		super(name);
+		this.name = name;
+		this.input = input;
 	}
 	
-	public MatrixResource(BioResourceType type, Object obj) {
-		super(type,obj);
+	public String getName()
+	{
+		return name;
 	}
-
-	public MatrixResource(BioResourceType type, String resString, String name) {
-		super(name);
-		if (getPersistedResource()==null){
-			persistedResource=PersistedResource.newResource(resString); 
-		}
-		setDefaultResourceType(type);
+	
+	/**
+	 * 
+	 * @param input the input is the file resource from which the matrix will be loaded
+	 */
+	public void setInput(IFileEditorInput input){
+		this.input = input;
 	}
+	
+//	public MatrixResource(BioResourceType type, Object obj) {
+//		super(type,obj);
+//	}
+//
+//	public MatrixResource(BioResourceType type, String resString, String name) {
+//		super(name);
+//		if (getPersistedResource()==null){
+//			persistedResource=PersistedResource.newResource(resString); 
+//		}
+//		setDefaultResourceType(type);
+//	}
 	
 	/**
 	 * Make a copy of this object and return it if it can be parsed. 
 	 * Used to create new objects with a higher level taht replaces the old on parse 
 	 */
-	public static IBioResource newResource(BioResourceType type, Object resourceObject, String name) {
+//	public static IBioResource newResource(BioResourceType type, Object resourceObject, String name) {
+//
+//		if (resourceObject instanceof IPersistedResource) {
+//			IPersistedResource persRes = (IPersistedResource) resourceObject;
+//
+//			boolean parentIsParsed=persRes.getBioResourceParent().isParsed();
+//
+//			//This is the copy
+//			MatrixResource fResource= new MatrixResource(type, persRes);
+//			fResource.setParsed(parentIsParsed);
+//			fResource.setName(name);
+//			if (fResource.parseResource()==true){
+//				return fResource;
+//			}
+//			else{
+//				logger.error("PersistedResource:" + fResource.getName() + " could not be parsed into a MatrixResource");
+//				return null;
+//			}
+//			
+//		}	
+//
+//		if (resourceObject instanceof File) {
+//			IPersistedResource persRes = (IPersistedResource) resourceObject;
+//			
+//			//This is the copy
+//			MatrixResource matResource = new MatrixResource(type, persRes);
+//			matResource.setName(name);
+//			if (matResource.parseResource() == true) {
+//				return matResource;
+//			} else {
+//				logger.debug("PersistedResource:" + matResource.getName() + " could not be parsed into a MatrixResource");
+//				return null;
+//			}
+//			
+//		}
+//		
+//		logger.debug("ResourceObject not a File. Discarded.");
+//		return null;
+//	}
 
-		if (resourceObject instanceof IPersistedResource) {
-			IPersistedResource persRes = (IPersistedResource) resourceObject;
-
-			boolean parentIsParsed=persRes.getBioResourceParent().isParsed();
-
-			//This is the copy
-			MatrixResource fResource= new MatrixResource(type, persRes);
-			fResource.setParsed(parentIsParsed);
-			fResource.setName(name);
-			if (fResource.parseResource()==true){
-				return fResource;
-			}
-			else{
-				logger.error("PersistedResource:" + fResource.getName() + " could not be parsed into a MatrixResource");
-				return null;
-			}
-			
-		}	
-
-		if (resourceObject instanceof File) {
-			IPersistedResource persRes = (IPersistedResource) resourceObject;
-			
-			//This is the copy
-			MatrixResource matResource = new MatrixResource(type, persRes);
-			matResource.setName(name);
-			if (matResource.parseResource() == true) {
-				return matResource;
-			} else {
-				logger.debug("PersistedResource:" + matResource.getName() + " could not be parsed into a MatrixResource");
-				return null;
-			}
-			
-		}
-		
-		logger.debug("ResourceObject not a File. Discarded.");
-		return null;
+	private boolean isParsed()
+	{
+		return isParsed;
 	}
-
+	
 	/**
 	 * Parse the resourceString into children or parsedResource object
 	 * @return
 	 */
 	public boolean parseResource() {
-		if (!getPersistedResource().isLoaded()) return false;	//Return false if not loaded
+//		if (!getPersistedResource().isLoaded()) return false;	//Return false if not loaded
 		if (isParsed()) return true;	//Return true if already parsed
 
 		logger.debug("Parsing the resource...");
@@ -118,8 +155,22 @@ public class MatrixResource extends BioResource {
 			// OK, next step: reading the input into the matrix
 			try {
 				
-				String matrixString = new String(getPersistedResource().getInMemoryResource());				
-				matrixImpl = parseStringIntoMatrix(matrixString);
+				//TODO: change loading
+//				String matrixString = new String(getPersistedResource().getInMemoryResource());
+				
+				IFile matrixFile = input.getFile();
+				BufferedReader br = new BufferedReader(new InputStreamReader(matrixFile.getContents()));
+				StringBuilder matrixBuilder = new StringBuilder();
+				
+				while(true){
+					String line = br.readLine();
+					if( line == null)					
+						break;
+					matrixBuilder.append(line);
+					matrixBuilder.append("\n");
+				}
+				
+				matrixImpl = parseStringIntoMatrix(matrixBuilder.toString());
 				
 				//Old parser
 //				read(new String(getPersistedResource().getInMemoryResource()));
@@ -132,10 +183,10 @@ public class MatrixResource extends BioResource {
 //					logger.error("Could not set matrix content! " + e.getMessage(), e);
 //				}
 				
-				if (propSource ==null){
-					propSource=new MatrixResourcePropertySource(this);
-				}
-				propSource.addAdvancedProperties();
+//				if (propSource ==null){
+//					propSource=new MatrixResourcePropertySource(this);
+//				}
+//				propSource.addAdvancedProperties();
 				
 				setParsedResource(matrixImpl);
 				setParsed(true);
@@ -150,7 +201,15 @@ public class MatrixResource extends BioResource {
 		return false;
 	}
 	
-    private Scanner matrixScanner(String line) {
+    private void setParsed(boolean b) {
+		isParsed = b;
+	}
+
+	private void setParsedResource(IMatrixImplementationResource parsedResource) {
+		this.matrixImpl = parsedResource;
+	}
+
+	private Scanner matrixScanner(String line) {
         Scanner matrixScanner = new Scanner(line).useDelimiter(",|\\s+");       
         matrixScanner.useLocale(Locale.US); // Assures decimal marker is a point
         
@@ -166,7 +225,8 @@ public class MatrixResource extends BioResource {
 		int matrixCols = 0;
 		
 		if (matrixRows == 0) {
-			BioclipseConsole.writeToConsole("Matrix is empty!");
+//			BioclipseConsole.writeToConsole("Matrix is empty!");
+			logger.debug("Matrix is empty!");
 			this.setSize(matrixRows, matrixCols);
 			return matrixImpl;
 		}
@@ -186,7 +246,6 @@ public class MatrixResource extends BioResource {
 		
 		if( !matrixScanner.hasNextDouble() )
 		{
-			System.out.println("has column headers: " + matrixLines[0]);
 			//Remove one row from matrixRows because one of the rows is the header
 			matrixRows--;
 			int index = 0;
@@ -316,6 +375,10 @@ public class MatrixResource extends BioResource {
 		return null;
 	}
 	
+	private Object getParsedResource() {
+		return matrixImpl;
+	}
+
 	public boolean updateParsedResourceFromString(String resString) {
 		try {
 			read(resString);
@@ -327,6 +390,8 @@ public class MatrixResource extends BioResource {
 		return true;
 	}
 
+	
+  	//TODO Implement save for Bioclipse 2
 	public boolean save() {
 		Object parseRes = this.getParsedResource();
 		if (parseRes == null) {
@@ -346,9 +411,13 @@ public class MatrixResource extends BioResource {
 				}
 				result += toString((IMatrixImplementationResource) parseRes);
 				byte[] byteStream = result.getBytes();
-				this.getPersistedResource().setInMemoryResource(byteStream);
-				this.getPersistedResource().save();
-				this.setParsedResourceDirty(false);
+				
+				
+				//There is no getPersistedResouce for this class (Bioclipse 2)
+//				this.getPersistedResource().setInMemoryResource(byteStream);
+//				this.getPersistedResource().save();
+//				this.setParsedResourceDirty(false);
+				
 				return true;
 			} catch (Exception e) {
 				logger.error("Could not serialize the matrix to a String! " + e.getMessage(), e);
@@ -360,7 +429,7 @@ public class MatrixResource extends BioResource {
 	}
 
 	public void unLoad(){
-		super.unLoad();
+//		super.unLoad();
 		propSource.removeAdvancedProperties();
 	}
 
@@ -370,7 +439,7 @@ public class MatrixResource extends BioResource {
 		IExtensionPoint extensionPoint = registry.getExtensionPoint("net.bioclipse.statistics.matrixImplementation");
 		
 		if (extensionPoint != null) {
-			logger.debug("Extension points provided by bc_statistics: " + extensionPoint.getUniqueIdentifier());
+			logger.debug("Extension points provided by net.bioclipse.statistics: " + extensionPoint.getUniqueIdentifier());
 
 			IExtension[] extensions = extensionPoint.getExtensions();
 
@@ -398,7 +467,7 @@ public class MatrixResource extends BioResource {
 			}
 //			setParsedResource(matrixImpl);
 		} else {
-			BioclipseConsole.writeToConsole("No matrix implementations found!");
+//			BioclipseConsole.writeToConsole("No matrix implementations found!");
 			logger.error("No matrix implementations found!");
 		}		
 	}
@@ -447,7 +516,8 @@ public class MatrixResource extends BioResource {
 	      while (tokenizer.nextToken() == StreamTokenizer.TT_EOL);
 	      if (tokenizer.ttype == StreamTokenizer.TT_EOF) {
 	    	  // OK, found an empty matrix, that's fine
-	    	  BioclipseConsole.writeToConsole("File is empty: creating an null matrix.");
+//	    	  BioclipseConsole.writeToConsole("File is empty: creating an null matrix.");
+	    	  logger.debug("File is empty: creating an null matrix.");
 	    	  setSize(0,0);
 	          return;
 	      }
@@ -497,7 +567,6 @@ public class MatrixResource extends BioResource {
 		setParsed(true);
 	}
 	
-	@Override
 	public String[] getEditorIDs(){
 		String[] editors = new String[2];
 		editors[0] = "net.bioclipse.editors.MatrixGridEditor";

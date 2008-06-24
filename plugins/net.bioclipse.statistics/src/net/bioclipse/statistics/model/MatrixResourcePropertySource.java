@@ -10,6 +10,8 @@
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
+import net.bioclipse.core.domain.props.BioObjectPropertySource;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -20,7 +22,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
  * 
  * @author egonw
  */
-public class MatrixResourcePropertySource extends BioResourcePropertySource implements IPropertySource{
+public class MatrixResourcePropertySource extends BioObjectPropertySource implements IPropertySource{
 
 	protected static final String COL_SIZE = "Column count";
 	protected static final String ROW_SIZE = "Row count";

@@ -10,9 +10,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface.text,
  com.tools.logging,
- net.bioclipse,
  org.eclipse.ui.views,
- net.bioclipse.chart
+ net.bioclipse.chart,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources,
+ net.bioclipse.core
 Eclipse-LazyStart: true
 Export-Package: net.bioclipse.statistics,
  net.bioclipse.statistics.editors,
@@ -20,6 +22,6 @@ Export-Package: net.bioclipse.statistics,
  net.bioclipse.statistics.model.type,
  org.eclipse.nebula.widgets.grid,
  org.eclipse.nebula.widgets.grid.internal
-Bundle-Activator: net.bioclipse.statistics.Bc_statisticalPlugin
+Bundle-Activator: net.bioclipse.statistics.Activator
 Bundle-ClassPath: .,
  jars/org.eclipse.nebula.widgets.grid_1.0.0.jar

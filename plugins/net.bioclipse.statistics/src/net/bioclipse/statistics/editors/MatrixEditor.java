@@ -15,11 +15,13 @@ import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PlotPointData;
-import net.bioclipse.statistics.Bc_statisticalPlugin;
+import net.bioclipse.statistics.Activator;
 import net.bioclipse.statistics.model.MatrixResource;
+//import net.bioclipse.statistics.model.MatrixResource;
 //import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -55,6 +57,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
@@ -69,10 +73,10 @@ import org.eclipse.ui.part.EditorPart;
  * @author jonalv
  *
  */
-public class MatrixGridEditor extends EditorPart implements /*BioResourceChangeListener,*/ ISelectionListener, ISelectionProvider  {
+public class MatrixEditor extends EditorPart implements /*BioResourceChangeListener,*/ ISelectionListener, ISelectionProvider  {
 
 	private static final Logger logger = 
-		Bc_statisticalPlugin.getLogManager().getLogger( MatrixGridEditor.class.toString() );
+		Activator.getLogManager().getLogger( MatrixEditor.class.toString() );
 
 	private IEditorInput editorInput;
 	private boolean isDirty;
@@ -83,7 +87,7 @@ public class MatrixGridEditor extends EditorPart implements /*BioResourceChangeL
 	private final Clipboard cb = new Clipboard(
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay() );
 
-	public MatrixGridEditor() {
+	public MatrixEditor() {
 		super();
 	}
 
@@ -143,7 +147,8 @@ public class MatrixGridEditor extends EditorPart implements /*BioResourceChangeL
 		//No BioResourceEditorInput in Bioclipse 2
 //		final MatrixResource matrix = (MatrixResource)( (BioResourceEditorInput)this.editorInput ).getBioResource();
 		
-		
+		final MatrixResource matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
+		matrix.parseResource();		
 
 		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.MULTI );
 		grid.setHeaderVisible(true);
@@ -536,7 +541,7 @@ public class MatrixGridEditor extends EditorPart implements /*BioResourceChangeL
 		if( columnsVector.size() != 2)
 		{
 			ChartDialog chartDialog = new ChartDialog(Display.getCurrent().getActiveShell(),
-					SWT.NULL, plotType, columnsVector);
+					SWT.NULL, plotType, columnsVector, true);
 			chartDialog.open();
 		}
 		//If only 2 columns are selected no dialog is shown
@@ -586,9 +591,9 @@ public class MatrixGridEditor extends EditorPart implements /*BioResourceChangeL
 	public void setFocus() {
 	}
 
-	public void resourceChanged(BioResource resource) {
-		// nothing to do
-	}
+//	public void resourceChanged(BioResource resource) {
+//		// nothing to do
+//	}
 
 	public void selectionChanged(IWorkbenchPart part, final ISelection selection) 
 	{

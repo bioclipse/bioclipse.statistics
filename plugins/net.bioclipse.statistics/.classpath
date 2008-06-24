@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="net/bioclipse/editors/MatrixEditor.java|net/bioclipse/editors/MatrixModel.java" kind="src" path="src"/>
+	<classpathentry excluding="net/bioclipse/editors/MatrixEditor.java|net/bioclipse/editors/MatrixModel.java|net/bioclipse/statistics/model/type/MatrixResourceFactory.java" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="jars/org.eclipse.nebula.widgets.grid_1.0.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
