@@ -7,7 +7,6 @@ Bundle-Vendor: Ola Spjuth, Eskil Andersen
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.tools.logging,
  org.eclipse.ui.views,
  org.eclipse.core.resources
 Eclipse-LazyStart: true
@@ -274,3 +273,4 @@ Export-Package: com.keypoint,
  org.jfree.ui.action;uses:="javax.swing",
  org.jfree.ui.tabbedui;uses:="javax.swing",
  org.jfree.util;uses:="org.jfree.base.config,org.jfree.ui,javax.swing"
+Import-Package: org.apache.log4j
