@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jama Matrix Library Plugin
+Bundle-SymbolicName: net.bioclipse.statistics.jama;singleton:=true
+Bundle-Version: 1.2.0
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ com.tools.logging,
+ net.bioclipse.statistics
+Eclipse-LazyStart: true
+Bundle-Activator: net.bioclipse.plugins.Bc_jamaPlugin
+Export-Package: Jama,
+ net.bioclipse.model,
+ net.bioclipse.plugins
+Bundle-ClassPath: .,
+ jars/Jama-1.0.1.jar
+Bundle-Vendor: The Bioclipse Team
