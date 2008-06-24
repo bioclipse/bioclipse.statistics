@@ -21,7 +21,6 @@ import net.bioclipse.statistics.model.MatrixResource;
 //import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -58,7 +57,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
@@ -87,6 +85,8 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 	private final Clipboard cb = new Clipboard(
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay() );
 
+	private MatrixResource matrix;
+
 	public MatrixEditor() {
 		super();
 	}
@@ -96,7 +96,14 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 		//then call save() of the BioResource 
 //		BioResourceEditorInput brinp = (BioResourceEditorInput) editorInput;
 //		brinp.getBioResource().save();
-//		this.setDirty(false);
+		boolean success = matrix.save();
+		if( success ){
+			this.setDirty(false);
+		}
+		else
+		{
+			logger.error("Could not save matrix to file");
+		}
 	}
 
 	public void setDirty(boolean isDirty) {
@@ -144,10 +151,7 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 
 		selectionListeners = new Vector<ISelectionChangedListener>();
 		
-		//No BioResourceEditorInput in Bioclipse 2
-//		final MatrixResource matrix = (MatrixResource)( (BioResourceEditorInput)this.editorInput ).getBioResource();
-		
-		final MatrixResource matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
+		matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
 		matrix.parseResource();		
 
 		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.MULTI );
@@ -386,8 +390,12 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 					{
 						item.setText(p.x, textField.getText());
 						textField.setVisible(false);
-						textField.dispose();
 						setDirty(true);
+						
+						double value = Double.parseDouble(textField.getText());
+						
+						matrix.set(p.y+1, p.x+1, value );
+						textField.dispose();
 					}
 				}
 
@@ -402,7 +410,6 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 
 				public void focusLost(FocusEvent arg0) {
 					textField.setVisible(false);
-					textField.dispose();					
 				}
 				
 			});

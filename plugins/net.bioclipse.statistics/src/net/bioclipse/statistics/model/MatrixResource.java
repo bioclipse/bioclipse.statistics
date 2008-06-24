@@ -10,9 +10,9 @@
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
@@ -21,21 +21,18 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import net.bioclipse.core.domain.BioObject;
-import net.bioclipse.statistics.Activator;
 //import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.IPersistableElement;
 import org.eclipse.ui.views.properties.IPropertySource;
+
 
 
 /**
@@ -411,8 +408,9 @@ public class MatrixResource extends BioObject {
 				}
 				result += toString((IMatrixImplementationResource) parseRes);
 				byte[] byteStream = result.getBytes();
+				BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(byteStream));
 				
-				
+				input.getFile().setContents(bis, false, true, null);
 				//There is no getPersistedResouce for this class (Bioclipse 2)
 //				this.getPersistedResource().setInMemoryResource(byteStream);
 //				this.getPersistedResource().save();
@@ -474,10 +472,12 @@ public class MatrixResource extends BioObject {
 
 	private String toString(IMatrixImplementationResource matrix) throws Exception {
 		StringBuffer buffer = new StringBuffer();
+		
 		for (int row=0; row<matrix.getRowCount(); row++) {
 			if (matrix.getRowName(row+1) != null) {
 				buffer.append(matrix.getRowName(row+1)).append(",");
 			}
+			
 			for (int col=0; col<matrix.getColumnCount(); col++) {
 				buffer.append(matrix.get(row+1, col+1));
 				if (col<matrix.getColumnCount()) {
