@@ -289,7 +289,6 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 			//When a cell is selected an event is sent to ISelectionListeners
 			//notifying them of selected cells
 			public void widgetSelected(SelectionEvent se) {
-				GridItem[] items = grid.getSelection();
 				Point selections[] = grid.getCellSelection();
 				CellSelection cs = new CellSelection();
 				for( Point p : selections )
@@ -499,7 +498,6 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 	 */
 	public void plot( int plotType )
 	{
-		GridItem[] selection = grid.getSelection();
 		Point[] cellSelection = grid.getCellSelection();
 
 		int colMax = Integer.MIN_VALUE,
