@@ -1,6 +1,5 @@
 package net.bioclipse.chart;
 
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,7 +17,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Iterator;
 
-import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
@@ -31,14 +29,11 @@ import net.bioclipse.plugins.views.ChartView;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.jfree.chart.ChartFactory;
@@ -67,16 +62,12 @@ public class ChartUtils
 {
 	private static JFreeChart chart;
 	private final static String CHART_VIEW_ID ="net.bioclipse.plugins.views.ChartView";
-	private static Composite chartComposite;
 	private static double[][] values;
 	private static ChartView view;
 	private static String[] nameOfObs;
-	private static Frame frame;
-	private static Composite composite;
 	private static String xColumn, yColumn;
 	private static ChartSelection cs;
 	private static int currentPlotType = -1;
-	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
 	private static int[] indices;
 	
 	/**
@@ -97,7 +88,7 @@ public class ChartUtils
 		PcmLineChartDataset dataset = new PcmLineChartDataset(values, nameOfObs, xLabel, yLabel, "", title, null);
 		System.out.println("in chartutils.scatterplot");
 		chart = ChartFactory.createXYLineChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true , false);
-		display( ChartConstants.LINE_PLOT );
+		view.display( ChartConstants.LINE_PLOT, chart );
 		ChartUtils.currentPlotType = ChartConstants.LINE_PLOT;
 	}
 
@@ -117,59 +108,8 @@ public class ChartUtils
 		ChartUtils.yColumn = yColumn;
 	}
 	
-	//Utility method that different plot functions use to display their plots in ChartView
-	private static void display( final int plotType )
-	{
-		chartComposite = view.getParent();		
-
-		//Clear chartComposite of all old controls
-		Control[] children = chartComposite.getChildren();		
-		for( int i = 0; i<children.length;i++)
-		{
-			children[i].dispose();
-		}
-
-		composite = new Composite(chartComposite, SWT.EMBEDDED | SWT.NO_BACKGROUND);
-		frame = SWT_AWT.new_Frame(composite);
-
-		final ChartPanel chartPanel = new ChartPanel(chart);
-		
-		SwingUtilities.invokeLater(new Runnable()
-		{
-
-			public void run() {
-				// TODO Auto-generated method stub
-				frame.removeAll();
-				frame.add(chartPanel);
-				frame.setVisible(true);
-
-				if( plotType == ChartConstants.SCATTER_PLOT )
-				{
-					//Set the scatter plot renderer to our custom ScatterPlotRenderer
-					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-					final ScatterPlotRenderer renderer = new ScatterPlotRenderer( false, true );
-					plot.setRenderer(renderer);
-					
-					//Listens for mouseclicks on points
-					PlotMouseHandler pmh = new PlotMouseHandler(chartPanel, renderer);
-					
-					if( IS_MACOS )
-					{
-						frame.addMouseListener(pmh);
-					}
-					else
-					{
-						chartPanel.addMouseListener(pmh);
-					}					
-				}
-			}
-		});
-		chartComposite.forceFocus();
-		chartComposite.layout();
-	}
-	
 	//Used to take mouse input and mark points that have been clicked on
-	private static class PlotMouseHandler extends MouseAdapter
+	public static class PlotMouseHandler extends MouseAdapter
 	{
 		private ChartPanel chartPanel;
 		private ScatterPlotRenderer renderer;
@@ -206,9 +146,8 @@ public class ChartUtils
 					Number yKCheck = yK.doubleValue()-yy.doubleValue();
 					Number xxCheck = xKCheck.doubleValue()*xKCheck.doubleValue();
 					Number yyCheck = yKCheck.doubleValue()*yKCheck.doubleValue();
+					//Check distance from click and point, don't want to mark points that are too far from the click
 					if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
-//						System.out.println("Mitt i prick!");
-//						System.out.println(plot.getDataset().getX(i,j) +","+ plot.getDataset().getY(i,j));			
 						//Create a new selection
 						PlotPointData cp = new PlotPointData(indices[j],xColumn,yColumn);
 						cs.addPoint(cp);
@@ -268,7 +207,7 @@ public class ChartUtils
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, false,false);
-		display( ChartConstants.SCATTER_PLOT );
+		view.display( ChartConstants.SCATTER_PLOT, chart );
 		ChartUtils.currentPlotType = ChartConstants.SCATTER_PLOT;
 	}
 	
@@ -288,7 +227,7 @@ public class ChartUtils
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, false,false);
-		display( ChartConstants.SCATTER_PLOT );
+		view.display( ChartConstants.SCATTER_PLOT, chart );
 		ChartUtils.currentPlotType = ChartConstants.SCATTER_PLOT;
 		ChartUtils.indices = indices;
 	}
@@ -318,7 +257,7 @@ public class ChartUtils
 				false, 
 				false
 		);
-		display( ChartConstants.HISTOGRAM );
+		view.display( ChartConstants.HISTOGRAM, chart );
 		ChartUtils.currentPlotType = ChartConstants.HISTOGRAM;
 	}
 
@@ -368,21 +307,20 @@ public class ChartUtils
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createTimeSeriesChart(title, xLabel, yLabel, (XYDataset)dataset, false, false, false);
-		chartComposite = view.getParent();
 
-		display( ChartConstants.TIME_SERIES );
+		view.display( ChartConstants.TIME_SERIES, chart );
 		ChartUtils.currentPlotType = ChartConstants.TIME_SERIES;
 	}
 
 	/**
-	 * Utility method for converting JFreeChart to an image so that SWT can display it
+	 * Utility method for converting JFreeChart to an image
 	 * @param parent used for color correction 
 	 * @param chart the chart to be made into an image
 	 * @param width image width
 	 * @param height image height
 	 * @return SWT Image of the chart 
 	 */
-	private static Image createChartImage(Composite parent, JFreeChart chart,
+	public static Image createChartImage(Composite parent, JFreeChart chart,
 			int width, int height)
 	{
 		// Color adjustment

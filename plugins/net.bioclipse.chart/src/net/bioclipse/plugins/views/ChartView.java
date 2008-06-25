@@ -1,10 +1,16 @@
 package net.bioclipse.plugins.views;
 
+import java.awt.Frame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.ScatterPlotRenderer;
+import net.bioclipse.chart.ChartUtils.PlotMouseHandler;
+import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartSelection;
 
 import org.apache.log4j.Logger;
@@ -15,15 +21,16 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
@@ -32,6 +39,9 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
 
 
 
@@ -43,19 +53,22 @@ import org.eclipse.ui.part.ViewPart;
 public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider {
 	private Action saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
 	private Composite parent;
-	private Label imageLabel;
+//	private Label imageLabel;
 	private List<ISelectionChangedListener> selectionListeners;
 	private ChartSelection selection;
-	private ChartView view;
 	private static final Logger logger = Logger.getLogger(ChartView.class);
-
+	private Frame frame;
+	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
+	private CTabFolder tabFolder;
+	
+	
 	/**
 	 * The constructor.
 	 */
 	public ChartView() {
 		super();
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
-		view = this;
+//		view = this;
 	}
 
 	/**
@@ -63,7 +76,11 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
+		
 		this.parent = parent;
+		tabFolder = new CTabFolder(parent, SWT.TOP);
+		tabFolder.setSimple(false);
+		
 		getSite().setSelectionProvider(this);
 		getSite().getPage().addSelectionListener(this);
 		makeActions();
@@ -79,9 +96,9 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				ChartView.this.fillContextMenu(manager);
 			}
 		});
-		Menu menu = menuMgr.createContextMenu(view.getParent());
-		view.getParent().setMenu(menu);
-		getSite().registerContextMenu(menuMgr, view);
+		Menu menu = menuMgr.createContextMenu(parent);
+		parent.setMenu(menu);
+		getSite().registerContextMenu(menuMgr, this);
 	}
 
 	private void contributeToActionBars() {
@@ -119,7 +136,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			public void run()
 			{
 				FileDialog dialog = 
-					new FileDialog(view.getViewSite().getWorkbenchWindow().getShell(),
+					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
 						SWT.SAVE);
 				dialog.setFileName("Image.svg");
 				String path = dialog.open();
@@ -137,7 +154,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			public void run()
 			{
 				FileDialog dialog = 
-					new FileDialog(view.getViewSite().getWorkbenchWindow().getShell(),
+					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
 						SWT.SAVE);
 				dialog.setFileName("Image.png");
 				String path = dialog.open();
@@ -160,7 +177,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			public void run()
 			{
 				FileDialog dialog = 
-					new FileDialog(view.getViewSite().getWorkbenchWindow().getShell(),
+					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
 						SWT.SAVE);
 				dialog.setFileName("Image.jpg");
 				String path = dialog.open();
@@ -190,13 +207,13 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	{
 	}
 
-	public Composite getParent() {
-		return parent;
-	}
+//	public Composite getParent() {
+//		return parent;
+//	}
 
-	public Label getImageLabel() {
-		return imageLabel;
-	}
+//	public Label getImageLabel() {
+//		return imageLabel;
+//	}
 
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		if(!selectionListeners.contains(listener))
@@ -220,7 +237,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		this.getSite().getWorkbenchWindow().getWorkbench().getDisplay().asyncExec(new Runnable() {
 
 			public void run() {
-				view.getSite().getPage().activate(view);
+				ChartView.this.getSite().getPage().activate(ChartView.this);
 			}
 			
 		});
@@ -241,5 +258,60 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			});
 			
 		}
+	}
+
+	//Utility method that different plot functions use to display their plots in ChartView
+	public void display( final int plotType, JFreeChart chart )
+	{
+//		Composite chartTab = parent;
+		CTabItem chartTab = new CTabItem(tabFolder, SWT.CLOSE);
+		chartTab.setText(chart.getTitle().getText());
+	
+		//Clear chartComposite of all old controls
+		/*Control[] children = chartTab.getChildren();		
+		for( int i = 0; i<children.length;i++)
+		{
+			children[i].dispose();
+		}*/
+	
+		Composite composite = new Composite(tabFolder, SWT.EMBEDDED | SWT.NO_BACKGROUND);
+		chartTab.setControl(composite);
+		
+		frame = SWT_AWT.new_Frame(composite);
+	
+		final ChartPanel chartPanel = new ChartPanel(chart);
+		
+		SwingUtilities.invokeLater(new Runnable()
+		{
+	
+			public void run() {
+				frame.removeAll();
+				frame.add(chartPanel);
+				frame.setVisible(true);
+	
+				if( plotType == ChartConstants.SCATTER_PLOT )
+				{
+					//Set the scatter plot renderer to our custom ScatterPlotRenderer
+					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+					final ScatterPlotRenderer renderer = new ScatterPlotRenderer( false, true );
+					plot.setRenderer(renderer);
+					
+					//Listens for mouseclicks on points
+					PlotMouseHandler pmh = new PlotMouseHandler(chartPanel, renderer);
+					
+					if( ChartView.IS_MACOS )
+					{
+						frame.addMouseListener(pmh);
+					}
+					else
+					{
+						chartPanel.addMouseListener(pmh);
+					}					
+				}
+			}
+		});
+		tabFolder.setSelection(chartTab);
+		tabFolder.forceFocus();
+		tabFolder.layout();
 	}
 }

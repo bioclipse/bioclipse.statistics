@@ -34,32 +34,26 @@ public class ChartSelection implements IStructuredSelection
 	}
 	
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
 		return points.isEmpty();
 	}
 
 	public Object getFirstElement() {
-		// TODO Auto-generated method stub
 		return points.get(0);
 	}
 
 	public Iterator<PlotPointData> iterator() {
-		// TODO Auto-generated method stub
 		return points.iterator();
 	}
 
 	public int size() {
-		// TODO Auto-generated method stub
 		return points.size();
 	}
 
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
 		return points.toArray();
 	}
 
 	public List<PlotPointData> toList() {
-		// TODO Auto-generated method stub
 		return points;
 	}
 
