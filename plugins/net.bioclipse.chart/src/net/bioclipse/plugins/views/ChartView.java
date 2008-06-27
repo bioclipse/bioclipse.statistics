@@ -15,6 +15,7 @@ import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.ImageWriter;
 import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.apache.log4j.Logger;
@@ -157,7 +158,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				dialog.setFileName("Image.svg");
 				String path = dialog.open();
 				System.out.println(path);
-				ChartUtils.saveImageSVG(path);
+				ImageWriter.saveImageSVG(path, null);
 			}
 		};
 		saveImageActionSVG.setText("Export as SVG Image");
@@ -176,7 +177,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				String path = dialog.open();
 				System.out.println(path);
 				try {
-					ChartUtils.saveImagePNG(path);
+					ImageWriter.saveImagePNG(path, null);
 				} catch (IOException e) {
 					e.printStackTrace();
 					logger.error("Failed to save chart as png " + e);
@@ -199,7 +200,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				String path = dialog.open();
 				System.out.println(path);
 				try {
-					ChartUtils.saveImageJPG(path);
+					ImageWriter.saveImageJPG(path, null);
 				} catch (IOException e) {
 					e.printStackTrace();
 					logger.error("Failed to save chart as jpg " + e);

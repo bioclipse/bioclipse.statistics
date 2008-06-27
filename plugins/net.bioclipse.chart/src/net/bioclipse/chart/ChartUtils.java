@@ -1,16 +1,8 @@
 package net.bioclipse.chart;
 
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.util.Iterator;
 
 import net.bioclipse.chart.events.CellData;
@@ -23,9 +15,6 @@ import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PcmLineChartDataset;
 import net.bioclipse.plugins.views.ChartView;
 
-import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
@@ -35,15 +24,12 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 
 /**
  * This is a utility class with static methods for plotting data on the chart plugins
@@ -57,7 +43,7 @@ import org.w3c.dom.Document;
  */
 public class ChartUtils
 {
-	static JFreeChart chart;
+	public static JFreeChart chart;
 	private final static String CHART_VIEW_ID ="net.bioclipse.plugins.views.ChartView";
 	private static double[][] values;
 	private static ChartView view;
@@ -86,9 +72,9 @@ public class ChartUtils
 		PcmLineChartDataset dataset = new PcmLineChartDataset(values, nameOfObs, xLabel, yLabel, "", title, null);
 		chart = ChartFactory.createXYLineChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true , false);
 		
+		ChartDescriptor cd = new ChartDescriptor(null,null,ChartConstants.LINE_PLOT,xLabel,yLabel);
 		
 		view.display( chart );
-		ChartUtils.currentPlotType = ChartConstants.LINE_PLOT;
 	}
 	
 	public static ChartDescriptor getChartDescriptor(JFreeChart key)
@@ -307,58 +293,5 @@ public class ChartUtils
 
 		// Create an SWT image
 		return new Image(parent.getDisplay(), imageData);
-	}
-	
-	public static void saveImagePNG(String path) throws IOException
-	{
-		FileOutputStream fos = new FileOutputStream(path);
-		ChartUtilities.writeChartAsPNG(fos, chart, 640, 480);
-		fos.close();
-	}
-	
-	public static void saveImageJPG(String path) throws IOException
-	{
-		FileOutputStream fos = new FileOutputStream(path);
-		ChartUtilities.writeChartAsJPEG(fos, chart, 640, 480);
-		fos.close();
-	}
-	
-	/**
-	 * Save image to svg format
-	 * @param path the path including filename where the image is to be stored
-	 */
-	public static void saveImageSVG( String path )
-	{
-		//First check that we have a valid chart
-		if( chart != null )
-		{
-			//Create DOM objects
-			DOMImplementation domImpl = GenericDOMImplementation.getDOMImplementation();
-			Document document = domImpl.createDocument(null, "svg", null);
-
-			//Create an instance of the SVG generator
-			SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-
-			//Setting the precision apparently avoids a NullPointerException in Batik 1.5
-			svgGenerator.getGeneratorContext().setPrecision(6);
-
-			//Render chart into SVG Graphics2D impl.
-			chart.draw(svgGenerator, new Rectangle2D.Double(0,0,400,300),null);
-			
-			//Write to file
-			boolean useCSS = true;
-			try {
-				Writer out = new OutputStreamWriter(
-						new FileOutputStream(new File(path)), "UTF-8");
-				svgGenerator.stream(out,useCSS);
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (SVGGraphics2DIOException e) {
-				e.printStackTrace();
-			}
-		}
-
 	}
 }
