@@ -9,9 +9,13 @@ import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
-import net.bioclipse.chart.ChartUtils.PlotMouseHandler;
 import net.bioclipse.model.ChartConstants;
+import net.bioclipse.model.ChartDescriptor;
+import net.bioclipse.model.ChartManager;
+import net.bioclipse.model.ChartModelEvent;
+import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.Action;
@@ -50,7 +54,7 @@ import org.jfree.chart.plot.XYPlot;
  * @see ChartUtils
  */
 
-public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider {
+public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener {
 	private Action saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
 	private Composite parent;
 //	private Label imageLabel;
@@ -60,6 +64,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private Frame frame;
 	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
 	private CTabFolder tabFolder;
+	private ScatterPlotMouseHandler pmh;
+	private ScatterPlotRenderer renderer;
 	
 	
 	/**
@@ -68,7 +74,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	public ChartView() {
 		super();
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
-//		view = this;
+		pmh = new ScatterPlotMouseHandler();
+		renderer = new ScatterPlotRenderer(false,true);
 	}
 
 	/**
@@ -100,6 +107,15 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		parent.setMenu(menu);
 		getSite().registerContextMenu(menuMgr, this);
 	}
+	
+//	/**
+//	 * Sets the ChartManager that holds the charts that this view displays
+//	 * @param model the ChartManager to use
+//	 * @see ChartManager
+//	 */
+//	public void setModel(ChartManager model){
+//		
+//	}
 
 	private void contributeToActionBars() {
 		IActionBars bars = getViewSite().getActionBars();
@@ -260,10 +276,15 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		}
 	}
 
-	//Utility method that different plot functions use to display their plots in ChartView
-	public void display( final int plotType, JFreeChart chart )
+	/**
+	 * Displays a chart in ChartView and sets up its mouse listener
+	 * @param chart
+	 */
+	public void display( JFreeChart chart )
 	{
-//		Composite chartTab = parent;
+		final ChartDescriptor cd = ChartUtils.getChartDescriptor(chart);
+		
+		
 		CTabItem chartTab = new CTabItem(tabFolder, SWT.CLOSE);
 		chartTab.setText(chart.getTitle().getText());
 	
@@ -289,15 +310,11 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				frame.add(chartPanel);
 				frame.setVisible(true);
 	
-				if( plotType == ChartConstants.SCATTER_PLOT )
+				if( cd.getPlotType() == ChartConstants.SCATTER_PLOT)
 				{
-					//Set the scatter plot renderer to our custom ScatterPlotRenderer
-					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-					final ScatterPlotRenderer renderer = new ScatterPlotRenderer( false, true );
-					plot.setRenderer(renderer);
-					
 					//Listens for mouseclicks on points
-					PlotMouseHandler pmh = new PlotMouseHandler(chartPanel, renderer);
+					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+					plot.setRenderer(renderer);
 					
 					if( ChartView.IS_MACOS )
 					{
@@ -306,12 +323,20 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 					else
 					{
 						chartPanel.addMouseListener(pmh);
-					}					
+					}	
 				}
 			}
 		});
 		tabFolder.setSelection(chartTab);
 		tabFolder.forceFocus();
 		tabFolder.layout();
+	}
+	
+	/**
+	 * Handles state changes in the model
+	 */
+	public void handleChartModelEvent(ChartModelEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

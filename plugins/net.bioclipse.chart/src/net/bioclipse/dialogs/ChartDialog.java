@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.ui.IEditorPart;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -325,6 +326,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 							double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
 							double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
 							int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
+							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
 //						    if( diagramType == ChartConstants.SCATTER_PLOT )
 //						    {
 //							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
@@ -336,7 +338,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 							switch( diagramType )
 							{
 							case ChartConstants.SCATTER_PLOT:
-							    ChartUtils.scatterPlot( xValues , yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices);
+							    ChartUtils.scatterPlot( xValues , yValues, xAxisText.getText(),
+							    		yAxisText.getText(), chartText.getText(), indices, dataSource);
 							    break;
 							case ChartConstants.LINE_PLOT:
     							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText());

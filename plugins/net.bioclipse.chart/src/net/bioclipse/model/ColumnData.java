@@ -2,6 +2,8 @@ package net.bioclipse.model;
 
 import java.util.Vector;
 
+import org.eclipse.ui.IEditorPart;
+
 /**
  * @author EskilA
  * Used by ChartDialog to represent columns in a spreadsheet
@@ -10,6 +12,7 @@ public class ColumnData
 {
 	private String label;
 	private Vector<Cell> data;
+	private IEditorPart dataSource;
 
 	public ColumnData()
 	{
@@ -58,6 +61,14 @@ public class ColumnData
 		return indices;
 	}
 	
+	/**
+	 * 
+	 * @param source the editor from where the data originates
+	 */
+	public void setDataSource(IEditorPart source){
+		dataSource = source;
+	}
+	
 	
 	/**Add a double value to the column
 	 * @param value
@@ -75,5 +86,13 @@ public class ColumnData
 		if( compLabel.equals(this.label))
 			return true;
 		return false;
+	}
+
+	/**
+	 * 
+	 * @return The editor from where the data originates
+	 */
+	public IEditorPart getDataSource() {
+		return dataSource;
 	}	
 }

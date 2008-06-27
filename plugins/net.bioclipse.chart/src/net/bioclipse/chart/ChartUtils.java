@@ -1,9 +1,5 @@
 package net.bioclipse.chart;
 
-import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -17,13 +13,14 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Iterator;
 
-
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartConstants;
+import net.bioclipse.model.ChartDescriptor;
+import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PcmLineChartDataset;
-import net.bioclipse.model.PlotPointData;
 import net.bioclipse.plugins.views.ChartView;
 
 import org.apache.batik.dom.GenericDOMImplementation;
@@ -34,16 +31,14 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
@@ -54,21 +49,25 @@ import org.w3c.dom.Document;
  * This is a utility class with static methods for plotting data on the chart plugins
  * chart view. Charts generated with these methods are displayed in ChartView
  * 
+ * This is the controller of the model and view
+ * 
  * @see net.bioclipse.plugins.views.ChartView
  * @author EskilA
  *
  */
 public class ChartUtils
 {
-	private static JFreeChart chart;
+	static JFreeChart chart;
 	private final static String CHART_VIEW_ID ="net.bioclipse.plugins.views.ChartView";
 	private static double[][] values;
 	private static ChartView view;
 	private static String[] nameOfObs;
-	private static String xColumn, yColumn;
-	private static ChartSelection cs;
+	static String yColumn;
+	static String xColumn;
+	static ChartSelection cs;
 	private static int currentPlotType = -1;
-	private static int[] indices;
+	static int[] indices;
+	private static ChartManager chartManager = new ChartManager();
 	
 	/**
 	 * Displays data in a line plot
@@ -77,19 +76,29 @@ public class ChartUtils
 	 * @param yValues y values of points
 	 * @param xLabel X axis label
 	 * @param yLabel Y axis label
-	 * @param title plot title
+	 * @param title Chart title
 	 */
 	public static void linePlot( double[] xValues, double[] yValues,
 			String xLabel, String yLabel, String title )
 	{
 		setupData(xValues, yValues, xLabel, yLabel, title);
 
-
 		PcmLineChartDataset dataset = new PcmLineChartDataset(values, nameOfObs, xLabel, yLabel, "", title, null);
-		System.out.println("in chartutils.scatterplot");
 		chart = ChartFactory.createXYLineChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true , false);
-		view.display( ChartConstants.LINE_PLOT, chart );
+		
+		
+		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.LINE_PLOT;
+	}
+	
+	public static ChartDescriptor getChartDescriptor(JFreeChart key)
+	{
+		return chartManager.get(key);
+	}
+	
+	public static void updateSelection(ChartSelection cs)
+	{
+		view.setSelection(cs);
 	}
 
 	/** If you want to map points on the plot to cells in a spreadsheet you need to
@@ -106,62 +115,6 @@ public class ChartUtils
 			throw new IllegalArgumentException("xColumn or yColumn can not be null");
 		ChartUtils.xColumn = xColumn;
 		ChartUtils.yColumn = yColumn;
-	}
-	
-	//Used to take mouse input and mark points that have been clicked on
-	public static class PlotMouseHandler extends MouseAdapter
-	{
-		private ChartPanel chartPanel;
-		private ScatterPlotRenderer renderer;
-		
-		public PlotMouseHandler( ChartPanel chartPanel, ScatterPlotRenderer renderer  )
-		{
-			this.chartPanel = chartPanel;
-			this.renderer = renderer;
-		}
-		
-		public void mouseClicked(MouseEvent me) {
-			
-			Point2D p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
-			
-			// now convert the Java2D coordinate to axis coordinates...
-			XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-			ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
-			Rectangle2D dataArea = info.getPlotInfo().getDataArea();
-			Number xx = plot.getDomainAxis().java2DToValue(p.getX(), dataArea, 
-					plot.getDomainAxisEdge());
-			Number yy = plot.getRangeAxis().java2DToValue(p.getY(), dataArea, 
-					plot.getRangeAxisEdge());
-
-			//Find the selected point in the dataset
-			//If shift is down, save old selections
-			if( !me.isShiftDown())
-				cs = new ChartSelection();
-			for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
-			{
-				for (int i=0; i<plot.getDataset().getSeriesCount();i++){
-					Number xK = plot.getDataset().getX(i,j);
-					Number yK = plot.getDataset().getY(i,j);
-					Number xKCheck = xK.doubleValue()-xx.doubleValue();
-					Number yKCheck = yK.doubleValue()-yy.doubleValue();
-					Number xxCheck = xKCheck.doubleValue()*xKCheck.doubleValue();
-					Number yyCheck = yKCheck.doubleValue()*yKCheck.doubleValue();
-					//Check distance from click and point, don't want to mark points that are too far from the click
-					if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
-						//Create a new selection
-						PlotPointData cp = new PlotPointData(indices[j],xColumn,yColumn);
-						cs.addPoint(cp);
-						if( !me.isShiftDown() )
-							renderer.clearMarkedPoints();
-						renderer.addMarkedPoint(i, j);
-						chart.plotChanged(new PlotChangeEvent(plot));
-
-					}
-				}
-			}
-			
-			view.setSelection(cs);
-		}	
 	}
 	
 	/**
@@ -207,7 +160,7 @@ public class ChartUtils
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, false,false);
-		view.display( ChartConstants.SCATTER_PLOT, chart );
+		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.SCATTER_PLOT;
 	}
 	
@@ -219,17 +172,23 @@ public class ChartUtils
 	 * @param xLabel X axis label
 	 * @param yLabel Y axis label
 	 * @param title plot title
+	 * @param indices 
+	 * @param dataSource The editor from which the charts data comes from, used so indices are mapped to the right editor 
 	 */
 	public static void scatterPlot(double[] xValues, double[] yValues,
-			String xLabel, String yLabel, String title, int[] indices)
+			String xLabel, String yLabel, String title, int[] indices, IEditorPart dataSource)
 	{
 		setupData(xValues, yValues, xLabel, yLabel, title);
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
+		
 		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, false,false);
-		view.display( ChartConstants.SCATTER_PLOT, chart );
-		ChartUtils.currentPlotType = ChartConstants.SCATTER_PLOT;
-		ChartUtils.indices = indices;
+		
+		ChartDescriptor descriptor = new ChartDescriptor(dataSource,indices,ChartConstants.SCATTER_PLOT,xLabel,yLabel);
+		
+		chartManager.put(chart, descriptor);
+		
+		view.display( chart );
 	}
 
 	/**
@@ -257,7 +216,7 @@ public class ChartUtils
 				false, 
 				false
 		);
-		view.display( ChartConstants.HISTOGRAM, chart );
+		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.HISTOGRAM;
 	}
 
@@ -287,7 +246,6 @@ public class ChartUtils
 		try {
 			view = (ChartView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CHART_VIEW_ID);
 		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -308,7 +266,7 @@ public class ChartUtils
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createTimeSeriesChart(title, xLabel, yLabel, (XYDataset)dataset, false, false, false);
 
-		view.display( ChartConstants.TIME_SERIES, chart );
+		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.TIME_SERIES;
 	}
 

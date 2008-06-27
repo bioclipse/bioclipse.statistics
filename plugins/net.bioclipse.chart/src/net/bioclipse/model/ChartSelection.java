@@ -38,6 +38,8 @@ public class ChartSelection implements IStructuredSelection
 	}
 
 	public Object getFirstElement() {
+		if( points.size() == 0)
+			return null;
 		return points.get(0);
 	}
 
