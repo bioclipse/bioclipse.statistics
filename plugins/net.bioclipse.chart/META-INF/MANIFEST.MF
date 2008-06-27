@@ -35,10 +35,8 @@ Bundle-ClassPath: jars/jcommon-1.0.10.jar,
  jars/batik-xml.jar,
  jars/js.jar
 Export-Package: com.keypoint,
- net.bioclipse.action.contribution,
  net.bioclipse.chart;uses:="net.bioclipse.chart.events,org.jfree.chart.renderer.xy",
  net.bioclipse.chart.events;uses:="org.eclipse.jface.viewers",
- net.bioclipse.chart.popup.actions;uses:="org.eclipse.jface.viewers,org.eclipse.jface.action,org.eclipse.ui",
  net.bioclipse.dialogs;uses:="org.eclipse.swt.widgets",
  net.bioclipse.model;
   uses:="org.eclipse.jface.viewers,
@@ -46,12 +44,6 @@ Export-Package: com.keypoint,
    org.eclipse.ui.views.properties,
    org.jfree.data.xy,
    org.jfree.data",
- net.bioclipse.plugins;
-  uses:="org.osgi.framework,
-   net.bioclipse.interfaces,
-   org.eclipse.jface.resource,
-   net.bioclipse,
-   com.tools.logging",
  net.bioclipse.plugins.views;
   uses:="org.eclipse.ui.part,
    org.eclipse.jface.viewers,
