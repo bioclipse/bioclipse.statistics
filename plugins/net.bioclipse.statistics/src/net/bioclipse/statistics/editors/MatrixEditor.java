@@ -558,7 +558,7 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 			switch( plotType )
 			{
 			case ChartConstants.SCATTER_PLOT:
-			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices());
+			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
 			    break;
 			case ChartConstants.LINE_PLOT:
 				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel());
