@@ -30,7 +30,10 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 						SWT.SAVE);
 				dialog.setFileName("Image.png");
 				String path = dialog.open();
-				System.out.println(path);
+				
+				if(path == null)
+					return;
+				
 				try {
 					ImageWriter.saveImagePNG(path, activeChart);
 				} catch (IOException e) {
@@ -62,7 +65,11 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 						SWT.SAVE);
 				dialog.setFileName("Image.svg");
 				String path = dialog.open();
-				System.out.println(path);
+				
+				if(path == null)
+					return;
+				
+//				System.out.println(path);
 				ImageWriter.saveImageSVG(path, activeChart);
 			}
 
@@ -91,7 +98,10 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 						SWT.SAVE);
 				dialog.setFileName("Image.jpg");
 				String path = dialog.open();
-				System.out.println(path);
+				
+				if(path == null)
+					return;
+				
 				try {
 					ImageWriter.saveImageJPG(path, activeChart);
 				} catch (IOException e) {

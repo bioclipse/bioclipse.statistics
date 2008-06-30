@@ -13,6 +13,7 @@ import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
 import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
+import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
@@ -102,7 +103,9 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
-		logger.debug("Creating ChartView GUI");
+		logger.debug("Creating ChartView Part");
+		
+		ChartUtils.addListener(this);
 		
 		this.parent = parent;
 		tabFolder = new CTabFolder(parent, SWT.TOP);
@@ -110,23 +113,27 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		
 		tabFolder.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent arg0) {
-				// TODO Auto-generated method stub
-				System.out.println(arg0);
-				System.out.println("widget selected");
+//				System.out.println(arg0);
+//				System.out.println("widget selected");
 				JFreeChartTab item = (JFreeChartTab) arg0.item;
 				JFreeChart selectedChart = item.getChart();
 				ChartUtils.setActiveChart(selectedChart);
 			}
 			
 		});
-		tabItemListener = new Listener(){
+		
+		tabFolder.addCTabFolder2Listener(new CTabFolder2Adapter(){
 
-			public void handleEvent(Event event) {
-				// TODO Auto-generated method stub
-				System.out.println(event);
-				System.out.println("Event from tabItem");
+			@Override
+			public void close(CTabFolderEvent event) {
+				super.close(event);
+//				System.out.println("closed event");
+				JFreeChartTab tab = (JFreeChartTab) event.item;
+				//Remove tab from model
+				ChartUtils.remove(tab.getChart());
 			}
-		};
+			
+		});
 		
 		getSite().setSelectionProvider(this);
 		getSite().getPage().addSelectionListener(this);
@@ -190,6 +197,10 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		saveImageActionSVG = factory.createExportSvgAction();
 		saveImageActionPNG = factory.createExportPngAction();
 		saveImageActionJPG = factory.createExtportJpegAction();
+		
+		saveImageActionJPG.setEnabled(false);
+		saveImageActionPNG.setEnabled(false);
+		saveImageActionSVG.setEnabled(false);
 		
 		ChartUtils.addListener(saveImageActionSVG);
 		ChartUtils.addListener(saveImageActionJPG);
@@ -282,7 +293,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	
 		Composite composite = new Composite(tabFolder, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		chartTab.setControl(composite);
-		chartTab.addListener(SWT.FocusIn, tabItemListener);
 		
 		frame = SWT_AWT.new_Frame(composite);
 	
@@ -317,13 +327,26 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		tabFolder.forceFocus();
 		tabFolder.layout();
 		ChartUtils.setActiveChart(chart);
+		
+		//Make sure actions are enabled when the chart has been created
+		saveImageActionJPG.setEnabled(true);
+		saveImageActionPNG.setEnabled(true);
+		saveImageActionSVG.setEnabled(true);
 	}
 	
 	/**
 	 * Handles state changes in the model
 	 */
 	public void handleChartModelEvent(ChartModelEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED )
+		{
+			//Disable actions if no active chart exists
+			if( ChartUtils.getActiveChart() == null )
+			{
+				saveImageActionJPG.setEnabled(false);
+				saveImageActionPNG.setEnabled(false);
+				saveImageActionSVG.setEnabled(false);
+			}
+		}
 	}
 }

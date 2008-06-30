@@ -3,6 +3,7 @@ package net.bioclipse.chart;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
+import java.util.Collection;
 import java.util.Iterator;
 
 import net.bioclipse.chart.events.CellData;
@@ -319,5 +320,13 @@ public class ChartUtils
 
 	public static void removeListener(ChartModelListener listener) {
 		chartManager.removeListener(listener);
+	}
+
+	public static ChartDescriptor remove(Object arg0) {
+		return chartManager.remove(arg0);
+	}
+
+	public static Collection<ChartDescriptor> values() {
+		return chartManager.values();
 	}
 }

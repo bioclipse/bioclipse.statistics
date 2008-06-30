@@ -1,6 +1,7 @@
 package net.bioclipse.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -56,11 +57,13 @@ public class ChartManager
 	 * Sets the chart that's currently in focus.
 	 * This is usable for actions that for example export a chart to an image who
 	 * must know which chart is in focus
-	 * @param chart
+	 * 
+	 * 
+	 * @param chart the chart to be set as active or null if no chart is active, for example when no charts exists at all
 	 */
 	public void setActiveChart(JFreeChart chart)
 	{
-		if( !charts.containsKey(chart))
+		if( !charts.containsKey(chart) && chart != null)
 		{
 			throw new IllegalArgumentException("this ChartManager does not contain the argument chart, " +
 					"please add it to this ChartManager first");
@@ -72,5 +75,22 @@ public class ChartManager
 	
 	public JFreeChart getActiveChart(){
 		return activeChart;
+	}
+
+	public ChartDescriptor remove(Object arg0) {
+		if( activeChart == arg0 )
+		{
+			setActiveChart(null);
+		}
+		
+		ChartDescriptor descriptor = charts.remove(arg0);
+		if( charts.isEmpty() )
+			setActiveChart(null);
+
+		return descriptor;
+	}
+
+	public Collection<ChartDescriptor> values() {
+		return charts.values();
 	}
 }
