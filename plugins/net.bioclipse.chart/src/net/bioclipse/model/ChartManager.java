@@ -1,5 +1,6 @@
 package net.bioclipse.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,9 +16,11 @@ public class ChartManager
 {
 	private HashMap<JFreeChart, ChartDescriptor> charts;
 	private List<ChartModelListener> chartModelListeners;
+	private JFreeChart activeChart;
 	
 	public ChartManager(){
 		charts = new HashMap<JFreeChart, ChartDescriptor>();
+		chartModelListeners = new ArrayList<ChartModelListener>();
 	}
 	
 	public ChartDescriptor put(JFreeChart chart, ChartDescriptor descriptor){
@@ -29,9 +32,9 @@ public class ChartManager
 		return charts.get(key);
 	}
 	
-	public void fireUpdated(){
+	public void fireUpdated(ChartModelEvent e){
 		
-		ChartModelEvent e = new ChartModelEvent(true);
+		
 		for (Iterator<ChartModelListener> iterator = chartModelListeners.iterator(); iterator.hasNext();) 
 		{
 			ChartModelListener listener = iterator.next();
@@ -47,5 +50,27 @@ public class ChartManager
 	public void removeListener(ChartModelListener listener){
 		if( chartModelListeners.contains(listener))
 			chartModelListeners.remove(listener);
+	}
+	
+	/**
+	 * Sets the chart that's currently in focus.
+	 * This is usable for actions that for example export a chart to an image who
+	 * must know which chart is in focus
+	 * @param chart
+	 */
+	public void setActiveChart(JFreeChart chart)
+	{
+		if( !charts.containsKey(chart))
+		{
+			throw new IllegalArgumentException("this ChartManager does not contain the argument chart, " +
+					"please add it to this ChartManager first");
+		}
+		activeChart = chart;
+		ChartModelEvent e = new ChartModelEvent(ChartEventType.ACTIVE_CHART_CHANGED);
+		fireUpdated(e);
+	}
+	
+	public JFreeChart getActiveChart(){
+		return activeChart;
 	}
 }

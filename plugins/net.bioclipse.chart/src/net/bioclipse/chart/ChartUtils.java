@@ -10,6 +10,7 @@ import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartManager;
+import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PcmLineChartDataset;
@@ -293,5 +294,30 @@ public class ChartUtils
 
 		// Create an SWT image
 		return new Image(parent.getDisplay(), imageData);
+	}
+	
+	//These methods delegate to the model
+	public static ChartDescriptor get(JFreeChart key) {
+		return chartManager.get(key);
+	}
+
+	public static JFreeChart getActiveChart() {
+		return chartManager.getActiveChart();
+	}
+
+	public static ChartDescriptor put(JFreeChart chart, ChartDescriptor descriptor) {
+		return chartManager.put(chart, descriptor);
+	}
+
+	public static void setActiveChart(JFreeChart chart) {
+		chartManager.setActiveChart(chart);
+	}
+
+	public static void addListener(ChartModelListener listener) {
+		chartManager.addListener(listener);
+	}
+
+	public static void removeListener(ChartModelListener listener) {
+		chartManager.removeListener(listener);
 	}
 }

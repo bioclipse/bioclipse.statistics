@@ -9,6 +9,8 @@ import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
+import net.bioclipse.model.ChartAction;
+import net.bioclipse.model.ChartActionFactory;
 import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartManager;
@@ -16,6 +18,8 @@ import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ImageWriter;
+import net.bioclipse.model.JFreeChartActionFactory;
+import net.bioclipse.model.JFreeChartTab;
 import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.apache.log4j.Logger;
@@ -33,10 +37,21 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabFolder2Adapter;
+import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
@@ -56,7 +71,7 @@ import org.jfree.chart.plot.XYPlot;
  */
 
 public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener {
-	private Action saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
+	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
 	private Composite parent;
 //	private Label imageLabel;
 	private List<ISelectionChangedListener> selectionListeners;
@@ -67,6 +82,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private CTabFolder tabFolder;
 	private ScatterPlotMouseHandler pmh;
 	private ScatterPlotRenderer renderer;
+	private ChartActionFactory factory;
+	private Listener tabItemListener;
 	
 	
 	/**
@@ -77,6 +94,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
 		pmh = new ScatterPlotMouseHandler();
 		renderer = new ScatterPlotRenderer(false,true);
+		factory = new JFreeChartActionFactory();
 	}
 
 	/**
@@ -84,10 +102,31 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	 * to create the viewer and initialize it.
 	 */
 	public void createPartControl(Composite parent) {
+		logger.debug("Creating ChartView GUI");
 		
 		this.parent = parent;
 		tabFolder = new CTabFolder(parent, SWT.TOP);
 		tabFolder.setSimple(false);
+		
+		tabFolder.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println(arg0);
+				System.out.println("widget selected");
+				JFreeChartTab item = (JFreeChartTab) arg0.item;
+				JFreeChart selectedChart = item.getChart();
+				ChartUtils.setActiveChart(selectedChart);
+			}
+			
+		});
+		tabItemListener = new Listener(){
+
+			public void handleEvent(Event event) {
+				// TODO Auto-generated method stub
+				System.out.println(event);
+				System.out.println("Event from tabItem");
+			}
+		};
 		
 		getSite().setSelectionProvider(this);
 		getSite().getPage().addSelectionListener(this);
@@ -148,69 +187,13 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 
 	private void makeActions() {
 		
-		//Create action for saving charts in SVG format
-		saveImageActionSVG = new Action() {
-			public void run()
-			{
-				FileDialog dialog = 
-					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
-						SWT.SAVE);
-				dialog.setFileName("Image.svg");
-				String path = dialog.open();
-				System.out.println(path);
-				ImageWriter.saveImageSVG(path, null);
-			}
-		};
-		saveImageActionSVG.setText("Export as SVG Image");
-		saveImageActionSVG.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
-		saveImageActionSVG.setToolTipText("Export the chart as a SVG image");
+		saveImageActionSVG = factory.createExportSvgAction();
+		saveImageActionPNG = factory.createExportPngAction();
+		saveImageActionJPG = factory.createExtportJpegAction();
 		
-		//Create action for saving charts in png format
-		saveImageActionPNG = new Action(){
-			public void run()
-			{
-				FileDialog dialog = 
-					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
-						SWT.SAVE);
-				dialog.setFileName("Image.png");
-				String path = dialog.open();
-				System.out.println(path);
-				try {
-					ImageWriter.saveImagePNG(path, null);
-				} catch (IOException e) {
-					e.printStackTrace();
-					logger.error("Failed to save chart as png " + e);
-				}
-			}
-		};
-		saveImageActionPNG.setText("Export as PNG Image");
-		saveImageActionPNG.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
-		saveImageActionPNG.setToolTipText("Export the chart as a PNG image");
-		
-		//Create action for saving charts in JPEG format
-		saveImageActionJPG = new Action(){
-			public void run()
-			{
-				FileDialog dialog = 
-					new FileDialog(ChartView.this.getViewSite().getWorkbenchWindow().getShell(),
-						SWT.SAVE);
-				dialog.setFileName("Image.jpg");
-				String path = dialog.open();
-				System.out.println(path);
-				try {
-					ImageWriter.saveImageJPG(path, null);
-				} catch (IOException e) {
-					e.printStackTrace();
-					logger.error("Failed to save chart as jpg " + e);
-				}
-			}
-		};
-		saveImageActionJPG.setText("Export as JPG Image");
-		saveImageActionJPG.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJ_FILE));
-		saveImageActionJPG.setToolTipText("Export the chart as a JPG image");
+		ChartUtils.addListener(saveImageActionSVG);
+		ChartUtils.addListener(saveImageActionJPG);
+		ChartUtils.addListener(saveImageActionPNG);
 	}
 
 	/**
@@ -286,8 +269,9 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		final ChartDescriptor cd = ChartUtils.getChartDescriptor(chart);
 		
 		
-		CTabItem chartTab = new CTabItem(tabFolder, SWT.CLOSE);
+		JFreeChartTab chartTab = new JFreeChartTab(tabFolder, SWT.CLOSE);
 		chartTab.setText(chart.getTitle().getText());
+		chartTab.setChart(chart);
 	
 		//Clear chartComposite of all old controls
 		/*Control[] children = chartTab.getChildren();		
@@ -298,6 +282,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	
 		Composite composite = new Composite(tabFolder, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		chartTab.setControl(composite);
+		chartTab.addListener(SWT.FocusIn, tabItemListener);
 		
 		frame = SWT_AWT.new_Frame(composite);
 	
@@ -331,6 +316,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		tabFolder.setSelection(chartTab);
 		tabFolder.forceFocus();
 		tabFolder.layout();
+		ChartUtils.setActiveChart(chart);
 	}
 	
 	/**

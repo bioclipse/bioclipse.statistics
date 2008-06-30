@@ -2,13 +2,15 @@ package net.bioclipse.model;
 
 public class ChartModelEvent 
 {
-	private boolean modelUpdated;
+	private ChartEventType type;
 
-	public ChartModelEvent(boolean modelUpdated) {
-		this.modelUpdated = modelUpdated;
+	public ChartModelEvent(ChartEventType eventType) {
+		type = eventType;
+	}
+	
+	public ChartEventType getEventType()
+	{
+		return type;
 	}
 
-	public boolean isModelUpdated() {
-		return modelUpdated;
-	}
 }

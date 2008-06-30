@@ -1,7 +1,5 @@
 package net.bioclipse.model;
 
-import org.eclipse.jface.action.Action;
-
 
 /**
  * Interface for creating actions pertaining to charts
@@ -10,6 +8,7 @@ import org.eclipse.jface.action.Action;
  */
 public interface ChartActionFactory 
 {
-	public Action createSaveAsSvgAction();
-		
+	public ChartAction createExportSvgAction();
+	public ChartAction createExtportJpegAction();
+	public ChartAction createExportPngAction();
 }
