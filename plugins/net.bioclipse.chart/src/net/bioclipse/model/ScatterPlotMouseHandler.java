@@ -109,7 +109,7 @@ public class ScatterPlotMouseHandler extends MouseAdapter
 				}
 			}
 		}
-		
+		cs.setDescriptor(cd);
 		ChartUtils.updateSelection(cs);
 	}	
 }

@@ -11,7 +11,16 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 public class ChartSelection implements IStructuredSelection 
 {
 	private List<PlotPointData> points;
+	private ChartDescriptor descriptor;
 	
+	public ChartDescriptor getDescriptor() {
+		return descriptor;
+	}
+
+	public void setDescriptor(ChartDescriptor descriptor) {
+		this.descriptor = descriptor;
+	}
+
 	public ChartSelection()
 	{
 		points = new ArrayList<PlotPointData>();

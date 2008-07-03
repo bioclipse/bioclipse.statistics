@@ -1,7 +1,6 @@
 package net.bioclipse.plugins.views;
 
 import java.awt.Frame;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,17 +13,15 @@ import net.bioclipse.model.ChartActionFactory;
 import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartEventType;
-import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
-import net.bioclipse.model.ImageWriter;
 import net.bioclipse.model.JFreeChartActionFactory;
 import net.bioclipse.model.JFreeChartTab;
+import net.bioclipse.model.PlotPointData;
 import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.apache.log4j.Logger;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -34,31 +31,25 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IPageListener;
+import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
-import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchActionConstants;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -74,7 +65,6 @@ import org.jfree.chart.plot.XYPlot;
 public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener {
 	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
 	private Composite parent;
-//	private Label imageLabel;
 	private List<ISelectionChangedListener> selectionListeners;
 	private ChartSelection selection;
 	private static final Logger logger = Logger.getLogger(ChartView.class);
@@ -84,8 +74,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private ScatterPlotMouseHandler pmh;
 	private ScatterPlotRenderer renderer;
 	private ChartActionFactory factory;
-	private Listener tabItemListener;
-	
 	
 	/**
 	 * The constructor.
@@ -113,8 +101,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		
 		tabFolder.addSelectionListener(new SelectionAdapter(){
 			public void widgetSelected(SelectionEvent arg0) {
-//				System.out.println(arg0);
-//				System.out.println("widget selected");
 				JFreeChartTab item = (JFreeChartTab) arg0.item;
 				JFreeChart selectedChart = item.getChart();
 				ChartUtils.setActiveChart(selectedChart);
@@ -127,7 +113,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			@Override
 			public void close(CTabFolderEvent event) {
 				super.close(event);
-//				System.out.println("closed event");
 				JFreeChartTab tab = (JFreeChartTab) event.item;
 				//Remove tab from model
 				ChartUtils.remove(tab.getChart());
@@ -140,6 +125,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+		
 	}
 
 	private void hookContextMenu() {
@@ -155,15 +141,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		getSite().registerContextMenu(menuMgr, this);
 	}
 	
-//	/**
-//	 * Sets the ChartManager that holds the charts that this view displays
-//	 * @param model the ChartManager to use
-//	 * @see ChartManager
-//	 */
-//	public void setModel(ChartManager model){
-//		
-//	}
-
 	private void contributeToActionBars() {
 		IActionBars bars = getViewSite().getActionBars();
 		fillLocalPullDown(bars.getMenuManager());
@@ -216,15 +193,12 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) 
 	{
+		if( selection instanceof ChartSelection){
+			ChartSelection cs = (ChartSelection) selection;
+			List<PlotPointData> list = cs.toList();
+		}
 	}
 
-//	public Composite getParent() {
-//		return parent;
-//	}
-
-//	public Label getImageLabel() {
-//		return imageLabel;
-//	}
 
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		if(!selectionListeners.contains(listener))
@@ -283,13 +257,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		JFreeChartTab chartTab = new JFreeChartTab(tabFolder, SWT.CLOSE);
 		chartTab.setText(chart.getTitle().getText());
 		chartTab.setChart(chart);
-	
-		//Clear chartComposite of all old controls
-		/*Control[] children = chartTab.getChildren();		
-		for( int i = 0; i<children.length;i++)
-		{
-			children[i].dispose();
-		}*/
 	
 		Composite composite = new Composite(tabFolder, SWT.EMBEDDED | SWT.NO_BACKGROUND);
 		chartTab.setControl(composite);
