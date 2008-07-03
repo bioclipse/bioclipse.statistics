@@ -44,6 +44,7 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
@@ -275,7 +276,8 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 		getSite().getPage().addSelectionListener(this);
 		
 		//Register MatrixGridEditor as a SelectionProvider
-//		getSite().setSelectionProvider(this);
+		getSite().setSelectionProvider(this);
+		
 		
 		//Listens for selection of cells and passes it on to
 		//ISelectionListeners
@@ -300,7 +302,10 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 					CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
 					cs.addCell(cd);
 				}
-				ChartUtils.markPoints(cs);
+				//Using selection service instead of hardwiring
+				MatrixEditor.this.setSelection(cs);
+				
+//				ChartUtils.markPoints(cs);
 			}
 			
 		});
@@ -604,57 +609,60 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 	{
 		if( selection instanceof ChartSelection && !selection.isEmpty())
 		{
+			ChartSelection cs = (ChartSelection) selection;
 
+			if( cs.getDescriptor().getSource() == this){
 
-			Display display = Display.getCurrent();
-			//may be null if outside the UI thread
-			if (display == null)
-				display = Display.getDefault();
+				Display display = Display.getCurrent();
+				//may be null if outside the UI thread
+				if (display == null)
+					display = Display.getDefault();
 
-			display.asyncExec(new Runnable()
-			{
-
-				public void run() 
+				display.asyncExec(new Runnable()
 				{
-					if( grid.isDisposed() )
-						return;
-					
-					int xColumn = -1;
-					int yColumn = -1;
 
-
-					IStructuredSelection ss = (IStructuredSelection) selection;
-
-					PlotPointData element = (PlotPointData) ss.getFirstElement();
-
-					//Match the column names i element where x and y values reside with their column numbers in grid
-					for( int i = 0; i < grid.getColumnCount(); i++)
+					public void run() 
 					{
-						GridColumn gc = grid.getColumn(i);
-						if( gc.getText().equals(element.getXColumn()))
+						if( grid.isDisposed() )
+							return;
+
+						int xColumn = -1;
+						int yColumn = -1;
+
+
+						IStructuredSelection ss = (IStructuredSelection) selection;
+
+						PlotPointData element = (PlotPointData) ss.getFirstElement();
+
+						//Match the column names i element where x and y values reside with their column numbers in grid
+						for( int i = 0; i < grid.getColumnCount(); i++)
 						{
-							xColumn = i;
-						}
-						else if( gc.getText().equals(element.getYColumn()))
+							GridColumn gc = grid.getColumn(i);
+							if( gc.getText().equals(element.getXColumn()))
+							{
+								xColumn = i;
+							}
+							else if( gc.getText().equals(element.getYColumn()))
+							{
+								yColumn = i;
+							}
+							if( xColumn != -1 && yColumn != -1)
+								break;
+						}			
+						Iterator iter = ss.iterator();
+						Point[] selectedPoints = new Point[ss.size()*2];
+						int i = 0;
+						while( iter.hasNext())
 						{
-							yColumn = i;
+							PlotPointData gcd = (PlotPointData) iter.next();
+							selectedPoints[i++] = new Point(xColumn, gcd.getRownumber());
+							selectedPoints[i++] = new Point(yColumn, gcd.getRownumber());
 						}
-						if( xColumn != -1 && yColumn != -1)
-							break;
-					}			
-					Iterator iter = ss.iterator();
-					Point[] selectedPoints = new Point[ss.size()*2];
-					int i = 0;
-					while( iter.hasNext())
-					{
-						PlotPointData gcd = (PlotPointData) iter.next();
-						selectedPoints[i++] = new Point(xColumn, gcd.getRownumber());
-						selectedPoints[i++] = new Point(yColumn, gcd.getRownumber());
+						grid.setCellSelection(selectedPoints);
 					}
-					grid.setCellSelection(selectedPoints);
-				}
-				
-			});
+
+				});
+			}
 		}
 	}
 
