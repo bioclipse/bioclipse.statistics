@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.jfree.chart.JFreeChart;
 
@@ -89,8 +90,14 @@ public class ChartManager
 
 		return descriptor;
 	}
+	
+	
 
 	public Collection<ChartDescriptor> values() {
 		return charts.values();
+	}
+
+	public Set<JFreeChart> keySet() {
+		return charts.keySet();
 	}
 }

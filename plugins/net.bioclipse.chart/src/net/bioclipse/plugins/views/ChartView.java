@@ -2,12 +2,17 @@ package net.bioclipse.plugins.views;
 
 import java.awt.Frame;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
+import net.bioclipse.chart.events.CellData;
+import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
 import net.bioclipse.model.ChartConstants;
@@ -53,6 +58,7 @@ import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 
 
@@ -72,7 +78,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
 	private CTabFolder tabFolder;
 	private ScatterPlotMouseHandler pmh;
-	private ScatterPlotRenderer renderer;
 	private ChartActionFactory factory;
 	
 	/**
@@ -82,7 +87,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		super();
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
 		pmh = new ScatterPlotMouseHandler();
-		renderer = new ScatterPlotRenderer(false,true);
 		factory = new JFreeChartActionFactory();
 	}
 
@@ -193,9 +197,48 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 
 	public void selectionChanged(IWorkbenchPart part, ISelection selection) 
 	{
-		if( selection instanceof ChartSelection){
-			ChartSelection cs = (ChartSelection) selection;
-			List<PlotPointData> list = cs.toList();
+		if( selection instanceof CellSelection){
+			CellSelection cs = (CellSelection) selection;
+			Object source = cs.getSource();
+			List<CellData> list = cs.toList();
+			List<String> colNames = cs.getColNames();
+
+			Set<JFreeChart> keySet = ChartUtils.keySet();
+			Iterator<JFreeChart> i = keySet.iterator();
+			List<JFreeChart> matchingCharts = new ArrayList<JFreeChart>();
+
+			//First get the set of charts that originates from CelSelection source and are scatter plots
+			while( i.hasNext()){
+				JFreeChart chart = i.next();
+				ChartDescriptor chartDescriptor = ChartUtils.get(chart);
+				if( chartDescriptor.getSource() == source && chartDescriptor.getPlotType() == ChartConstants.SCATTER_PLOT){
+					matchingCharts.add(chart);
+				}
+			}
+
+			//Check if any points should be marked on the matching charts
+			Iterator<JFreeChart> j = matchingCharts.iterator();
+			while( j .hasNext() ){
+				JFreeChart chart = j.next();
+				ChartDescriptor chartDescriptor = ChartUtils.get(chart);
+
+				ScatterPlotRenderer renderer = (ScatterPlotRenderer) chart.getXYPlot().getRenderer();
+				Iterator<CellData> cellIterator = cs.iterator();
+				renderer.clearMarkedPoints();
+
+				while( cellIterator.hasNext() )
+				{
+					CellData cd = cellIterator.next();
+					if( cd.getColName().equals(chartDescriptor.getXLabel()) || cd.getColName().equals(chartDescriptor.getYLabel()) )
+					{	
+						renderer.addMarkedPoint(0, cd.getRow());
+						
+					}
+				}
+				chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
+
+
+			}
 		}
 	}
 
@@ -277,7 +320,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				{
 					//Listens for mouseclicks on points
 					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-					plot.setRenderer(renderer);
+					plot.setRenderer(new ScatterPlotRenderer(false,true));
 					
 					if( ChartView.IS_MACOS )
 					{

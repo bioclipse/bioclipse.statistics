@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.bioclipse.model.ChartDescriptor;
+
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 /** Contains a selection of cells from MatrixGridEditor to be passed
@@ -16,12 +18,36 @@ import org.eclipse.jface.viewers.IStructuredSelection;
  */
 public class CellSelection implements IStructuredSelection {
 	
-private List<CellData> cells;
+	private List<CellData> cells;
+	private ChartDescriptor chartDescriptor;
+	private Object source;
 	
+	
+	/**
+	 * 
+	 * @return The source editor/view of the cell selection
+	 */
+	public Object getSource() {
+		return source;
+	}
+
+
+	/**
+	 * 
+	 * @param source The source editor/view of the cell selection
+	 */
+	public void setSource(Object source) {
+		this.source = source;
+	}
+
+
+
 	public CellSelection()
 	{
 		cells = new ArrayList<CellData>();
 	}	
+	
+	
 	
 	/**
 	 * @param cp ChartPoint to add to selection
@@ -29,6 +55,25 @@ private List<CellData> cells;
 	public void addCell( CellData cd )
 	{
 		cells.add(cd);
+	}
+	
+	/**
+	 * 
+	 * @return all column names from the selection
+	 */
+	public List<String> getColNames(){
+		Iterator<CellData> i = cells.iterator();
+		List<String> colNames = new ArrayList<String>();
+		String colName;
+		
+		while(i.hasNext() )
+		{
+			colName = i.next().getColName();
+			if( !colNames.contains(colName))
+				colNames.add(colName);
+		}
+		
+		return colNames;
 	}
 	
 	/**

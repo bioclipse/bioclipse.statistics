@@ -5,6 +5,7 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
@@ -109,6 +110,7 @@ public class ChartUtils
 	 * Marks a plotted point
 	 * @param series
 	 * @param index
+	 * @deprecated
 	 */
 	@SuppressWarnings("unchecked")
 	public static void markPoints( CellSelection cs )
@@ -298,6 +300,7 @@ public class ChartUtils
 	}
 	
 	//These methods delegate to the model
+	//TODO:  Write general interface for model so its not hardwired to ChartManager
 	public static ChartDescriptor get(JFreeChart key) {
 		return chartManager.get(key);
 	}
@@ -328,5 +331,9 @@ public class ChartUtils
 
 	public static Collection<ChartDescriptor> values() {
 		return chartManager.values();
+	}
+
+	public static Set<JFreeChart> keySet() {
+		return chartManager.keySet();
 	}
 }
