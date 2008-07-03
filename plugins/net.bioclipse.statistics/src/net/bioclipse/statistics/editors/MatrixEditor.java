@@ -12,6 +12,7 @@ import net.bioclipse.dialogs.HistogramDialog;
 //import net.bioclipse.model.BioResource;
 //import net.bioclipse.model.BioResourceChangeListener;
 import net.bioclipse.model.ChartConstants;
+import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PlotPointData;
@@ -293,6 +294,8 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 			public void widgetSelected(SelectionEvent se) {
 				Point selections[] = grid.getCellSelection();
 				CellSelection cs = new CellSelection();
+				cs.setSource(MatrixEditor.this);
+				
 				for( Point p : selections )
 				{
 					GridColumn gc = grid.getColumn(p.x);
@@ -572,7 +575,7 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel());
 				break;
 			default: 
-				throw new IllegalArgumentException("Illegal value for diagramType"); 
+				throw new IllegalArgumentException("Illegal value for plotType"); 
 			}
 			ChartUtils.setDataColumns(cdx.getLabel(), cdy.getLabel());
 		}
