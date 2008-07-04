@@ -67,34 +67,28 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		Graphics bufferGraphics = buffer.getGraphics();
 		chartPanel.paint(bufferGraphics);
 		
-		//Create a clip rectangle covering all quadrants
-		Rectangle clipRect = new Rectangle();
-		clipRect.x = Math.min(Math.min(e.getX(), lastX), startX) -10;
-		clipRect.y = Math.min(Math.min(e.getY(), lastY), startY) -10;
-		clipRect.width = Math.max(Math.max(e.getX(), lastX), startX) - clipRect.x +10;
-		clipRect.height = Math.max(Math.max(e.getY(), lastY), startY) - clipRect.y +10;
+		if( lastX == 0 && lastY == 0)
+		{
+			lastX = e.getX();
+			lastY = e.getY();
+		}
 		
-		//Quadrant 4
-		if( startX < e.getX() && startY < e.getY() ){
-			bufferGraphics.drawRect(startX, startY, e.getX() - startX, e.getY() - startY);
-		} 
-		//Quadreant 2
-		else if( startX > e.getX() && startY > e.getY() ){
-			bufferGraphics.drawRect(e.getX(), e.getY(), startX - e.getX(), startY - e.getY());
-		}
-		//Quadrant 1
-		else if( startX < e.getX() && startY > e.getY() ){
-			bufferGraphics.drawRect(startX, e.getY(), e.getX() - startX, startY - e.getY());
-		}
-		//Quadrant 3
-		else if( startX > e.getX() && startY < e.getY() ){
-			bufferGraphics.drawRect(e.getX(), startY, startX - e.getX(), e.getY() - startY);
-		}
+		//Create coordinates for the rectangle to be drawn
+		Rectangle drawRect = new Rectangle();
+		drawRect.x = Math.min(Math.min(e.getX(), lastX), startX);
+		drawRect.y = Math.min(Math.min(e.getY(), lastY), startY);
+		drawRect.width = Math.max(Math.max(e.getX(), lastX), startX) - drawRect.x;
+		drawRect.height = Math.max(Math.max(e.getY(), lastY), startY) - drawRect.y;
+		
+		bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
+		
+		//Create a clipping rectangle
+		Rectangle clipRect = new Rectangle(drawRect.x -100, drawRect.y -100, drawRect.width +200, drawRect.height +200);
+		
 		lastX = e.getX();
 		lastY = e.getY();
 		
 		graphics.setClip(clipRect);
-		bufferGraphics.setColor(Color.red);
 		graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
 	}
 	
@@ -120,6 +114,12 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		super.mouseReleased(e);
+		startX = 0;
+		startY = 0;
+		lastX = 0;
+		lastY = 0;
+		ChartPanel chartPanel = this.getChartPanel(e);
+		chartPanel.repaint();
 	}
 	
 	private Number getDomainX(ChartPanel chartPanel, XYPlot plot, Point2D mousePoint )
