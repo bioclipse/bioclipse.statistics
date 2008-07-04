@@ -3,11 +3,13 @@
  */
 package net.bioclipse.model;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
@@ -45,6 +47,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	
 	public ScatterPlotMouseHandler(  )
 	{
+		lastX = 0;
+		lastY = 0;
+		startX = 0;
+		startY = 0;
 	}
 	
 	@Override
@@ -55,29 +61,43 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		ChartPanel chartPanel = getChartPanel(e);
 		Graphics graphics = chartPanel.getGraphics();
-//		chartPanel.paint(graphics);
 		
 		
 		Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
 		Graphics bufferGraphics = buffer.getGraphics();
 		chartPanel.paint(bufferGraphics);
 		
-		if( startX <= e.getX() && startX <= e.getY() ){
+		//Create a clip rectangle covering all quadrants
+		Rectangle clipRect = new Rectangle();
+		clipRect.x = Math.min(Math.min(e.getX(), lastX), startX) -10;
+		clipRect.y = Math.min(Math.min(e.getY(), lastY), startY) -10;
+		clipRect.width = Math.max(Math.max(e.getX(), lastX), startX) - clipRect.x +10;
+		clipRect.height = Math.max(Math.max(e.getY(), lastY), startY) - clipRect.y +10;
+		
+		//Quadrant 4
+		if( startX < e.getX() && startY < e.getY() ){
 			bufferGraphics.drawRect(startX, startY, e.getX() - startX, e.getY() - startY);
-		} else if( startX > e.getX() && startY > e.getY() ){
+		} 
+		//Quadreant 2
+		else if( startX > e.getX() && startY > e.getY() ){
 			bufferGraphics.drawRect(e.getX(), e.getY(), startX - e.getX(), startY - e.getY());
 		}
+		//Quadrant 1
 		else if( startX < e.getX() && startY > e.getY() ){
 			bufferGraphics.drawRect(startX, e.getY(), e.getX() - startX, startY - e.getY());
 		}
+		//Quadrant 3
 		else if( startX > e.getX() && startY < e.getY() ){
 			bufferGraphics.drawRect(e.getX(), startY, startX - e.getX(), e.getY() - startY);
 		}
 		lastX = e.getX();
 		lastY = e.getY();
 		
+		graphics.setClip(clipRect);
+		bufferGraphics.setColor(Color.red);
 		graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
 	}
+	
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
