@@ -5,11 +5,15 @@ package net.bioclipse.model;
 
 import java.awt.Component;
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+
+import javax.swing.event.MouseInputAdapter;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
@@ -18,6 +22,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 
@@ -26,23 +31,103 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
  * @author Eskil Andersen
  *
  */
-public class ScatterPlotMouseHandler extends MouseAdapter
+public class ScatterPlotMouseHandler extends MouseInputAdapter
 {
-	private ChartPanel chartPanel;
+//	private ChartPanel chartPanel;
 	private ScatterPlotRenderer renderer;
 	private ChartSelection cs;
 //	private JFreeChart chart;
+	private boolean isDragging;
+	private MouseEvent pressedEvent;
+	private Point2D startPoint;
+	private int startX, startY;
+	private int lastX, lastY;
 	
 	public ScatterPlotMouseHandler(  )
 	{
 	}
 	
-	public void mouseClicked(MouseEvent me) {
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		super.mouseDragged(e);
+		isDragging = true;
+		
+		ChartPanel chartPanel = getChartPanel(e);
+		Graphics graphics = chartPanel.getGraphics();
+//		chartPanel.paint(graphics);
+		
+		
+		Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
+		Graphics bufferGraphics = buffer.getGraphics();
+		chartPanel.paint(bufferGraphics);
+		
+		if( startX <= e.getX() && startX <= e.getY() ){
+			bufferGraphics.drawRect(startX, startY, e.getX() - startX, e.getY() - startY);
+		} else if( startX > e.getX() && startY > e.getY() ){
+			bufferGraphics.drawRect(e.getX(), e.getY(), startX - e.getX(), startY - e.getY());
+		}
+		else if( startX < e.getX() && startY > e.getY() ){
+			bufferGraphics.drawRect(startX, e.getY(), e.getX() - startX, startY - e.getY());
+		}
+		else if( startX > e.getX() && startY < e.getY() ){
+			bufferGraphics.drawRect(e.getX(), startY, startX - e.getX(), e.getY() - startY);
+		}
+		lastX = e.getX();
+		lastY = e.getY();
+		
+		graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
+	}
+	
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		super.mousePressed(e);
+		pressedEvent = e;
+//		System.out.println(e);
+		ChartPanel chartPanel = getChartPanel(e);
+		startPoint = chartPanel.translateScreenToJava2D(new Point(e.getX(), e.getY()));
+		Number x = getDomainX(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
+		Number y = getRangeY(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
+//		System.out.println("Domain x: " + x + " Domain Y: " +y);
+//		System.out.println("Java 2d point" + startPoint);
+		startX = e.getX();
+		startY = e.getY();
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		super.mouseReleased(e);
+	}
+	
+	private Number getDomainX(ChartPanel chartPanel, XYPlot plot, Point2D mousePoint )
+	{
+		ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
+		Rectangle2D dataArea = info.getPlotInfo().getDataArea();
+		Number x = plot.getDomainAxis().java2DToValue(mousePoint.getX(), dataArea, 
+				plot.getDomainAxisEdge());
+		
+		return x;
+	}
+	
+	private Number getRangeY(ChartPanel chartPanel, XYPlot plot, Point2D mousePoint )
+	{
+		ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
+		Rectangle2D dataArea = info.getPlotInfo().getDataArea();
+		Number y = plot.getRangeAxis().java2DToValue(mousePoint.getY(), dataArea, 
+				plot.getRangeAxisEdge());
+		
+		return y;
+	}
+	
+	private ChartPanel getChartPanel(MouseEvent me)
+	{
 		Point2D p = null;
 		Frame sourceFrame;
-		ChartDescriptor cd = null;
-		int[] indices = null;
-		JFreeChart selectedChart = null;
+//		JFreeChart selectedChart = null;
+		ChartPanel selectedPanel = null;
 		
 		if( me.getSource() instanceof Frame){
 			sourceFrame = (Frame)me.getSource();
@@ -52,18 +137,53 @@ public class ScatterPlotMouseHandler extends MouseAdapter
 			boolean foundChartPanel = false;
 			for (Component component : components) {
 				if( component instanceof ChartPanel ){
-					chartPanel = (ChartPanel) component;
-					p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
-					selectedChart = chartPanel.getChart();
+					selectedPanel = (ChartPanel) component;
+//					selectedChart = chartPanel.getChart();
 					foundChartPanel = true;
 					break;
 				}
 			}
-			assert foundChartPanel : "The source of the event does not contain a ChartPanel";
+			assert foundChartPanel : "The source Frame of the event does not contain a ChartPanel";
+		} else if( me.getSource() instanceof ChartPanel){
+			ChartPanel sourcePanel = (ChartPanel) me.getSource();
+		}
+		else{
+			//Can't throw checked exception because the methods that use getChart doesn't throw Exception in their signatures
+			throw new RuntimeException("The source of any mouse event on ScatterPlotMouseHandler should" +
+					" be either Frame or ChartPanel");
+		}
+		return selectedPanel;
+	}
 
+	public void mouseClicked(MouseEvent me) {
+		Point2D p = null;
+		Frame sourceFrame;
+		ChartDescriptor cd = null;
+		int[] indices = null;
+		JFreeChart selectedChart = null;
+		
+//		if( me.getSource() instanceof Frame){
+//			sourceFrame = (Frame)me.getSource();
+//			
+//			Component[] components = sourceFrame.getComponents();
+//			
+//			boolean foundChartPanel = false;
+//			for (Component component : components) {
+//				if( component instanceof ChartPanel ){
+//					chartPanel = (ChartPanel) component;
+//					p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
+//					selectedChart = chartPanel.getChart();
+//					foundChartPanel = true;
+//					break;
+//				}
+//			}
+//			assert foundChartPanel : "The source of the event does not contain a ChartPanel";
+			ChartPanel chartPanel = getChartPanel(me);
+			p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
+			selectedChart = chartPanel.getChart();
+		
 			cd = ChartUtils.getChartDescriptor(selectedChart);
 			indices = cd.getSourceIndices();
-		}
 		
 		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
 		
@@ -76,12 +196,8 @@ public class ScatterPlotMouseHandler extends MouseAdapter
 		renderer = (ScatterPlotRenderer) plot.getRenderer();
 		
 		// now convert the Java2D coordinate to axis coordinates...
-		ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
-		Rectangle2D dataArea = info.getPlotInfo().getDataArea();
-		Number xx = plot.getDomainAxis().java2DToValue(p.getX(), dataArea, 
-				plot.getDomainAxisEdge());
-		Number yy = plot.getRangeAxis().java2DToValue(p.getY(), dataArea, 
-				plot.getRangeAxisEdge());
+		Number xx = getDomainX(chartPanel, plot, p);
+		Number yy = getRangeY(chartPanel, plot, p);
 
 		//Find the selected point in the dataset
 		//If shift is down, save old selections

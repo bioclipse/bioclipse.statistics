@@ -325,10 +325,12 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 					if( ChartView.IS_MACOS )
 					{
 						frame.addMouseListener(pmh);
+						frame.addMouseMotionListener(pmh);
 					}
 					else
 					{
 						chartPanel.addMouseListener(pmh);
+						frame.addMouseMotionListener(pmh);
 					}	
 				}
 			}
