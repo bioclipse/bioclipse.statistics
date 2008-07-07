@@ -34,6 +34,10 @@ public class ChartSelection implements IStructuredSelection
 		points.add(ppd);
 	}
 	
+	public boolean contains(Object arg0) {
+		return points.contains(arg0);
+	}
+
 	/**
 	 * @param ppd ChartPoint to remove from selection
 	 */

@@ -37,7 +37,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 {
 //	private ChartPanel chartPanel;
 	private ScatterPlotRenderer renderer;
-	private ChartSelection cs;
+	private ChartSelection currentSelection;
 //	private JFreeChart chart;
 	private boolean isDragging;
 	private MouseEvent pressedEvent;
@@ -62,7 +62,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		JFreeChart selectedChart = chartPanel.getChart();
 		ChartDescriptor cd = ChartUtils.get(selectedChart);
 		int[] indices = cd.getSourceIndices();
-		ChartSelection cs = new ChartSelection();
 		
 		Graphics graphics = chartPanel.getGraphics();
 		
@@ -108,11 +107,14 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				
 				if(drawRect.contains(datasetPoint2D) ){
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-					cs.addPoint(cp);
-					((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(i, j);
-					selectedChart.plotChanged(new PlotChangeEvent(plot));
-					cs.setDescriptor(cd);
-					ChartUtils.updateSelection(cs);
+					if( !currentSelection.contains(cp)){
+						System.out.println("Here we go again");
+						currentSelection.addPoint(cp);
+						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(i, j);
+						selectedChart.plotChanged(new PlotChangeEvent(plot));
+						currentSelection.setDescriptor(cd);
+						ChartUtils.updateSelection(currentSelection);
+					}
 				}
 			}
 		}
@@ -139,7 +141,18 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 //		System.out.println("Java 2d point" + startPoint);
 		startX = e.getX();
 		startY = e.getY();
-
+		
+		if( !e.isShiftDown())
+		{
+			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).clearMarkedPoints();
+			currentSelection = new ChartSelection();
+			chartPanel.getChart().plotChanged(new PlotChangeEvent(chartPanel.getChart().getPlot()));
+		}
+		if( currentSelection == null){
+			currentSelection = new ChartSelection();
+		}
+		
+		
 	}
 
 	@Override
@@ -274,8 +287,11 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 
 		//Find the selected point in the dataset
 		//If shift is down, save old selections
-		if( !me.isShiftDown())
-			cs = new ChartSelection();
+		if( !me.isShiftDown() || currentSelection == null)
+		{
+			currentSelection = new ChartSelection();
+		}
+		
 		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
 		{
 			for (int i=0; i<plot.getDataset().getSeriesCount();i++){
@@ -289,7 +305,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
 					//Create a new selection
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-					cs.addPoint(cp);
+					currentSelection.addPoint(cp);
 					if( !me.isShiftDown() )
 						renderer.clearMarkedPoints();
 					renderer.addMarkedPoint(i, j);
@@ -298,7 +314,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				}
 			}
 		}
-		cs.setDescriptor(cd);
-		ChartUtils.updateSelection(cs);
+		currentSelection.setDescriptor(cd);
+		ChartUtils.updateSelection(currentSelection);
 	}	
 }
