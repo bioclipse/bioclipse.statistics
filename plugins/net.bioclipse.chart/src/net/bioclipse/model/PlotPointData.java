@@ -60,8 +60,11 @@ public class PlotPointData
 
 	@Override
 	public int hashCode() {
-		return (xColumn.hashCode() == 0 ? 1: xColumn.hashCode()) * (yColumn.hashCode() == 0 ? 1 : yColumn.hashCode()) *
-			(rowNumber == 0 ? 1 : rowNumber);
+		int hash = 73;
+		hash = 31 * hash + rowNumber;
+		hash = 31 * hash + (null == xColumn ? 0 : xColumn.hashCode());
+		hash = 31 * hash + (null == yColumn ? 0 : yColumn.hashCode());
+		return hash;
 	}
 }
 
