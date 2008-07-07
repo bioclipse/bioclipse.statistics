@@ -108,7 +108,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				if(drawRect.contains(datasetPoint2D) ){
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
 					if( !currentSelection.contains(cp)){
-						System.out.println("Here we go again");
 						currentSelection.addPoint(cp);
 						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(i, j);
 						selectedChart.plotChanged(new PlotChangeEvent(plot));
@@ -132,13 +131,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	public void mousePressed(MouseEvent e) {
 		super.mousePressed(e);
 		pressedEvent = e;
-//		System.out.println(e);
 		ChartPanel chartPanel = getChartPanel(e);
 		startPoint = chartPanel.translateScreenToJava2D(new Point(e.getX(), e.getY()));
 		Number x = getDomainX(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
 		Number y = getRangeY(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
-//		System.out.println("Domain x: " + x + " Domain Y: " +y);
-//		System.out.println("Java 2d point" + startPoint);
 		startX = e.getX();
 		startY = e.getY();
 		
