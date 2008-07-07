@@ -55,14 +55,18 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
 		super.mouseDragged(e);
 		isDragging = true;
 		
 		ChartPanel chartPanel = getChartPanel(e);
+		JFreeChart selectedChart = chartPanel.getChart();
+		ChartDescriptor cd = ChartUtils.get(selectedChart);
+		int[] indices = cd.getSourceIndices();
+		ChartSelection cs = new ChartSelection();
+		
 		Graphics graphics = chartPanel.getGraphics();
 		
-		
+		//Create double buffer
 		Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
 		Graphics bufferGraphics = buffer.getGraphics();
 		chartPanel.paint(bufferGraphics);
@@ -75,15 +79,44 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		//Create coordinates for the rectangle to be drawn
 		Rectangle drawRect = new Rectangle();
-		drawRect.x = Math.min(Math.min(e.getX(), lastX), startX);
-		drawRect.y = Math.min(Math.min(e.getY(), lastY), startY);
-		drawRect.width = Math.max(Math.max(e.getX(), lastX), startX) - drawRect.x;
-		drawRect.height = Math.max(Math.max(e.getY(), lastY), startY) - drawRect.y;
 		
+		int x1 = Math.min(Math.min(e.getX(), lastX), startX);
+		int y1 = Math.min(Math.min(e.getY(), lastY), startY);
+		int x2 = Math.max(Math.max(e.getX(), lastX), startX);
+		int y2 = Math.max(Math.max(e.getY(), lastY), startY);
+		
+		drawRect.x = x1;
+		drawRect.y = y1;
+		drawRect.width = x2 - drawRect.x;
+		drawRect.height = y2 - drawRect.y;
+		
+		//Draw selection rectangle
 		bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
 		
 		//Create a clipping rectangle
 		Rectangle clipRect = new Rectangle(drawRect.x -100, drawRect.y -100, drawRect.width +200, drawRect.height +200);
+		
+		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+		
+		//Check for selected points
+		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
+		{
+			for (int i=0; i<plot.getDataset().getSeriesCount();i++){
+				Number xK = plot.getDataset().getX(i,j);
+				Number yK = plot.getDataset().getY(i,j);
+				Point2D datasetPoint2D = new Point2D.Double(domainValueTo2D(chartPanel, plot, xK.doubleValue()),rangeValueTo2D(chartPanel, plot, yK.doubleValue()));
+				
+				if(drawRect.contains(datasetPoint2D) ){
+					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+					cs.addPoint(cp);
+					((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(i, j);
+					selectedChart.plotChanged(new PlotChangeEvent(plot));
+					cs.setDescriptor(cd);
+					ChartUtils.updateSelection(cs);
+				}
+			}
+		}
+		
 		
 		lastX = e.getX();
 		lastY = e.getY();
@@ -95,7 +128,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
 		super.mousePressed(e);
 		pressedEvent = e;
 //		System.out.println(e);
@@ -141,6 +173,27 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		return y;
 	}
+	
+	private double domainValueTo2D(ChartPanel chartPanel, XYPlot plot, double value)
+	{
+		ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
+		Rectangle2D dataArea = info.getPlotInfo().getDataArea();
+		Number x = plot.getDomainAxis().valueToJava2D(value, dataArea, 
+				plot.getDomainAxisEdge());
+		
+		return x.doubleValue();
+	}
+	
+	private double rangeValueTo2D(ChartPanel chartPanel, XYPlot plot, double value){
+		ChartRenderingInfo info = chartPanel.getChartRenderingInfo();
+		Rectangle2D dataArea = info.getPlotInfo().getDataArea();
+		Number y = plot.getRangeAxis().valueToJava2D(value, dataArea, 
+				plot.getRangeAxisEdge());
+		
+		return y.doubleValue();
+	}
+	
+
 	
 	private ChartPanel getChartPanel(MouseEvent me)
 	{
