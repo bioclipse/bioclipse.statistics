@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.Iterator;
 
 import javax.swing.event.MouseInputAdapter;
 
@@ -23,6 +24,8 @@ import net.bioclipse.chart.ScatterPlotRenderer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.event.ChartChangeEvent;
+import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
@@ -33,17 +36,18 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
  * @author Eskil Andersen
  *
  */
-public class ScatterPlotMouseHandler extends MouseInputAdapter
+public class ScatterPlotMouseHandler extends MouseInputAdapter implements ChartChangeListener
 {
 //	private ChartPanel chartPanel;
 	private ScatterPlotRenderer renderer;
-	private ChartSelection currentSelection;
+	private ChartSelection currentSelection, mouseDragSelection;
 //	private JFreeChart chart;
 	private boolean isDragging;
 	private MouseEvent pressedEvent;
 	private Point2D startPoint;
 	private int startX, startY;
 	private int lastX, lastY;
+	private Rectangle drawRect;
 	
 	public ScatterPlotMouseHandler(  )
 	{
@@ -60,10 +64,14 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		ChartPanel chartPanel = getChartPanel(e);
 		JFreeChart selectedChart = chartPanel.getChart();
-		ChartDescriptor cd = ChartUtils.get(selectedChart);
+		ChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
 		int[] indices = cd.getSourceIndices();
 		
-		Graphics graphics = chartPanel.getGraphics();
+		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+		
+		
+//		mouseDragSelection.clear();
+//		((ScatterPlotRenderer) plot.getRenderer()).clearMarkedPoints();
 		
 		//Create double buffer
 		Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
@@ -76,9 +84,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			lastY = e.getY();
 		}
 		
-		//Create coordinates for the rectangle to be drawn
-		Rectangle drawRect = new Rectangle();
-		
+		drawRect = new Rectangle();
 		int x1 = Math.min(Math.min(e.getX(), lastX), startX);
 		int y1 = Math.min(Math.min(e.getY(), lastY), startY);
 		int x2 = Math.max(Math.max(e.getX(), lastX), startX);
@@ -89,13 +95,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		drawRect.width = x2 - drawRect.x;
 		drawRect.height = y2 - drawRect.y;
 		
-		//Draw selection rectangle
-		bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
 		
 		//Create a clipping rectangle
 		Rectangle clipRect = new Rectangle(drawRect.x -100, drawRect.y -100, drawRect.width +200, drawRect.height +200);
 		
-		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
 		
 		//Check for selected points
 		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
@@ -107,22 +110,39 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				
 				if(drawRect.contains(datasetPoint2D) ){
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-					if( !currentSelection.contains(cp)){
-						currentSelection.addPoint(cp);
-						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(i, j);
+					boolean pointAdded = mouseDragSelection.addPoint(cp);
+					if( pointAdded ){
+						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(j, i);
 						selectedChart.plotChanged(new PlotChangeEvent(plot));
-						currentSelection.setDescriptor(cd);
-						ChartUtils.updateSelection(currentSelection);
+					}
+				}
+				else if( !mouseDragSelection.isEmpty()){
+					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+					boolean pointRemoved = mouseDragSelection.removePoint(cp);
+					if( pointRemoved ){
+						((ScatterPlotRenderer) plot.getRenderer()).removeMarkedPoint(new Point(j,i));
+						selectedChart.plotChanged(new PlotChangeEvent(plot));
 					}
 				}
 			}
 		}
 		
+		Iterator<PlotPointData> iterator = currentSelection.iterator();
+		while( iterator.hasNext()){
+			PlotPointData next = iterator.next();
+			Point dataPoint = next.getDataPoint();
+			((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(dataPoint);
+		}
 		
 		lastX = e.getX();
 		lastY = e.getY();
 		
+		Graphics graphics = chartPanel.getGraphics();
 		graphics.setClip(clipRect);
+		
+		//Draw selection rectangle
+		bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
+		
 		graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
 	}
 	
@@ -133,8 +153,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		pressedEvent = e;
 		ChartPanel chartPanel = getChartPanel(e);
 		startPoint = chartPanel.translateScreenToJava2D(new Point(e.getX(), e.getY()));
-		Number x = getDomainX(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
-		Number y = getRangeY(chartPanel, chartPanel.getChart().getXYPlot(), startPoint);
 		startX = e.getX();
 		startY = e.getY();
 		
@@ -143,12 +161,15 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).clearMarkedPoints();
 			currentSelection = new ChartSelection();
 			chartPanel.getChart().plotChanged(new PlotChangeEvent(chartPanel.getChart().getPlot()));
+		} else{
+			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).removeMarkedPoint(null);
 		}
 		if( currentSelection == null){
 			currentSelection = new ChartSelection();
 		}
-		
-		
+
+		mouseDragSelection = new ChartSelection();
+		currentSelection.setDescriptor(ChartUtils.getChartDescriptor(chartPanel.getChart()));
 	}
 
 	@Override
@@ -161,6 +182,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		lastY = 0;
 		ChartPanel chartPanel = this.getChartPanel(e);
 		chartPanel.repaint();
+		
+		currentSelection.addAll(mouseDragSelection);
+		ChartUtils.updateSelection(currentSelection);
+		
 	}
 	
 	private Number getDomainX(ChartPanel chartPanel, XYPlot plot, Point2D mousePoint )
@@ -300,11 +325,12 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				//Check distance from click and point, don't want to mark points that are too far from the click
 				if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
 					//Create a new selection
-					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
+					cp.setDataPoint(j, i);
 					currentSelection.addPoint(cp);
 					if( !me.isShiftDown() )
 						renderer.clearMarkedPoints();
-					renderer.addMarkedPoint(i, j);
+					renderer.addMarkedPoint(j, i);
 					selectedChart.plotChanged(new PlotChangeEvent(plot));
 
 				}
@@ -312,5 +338,9 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		}
 		currentSelection.setDescriptor(cd);
 		ChartUtils.updateSelection(currentSelection);
+	}
+
+	public void chartChanged(ChartChangeEvent arg0) {
+		JFreeChart chart = arg0.getChart();
 	}	
 }

@@ -210,7 +210,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			//First get the set of charts that originates from CelSelection source and are scatter plots
 			while( i.hasNext()){
 				JFreeChart chart = i.next();
-				ChartDescriptor chartDescriptor = ChartUtils.get(chart);
+				ChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
 				if( chartDescriptor.getSource() == source && chartDescriptor.getPlotType() == ChartConstants.SCATTER_PLOT){
 					matchingCharts.add(chart);
 				}
@@ -220,7 +220,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			Iterator<JFreeChart> j = matchingCharts.iterator();
 			while( j .hasNext() ){
 				JFreeChart chart = j.next();
-				ChartDescriptor chartDescriptor = ChartUtils.get(chart);
+				ChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
 
 				ScatterPlotRenderer renderer = (ScatterPlotRenderer) chart.getXYPlot().getRenderer();
 				Iterator<CellData> cellIterator = cs.iterator();

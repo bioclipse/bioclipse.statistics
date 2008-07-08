@@ -1,5 +1,7 @@
 package net.bioclipse.model;
 
+import java.awt.Point;
+
 /**
  * Model of a point in a plot, contains keys to find the cells it was made of
  * The cells being the contributors of the points x and y coordinates
@@ -9,6 +11,7 @@ public class PlotPointData
 {
 	private int rowNumber;
 	private String xColumn, yColumn;
+	private Point p;
 	
 	public PlotPointData()
 	{
@@ -22,7 +25,15 @@ public class PlotPointData
 		this.yColumn = yColumn;
 	}
 	
-	public int getRownumber() {
+	public void setDataPoint(int i, int j){
+		p = new Point(i,j);
+	}
+	
+	public Point getDataPoint(){
+		return p;
+	}
+	
+	public int getRowNumber() {
 		return rowNumber;
 	}
 	public void setRownumber(int rownumber) {
@@ -50,7 +61,7 @@ public class PlotPointData
 		{
 			PlotPointData comparison = (PlotPointData) arg0;
 			if( comparison.getXColumn().equals(this.getXColumn()) && comparison.getYColumn().equals(this.getYColumn())
-					&& comparison.getRownumber() == this.rowNumber )
+					&& comparison.getRowNumber() == this.rowNumber )
 			{
 				return true;
 			}
@@ -66,5 +77,12 @@ public class PlotPointData
 		hash = 31 * hash + (null == yColumn ? 0 : yColumn.hashCode());
 		return hash;
 	}
+
+	@Override
+	public String toString() {
+		return "Row number: " + rowNumber + " X Column: " + xColumn + " Y Column: " + yColumn + " " + super.toString();
+	}
+	
+	
 }
 

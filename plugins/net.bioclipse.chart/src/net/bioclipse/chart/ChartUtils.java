@@ -80,10 +80,7 @@ public class ChartUtils
 		view.display( chart );
 	}
 	
-	public static ChartDescriptor getChartDescriptor(JFreeChart key)
-	{
-		return chartManager.get(key);
-	}
+
 	
 	public static void updateSelection(ChartSelection cs)
 	{
@@ -301,7 +298,7 @@ public class ChartUtils
 	
 	//These methods delegate to the model
 	//TODO:  Write general interface for model so its not hardwired to ChartManager
-	public static ChartDescriptor get(JFreeChart key) {
+	public static ChartDescriptor getChartDescriptor(JFreeChart key) {
 		return chartManager.get(key);
 	}
 

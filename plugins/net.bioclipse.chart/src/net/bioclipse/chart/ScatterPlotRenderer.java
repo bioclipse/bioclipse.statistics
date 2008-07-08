@@ -9,7 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import org.eclipse.swt.graphics.Point;
+import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.PlotPointData;
+
+import java.awt.Point;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 
 
@@ -26,16 +29,47 @@ public class ScatterPlotRenderer extends XYLineAndShapeRenderer {
 	private List<Point> markedPoints;
 	
 	/**
-	 * Adds marks a point for highlighting
+	 * Marks a point for highlighting
 	 * @param series series in the dataset
 	 * @param index index of the selected point
+	 * @return <code>true</code> if the point was marked, <code>false</code> otherwise, for example if the point was marked already.
 	 * @see XYDataSet
 	 */
-	public void addMarkedPoint( int series, int index )
+	public boolean addMarkedPoint( int index, int series )
 	{
 		Point p = new Point(index,series);
-		markedPoints.add(p);
+		if( !markedPoints.contains(p)){
+			markedPoints.add(p);
+			return true;
+		}
+		return false;
 	}
+	
+	public boolean addMarkedPoint( Point p )
+	{
+		if( !markedPoints.contains(p)){
+			markedPoints.add(p);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 
+	 * @param p point to unmark
+	 * @return true if point was removed from collection, false if point was not in collection
+	 */
+	public boolean removeMarkedPoint(Point p){
+		if( markedPoints.contains(p)){
+			markedPoints.remove(p);
+			return true;
+		}
+		else{
+			System.out.println("");
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Removes all marked points
@@ -68,8 +102,10 @@ public class ScatterPlotRenderer extends XYLineAndShapeRenderer {
 		while( iter.hasNext())
 		{
 			Point p = iter.next();
-			if( p.x == column && p.y == row)
+			if( p != null && p.x == column && p.y == row)
+			{
 				return Color.orange;
+			}
 		}
 		
 		return super.getItemPaint(row, column);

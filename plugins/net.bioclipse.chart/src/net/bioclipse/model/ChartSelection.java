@@ -1,6 +1,7 @@
 package net.bioclipse.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,6 +17,18 @@ public class ChartSelection implements IStructuredSelection
 	public ChartDescriptor getDescriptor() {
 		return descriptor;
 	}
+	
+	public boolean addAll(ChartSelection arg0) {
+		return points.addAll(arg0.toList());
+	}
+
+	public boolean addAll(Collection<? extends PlotPointData> arg0) {
+		return points.addAll(arg0);
+	}
+
+	public boolean addAll(int arg0, Collection<? extends PlotPointData> arg1) {
+		return points.addAll(arg0, arg1);
+	}
 
 	public void setDescriptor(ChartDescriptor descriptor) {
 		this.descriptor = descriptor;
@@ -26,12 +39,20 @@ public class ChartSelection implements IStructuredSelection
 		points = new ArrayList<PlotPointData>();
 	}
 	
+	public void clear() {
+		points.clear();
+	}
+
 	/**
 	 * @param ppd ChartPoint to add to selection
 	 */
-	public void addPoint( PlotPointData ppd )
+	public boolean addPoint( PlotPointData ppd )
 	{
-		points.add(ppd);
+		if( !points.contains(ppd)){
+			points.add(ppd);
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean contains(Object arg0) {
@@ -41,9 +62,13 @@ public class ChartSelection implements IStructuredSelection
 	/**
 	 * @param ppd ChartPoint to remove from selection
 	 */
-	public void removePoint( PlotPointData ppd)
+	public boolean removePoint( PlotPointData ppd)
 	{
-		points.remove(ppd);
+		if( points.contains(ppd)){
+			points.remove(ppd);
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean isEmpty() {
