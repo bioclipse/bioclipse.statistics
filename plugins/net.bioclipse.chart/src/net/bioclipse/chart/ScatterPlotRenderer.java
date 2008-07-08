@@ -64,9 +64,6 @@ public class ScatterPlotRenderer extends XYLineAndShapeRenderer {
 			markedPoints.remove(p);
 			return true;
 		}
-		else{
-			System.out.println("");
-		}
 		return false;
 	}
 	
