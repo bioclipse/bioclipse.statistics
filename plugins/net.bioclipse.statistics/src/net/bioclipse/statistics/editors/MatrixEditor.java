@@ -389,9 +389,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 							matrix.set(p.y+1, p.x+1, 0.0d );
 							
 							//Remove widgets used to edit cell
-							textField.setVisible(false);
-							textField.dispose();
-							gridEditor.dispose();
+							disposeEditingWidgets(textField, gridEditor);
+							return;
 						}
 						//Make sure the user didn't enter two dots
 						else if( textField.getText().split("\\.").length > 2 ){
@@ -401,7 +400,13 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 						//Make sure that last character is not a dot
 						else if( !(textField.getText().charAt(textField.getText().length()-1) == '.'))
 						{
-							item.setText(p.x, textField.getText());						
+							//If string starts with a dot prepend a zero in the text displayed
+							if( textField.getText().startsWith(".")){
+								item.setText(p.x, "0" + textField.getText());
+							}
+							else{
+								item.setText(p.x, textField.getText());	
+							}
 							setDirty(true);
 							
 							//Set the edited value in underlying model
@@ -409,9 +414,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 							matrix.set(p.y+1, p.x+1, value );
 							
 							//Remove widgets used to edit cell
-							textField.setVisible(false);
-							textField.dispose();
-							gridEditor.dispose();
+							disposeEditingWidgets(textField, gridEditor);
+							return;
 						}
 						//Emit beep if the input was otherwise incorrect
 						else{
@@ -436,6 +440,13 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 			gridEditor.verticalAlignment = SWT.TOP;
 			gridEditor.setEditor(textField, item, p.x);
 			gridEditor.layout();
+		}
+		
+		//Disposes the widgets used for cell editing
+		private void disposeEditingWidgets(Text textField, GridEditor gridEditor){
+			textField.setVisible(false);
+			textField.dispose();
+			gridEditor.dispose();
 		}
 
 		public void keyReleased(KeyEvent event) {
@@ -607,10 +618,6 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	@Override
 	public void setFocus() {
 	}
-
-//	public void resourceChanged(BioResource resource) {
-//		// nothing to do
-//	}
 
 	public void selectionChanged(IWorkbenchPart part, final ISelection selection) 
 	{
