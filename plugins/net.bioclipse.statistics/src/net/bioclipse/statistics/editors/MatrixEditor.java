@@ -9,17 +9,11 @@ import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.dialogs.ChartDialog;
 import net.bioclipse.dialogs.HistogramDialog;
-//import net.bioclipse.model.BioResource;
-//import net.bioclipse.model.BioResourceChangeListener;
 import net.bioclipse.model.ChartConstants;
-import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PlotPointData;
-import net.bioclipse.statistics.Activator;
 import net.bioclipse.statistics.model.MatrixResource;
-//import net.bioclipse.statistics.model.MatrixResource;
-//import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -41,13 +35,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -70,10 +65,10 @@ import org.eclipse.ui.part.EditorPart;
 /**
  * A spreadsheet like editor for editing matrices.
  * 
- * @author jonalv
+ * @author jonalv, Eskil Andersen
  *
  */
-public class MatrixEditor extends EditorPart implements /*BioResourceChangeListener,*/ ISelectionListener, ISelectionProvider  {
+public class MatrixEditor extends EditorPart implements ISelectionListener, ISelectionProvider  {
 
 	private static final Logger logger = 
 		Logger.getLogger( MatrixEditor.class.toString() );
@@ -96,8 +91,6 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 	@Override
 	public void doSave(IProgressMonitor monitor) {
 		//then call save() of the BioResource 
-//		BioResourceEditorInput brinp = (BioResourceEditorInput) editorInput;
-//		brinp.getBioResource().save();
 		boolean success = matrix.save();
 		if( success ){
 			this.setDirty(false);
@@ -282,13 +275,8 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 		
 		//Listens for selection of cells and passes it on to
 		//ISelectionListeners
-		grid.addSelectionListener( new SelectionListener()
+		grid.addSelectionListener( new SelectionAdapter()
 		{
-
-			public void widgetDefaultSelected(SelectionEvent se) {
-				// TODO Auto-generated method stub
-				
-			}
 			//When a cell is selected an event is sent to ISelectionListeners
 			//notifying them of selected cells
 			public void widgetSelected(SelectionEvent se) {
@@ -305,10 +293,10 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 					CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
 					cs.addCell(cd);
 				}
-				//Using selection service instead of hardwiring
+				//Sets the selection to the selected cells
 				MatrixEditor.this.setSelection(cs);
 				
-//				ChartUtils.markPoints(cs);
+
 			}
 			
 		});
@@ -368,7 +356,7 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 	 * @author Eskil Andersen
 	 *
 	 */
-	private class EditEventHandler implements Listener, KeyListener
+	private class EditEventHandler extends KeyAdapter implements Listener
 	{
 		public void handleEvent( Event event )
 		{
@@ -386,35 +374,56 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 			//Set caret position at end of text
 			textField.setSelection(textField.getCharCount());
 
-			textField.addKeyListener(new KeyListener() {
-
-				public void keyPressed(KeyEvent arg0) {
-				}
+			textField.addKeyListener(new KeyAdapter() {
 
 				public void keyReleased(KeyEvent event) 
 				{
 					if( event.character == SWT.CR )
 					{
-						item.setText(p.x, textField.getText());
-						textField.setVisible(false);
-						setDirty(true);
-						
-						double value = Double.parseDouble(textField.getText());
-						
-						matrix.set(p.y+1, p.x+1, value );
-						textField.dispose();
-					}
+						//If input was empty string set cell to "0.0"
+						if( textField.getText().equals("")){
+							item.setText(p.x, "0.0");						
+							setDirty(true);
+							
+							//Set the edited value in underlying model
+							matrix.set(p.y+1, p.x+1, 0.0d );
+							
+							//Remove widgets used to edit cell
+							textField.setVisible(false);
+							textField.dispose();
+							gridEditor.dispose();
+						}
+						//Make sure the user didn't enter two dots
+						else if( textField.getText().split("\\.").length > 2 ){
+							Display.getCurrent().beep();
+							return;
+						}
+						//Make sure that last character is not a dot
+						else if( !(textField.getText().charAt(textField.getText().length()-1) == '.'))
+						{
+							item.setText(p.x, textField.getText());						
+							setDirty(true);
+							
+							//Set the edited value in underlying model
+							double value = Double.parseDouble(textField.getText());
+							matrix.set(p.y+1, p.x+1, value );
+							
+							//Remove widgets used to edit cell
+							textField.setVisible(false);
+							textField.dispose();
+							gridEditor.dispose();
+						}
+						//Emit beep if the input was otherwise incorrect
+						else{
+							Display.getCurrent().beep();
+						}
+					}					
 				}
 
 			});
 			
-			textField.addFocusListener(new FocusListener()
+			textField.addFocusListener(new FocusAdapter()
 			{
-
-				public void focusGained(FocusEvent arg0) {
-					//Nothing here
-				}
-
 				public void focusLost(FocusEvent arg0) {
 					textField.setVisible(false);
 				}
@@ -427,11 +436,6 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 			gridEditor.verticalAlignment = SWT.TOP;
 			gridEditor.setEditor(textField, item, p.x);
 			gridEditor.layout();
-		}
-
-		//Not used
-		public void keyPressed(KeyEvent arg0) {
-
 		}
 
 		public void keyReleased(KeyEvent event) {
@@ -624,6 +628,7 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 				display.asyncExec(new Runnable()
 				{
 
+					@SuppressWarnings("unchecked")
 					public void run() 
 					{
 						if( grid.isDisposed() )
@@ -658,8 +663,8 @@ public class MatrixEditor extends EditorPart implements /*BioResourceChangeListe
 						while( iter.hasNext())
 						{
 							PlotPointData gcd = (PlotPointData) iter.next();
-							selectedPoints[i++] = new Point(xColumn, gcd.getRownumber());
-							selectedPoints[i++] = new Point(yColumn, gcd.getRownumber());
+							selectedPoints[i++] = new Point(xColumn, gcd.getRowNumber());
+							selectedPoints[i++] = new Point(yColumn, gcd.getRowNumber());
 						}
 						grid.setCellSelection(selectedPoints);
 					}
