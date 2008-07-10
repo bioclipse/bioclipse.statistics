@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="net/bioclipse/model/type/EmptyResourceFactory.java|net/bioclipse/model/EmptyResourcePropertySource.java|net/bioclipse/model/EmptyResource.java|net/bioclipse/plugins/ChartPlugin.java" kind="src" path="src"/>
+	<classpathentry excluding="net/bioclipse/model/type/EmptyResourceFactory.java|net/bioclipse/model/EmptyResourcePropertySource.java|net/bioclipse/model/EmptyResource.java|net/bioclipse/plugins/ChartPlugin.java|net/bioclipse/chart/popup/actions/NewAction.java" kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="jars/jcommon-1.0.13.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/jfreechart-1.0.10.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-anim.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-bridge.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-codec.jar"/>
@@ -21,8 +23,6 @@
 	<classpathentry exported="true" kind="lib" path="jars/batik-awt-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-dom.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-svggen.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/jcommon-1.0.10.jar"/>
-	<classpathentry exported="true" kind="lib" path="jars/jfreechart-1.0.6.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
