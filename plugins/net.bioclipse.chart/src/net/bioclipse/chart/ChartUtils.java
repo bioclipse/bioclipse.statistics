@@ -39,6 +39,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
@@ -265,6 +266,43 @@ public class ChartUtils
 		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.TIME_SERIES;
 	}
+	
+	/**
+	 * Creates a bar plot and displays it in ChartView
+	 * 
+	 * @param dataValues MxN matrix containing series x categories
+	 * @param seriesLabels text labels for the series
+	 * @param categoryLabels text labels for the categories
+	 * @param xLabel Domain label
+	 * @param yLabel Range label
+	 * @param title Title of the plot
+	 */
+	public static void barPlot(double[][] dataValues, String[] seriesLabels, String[] categoryLabels, String xLabel, String yLabel, String title){
+		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
+		
+		
+		//Load data into the data set
+		for( int i = 0; i < dataValues.length; i++)
+		{
+			for(int j=0;j<dataValues[i].length;j++){
+				dataSet.addValue(dataValues[i][j], i < seriesLabels.length ? seriesLabels[i] : "N/A",
+						j < categoryLabels.length ? categoryLabels[j] : "N/A");
+			}
+		}
+		
+		//Use the chart factory to set up our bar chart
+		JFreeChart chart = ChartFactory.createBarChart(
+				title,
+				xLabel,
+				yLabel,
+				dataSet,
+				PlotOrientation.VERTICAL,
+				true, //Legend
+				true, //Tooltips
+				false); //URLS
+		
+		view.display(chart);
+	}
 
 	/**
 	 * Utility method for converting JFreeChart to an image
@@ -306,7 +344,7 @@ public class ChartUtils
 	}
 	
 	//These methods delegate to the model
-	//TODO:  Write general interface for model so its not hardwired to ChartManager
+	//TODO:  Write general Interface/Abstract class for model so its not hardwired to ChartManager
 	public static ChartDescriptor getChartDescriptor(JFreeChart key) {
 		return chartManager.get(key);
 	}
