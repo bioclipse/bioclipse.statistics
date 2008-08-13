@@ -11,9 +11,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.resources
 Eclipse-LazyStart: true
 Bundle-Activator: net.bioclipse.chart.Activator
-Bundle-ClassPath: jars/jcommon-1.0.10.jar,
- jars/jfreechart-1.0.6.jar,
- chart.jar,
+Bundle-ClassPath: chart.jar,
  jars/batik-awt-util.jar,
  jars/batik-dom.jar,
  jars/batik-svggen.jar,
@@ -33,7 +31,9 @@ Bundle-ClassPath: jars/jcommon-1.0.10.jar,
  jars/batik-swing.jar,
  jars/batik-transcoder.jar,
  jars/batik-xml.jar,
- jars/js.jar
+ jars/js.jar,
+ jars/jcommon-1.0.13.jar,
+ jars/jfreechart-1.0.10.jar
 Export-Package: com.keypoint,
  net.bioclipse.chart;uses:="net.bioclipse.chart.events,org.jfree.chart.renderer.xy",
  net.bioclipse.chart.events;uses:="org.eclipse.jface.viewers",
