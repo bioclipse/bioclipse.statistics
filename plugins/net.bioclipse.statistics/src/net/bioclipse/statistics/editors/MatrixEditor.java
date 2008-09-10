@@ -9,6 +9,7 @@
 
 package net.bioclipse.statistics.editors;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -25,12 +26,24 @@ import net.bioclipse.model.PlotPointData;
 import net.bioclipse.statistics.model.MatrixResource;
 
 import org.apache.log4j.Logger;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IResourceDeltaVisitor;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -68,6 +81,7 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorPart;
 
 
@@ -77,12 +91,12 @@ import org.eclipse.ui.part.EditorPart;
  * @author jonalv, Eskil Andersen
  *
  */
-public class MatrixEditor extends EditorPart implements ISelectionListener, ISelectionProvider  {
+public class MatrixEditor extends EditorPart implements ISelectionListener, ISelectionProvider, IResourceChangeListener  {
 
 	private static final Logger logger = 
 		Logger.getLogger( MatrixEditor.class.toString() );
 
-	private IEditorInput editorInput;
+	private IFileEditorInput editorInput;
 	private boolean isDirty;
 	private Grid grid;
 	private List<ISelectionChangedListener> selectionListeners;
@@ -92,6 +106,10 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay() );
 
 	private MatrixResource matrix;
+
+	private IFile resource;
+
+	private IProject project;
 
 	public MatrixEditor() {
 		super();
@@ -135,8 +153,28 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		super.setSite(site);
 		super.setInput(input);
 		logger.debug("initializing matrix editor...");
-		this.editorInput = input;		
+		if (input instanceof IFileEditorInput) {
+			IFileEditorInput feditorinput = (IFileEditorInput) input;
+			this.editorInput = feditorinput;
+			this.resource=feditorinput.getFile();
+			this.project=resource.getProject();
+		}else{
+			showMessage("MatrixEditor can currently only be opened on a File");
+			dispose();
+		}
+		
+		selectionListeners = new Vector<ISelectionChangedListener>();
+
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(this);
+		
 	}
+
+
+    private void showMessage(String message) {
+        MessageDialog.openInformation( getSite().getShell(),
+                                       "Information",
+                                       message );
+    }
 
 	@Override
 	public boolean isDirty() {
@@ -153,44 +191,61 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		logger.debug("Creating editor part...");
 		parent.setLayout(new FillLayout());
 
-		selectionListeners = new Vector<ISelectionChangedListener>();
-		
-		matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
-		matrix.parseResource();		
-
-		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.MULTI );
+		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.MULTI);
 		grid.setHeaderVisible(true);
 		grid.setRowHeaderVisible(true);
 		grid.setCellSelectionEnabled(true);
 
-		grid.setItemCount( matrix.getRowCount() );
-		grid.setItemHeight(20);
+		
+		//Set up the matrix as a model for the grid
+		matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
+		matrix.parseResource();		
 
-		for (int i = 0; i < matrix.getColumnCount(); i++) {
+		setupGridForMatrix(matrix);
+		
 
-			GridColumn column = new GridColumn(grid, SWT.NONE);
-			column.setText("");
-			String columnName = matrix.getColumnName(i+1);
-			column.setText( columnName == null ? "" + (char)('A' + i) : columnName );
-			column.setWidth(100);
-		}
-		grid.addListener( SWT.SetData, new Listener() {
-			public void handleEvent(Event event) {
-				GridItem item = (GridItem)event.item;
+		hookContextMenu(parent);
 
-				int index = grid.indexOf(item);
-				String rowName = matrix.getRowName(index+1);
-				item.setHeaderText( rowName == null ? index + "" : rowName );
-				for (int i = 0; i < matrix.getColumnCount(); i++) {
-					item.setText(i, matrix.get(index+1, i+1) + "");
+		//Register context menu with the workbench for extensions
+		//this.getSite().registerContextMenu(manager, this);
+		
+		//Register MatrixGridEditor with the page as a receiver of SelectionChangedEvents
+		getSite().getPage().addSelectionListener(this);
+		
+		//Register MatrixGridEditor as a SelectionProvider
+		getSite().setSelectionProvider(this);
+		
+		
+		//Listens for selection of cells and passes it on to
+		//ISelectionListeners
+		grid.addSelectionListener( new SelectionAdapter()
+		{
+			//When a cell is selected an event is sent to ISelectionListeners
+			//notifying them of selected cells
+			public void widgetSelected(SelectionEvent se) {
+				Point selections[] = grid.getCellSelection();
+				CellSelection cs = new CellSelection();
+				cs.setSource(MatrixEditor.this);
+				
+				for( Point p : selections )
+				{
+					GridColumn gc = grid.getColumn(p.x);
+					String colName = gc.getText();
+					GridItem gi = grid.getItem(p.y);
+					String value = gi.getText(p.x);
+					CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
+					cs.addCell(cd);
 				}
+				//Sets the selection to the selected cells
+				MatrixEditor.this.setSelection(cs);
+				
+
 			}
-		} );
+			
+		});
+	}
 
-		EditEventHandler handler = new EditEventHandler();
-		grid.addListener(SWT.MouseDoubleClick, handler );
-		grid.addKeyListener(handler);
-
+	private void hookContextMenu(Composite parent) {
 		//Context menu
 		MenuManager manager = new MenuManager("matrix editor tools");
 
@@ -271,45 +326,66 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 		Menu menu = manager.createContextMenu(parent); 
 		grid.setMenu(menu);
-
-		//Register context menu with the workbench for extensions
-		//this.getSite().registerContextMenu(manager, this);
-		
-		//Register MatrixGridEditor with the page as a receiver of SelectionChangedEvents
-		getSite().getPage().addSelectionListener(this);
-		
-		//Register MatrixGridEditor as a SelectionProvider
-		getSite().setSelectionProvider(this);
-		
-		
-		//Listens for selection of cells and passes it on to
-		//ISelectionListeners
-		grid.addSelectionListener( new SelectionAdapter()
-		{
-			//When a cell is selected an event is sent to ISelectionListeners
-			//notifying them of selected cells
-			public void widgetSelected(SelectionEvent se) {
-				Point selections[] = grid.getCellSelection();
-				CellSelection cs = new CellSelection();
-				cs.setSource(MatrixEditor.this);
-				
-				for( Point p : selections )
-				{
-					GridColumn gc = grid.getColumn(p.x);
-					String colName = gc.getText();
-					GridItem gi = grid.getItem(p.y);
-					String value = gi.getText(p.x);
-					CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
-					cs.addCell(cd);
-				}
-				//Sets the selection to the selected cells
-				MatrixEditor.this.setSelection(cs);
-				
-
-			}
-			
-		});
 	}
+	
+	private void setupGridForMatrix(final MatrixResource newMatrix) {
+		
+		grid.setItemCount( newMatrix.getRowCount() );
+		grid.setItemHeight(20);
+
+		for (int i = 0; i < newMatrix.getColumnCount(); i++) {
+
+			GridColumn column = new GridColumn(grid, SWT.NONE);
+			column.setText("");
+			String columnName = newMatrix.getColumnName(i+1);
+			column.setText( columnName == null ? "" + (char)('A' + i) : columnName );
+			column.setWidth(100);
+		}
+		grid.addListener( SWT.SetData, new Listener() {
+			public void handleEvent(Event event) {
+				GridItem item = (GridItem)event.item;
+
+				int index = grid.indexOf(item);
+				String rowName = newMatrix.getRowName(index+1);
+				item.setHeaderText( rowName == null ? index + "" : rowName );
+				for (int i = 0; i < newMatrix.getColumnCount(); i++) {
+					item.setText(i, newMatrix.get(index+1, i+1) + "");
+				}
+			}
+		} );
+
+		EditEventHandler handler = new EditEventHandler();
+		grid.addListener(SWT.MouseDoubleClick, handler );
+		grid.addKeyListener(handler);
+
+		
+	}
+
+	protected void reloadFromFile() {
+
+		//Remove old listeners
+		for (Listener li : grid.getListeners(SWT.SetData)){
+			grid.removeListener(SWT.SetData, li);
+		}
+		for (Listener li : grid.getListeners(SWT.MouseDoubleClick)){
+			grid.removeListener(SWT.MouseDoubleClick, li);
+		}
+
+		matrix.setParsed(false);
+		matrix.parseResource();
+
+		//Remove old columns
+		for (GridColumn col : grid.getColumns()){
+			col.dispose();
+		}
+		
+		grid.removeAll();
+		
+		//Set up the new matrix
+		setupGridForMatrix(matrix);
+		
+	}
+
 
 	/* Produces a String[][] of cell contents. The precondition is that
 	 * the selection really is rectangular.
@@ -721,6 +797,44 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	public void dispose() {
 		super.dispose();
 		getSite().getPage().removeSelectionListener(this);
+		ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
 	}
+
+	public void resourceChanged(IResourceChangeEvent event) {
+		
+		final IPath DOC_PATH = new Path(project.getName()+"/dataset.csv");
+
+        //we are only interested in POST_CHANGE events
+        if (event.getType() != IResourceChangeEvent.POST_CHANGE)
+           return;
+        IResourceDelta rootDelta = event.getDelta();
+        //get the delta, if any, for the documentation directory
+        IResourceDelta docDelta = rootDelta.findMember(DOC_PATH);
+        if (docDelta == null)
+           return;
+        
+		
+		if (docDelta.getKind()==IResourceDelta.REMOVED){
+			showMessage("Matrix file has been removed!");
+			return;
+		}
+
+		if (docDelta.getKind()==IResourceDelta.CHANGED){
+			Display.getDefault().asyncExec(new Runnable(){
+
+				public void run() {
+//					boolean answer=MessageDialog.openConfirm(getSite().getShell(), "Resource changed", "Matric has been changed on file. Would you like to reload contents from file?");
+//					if (answer){
+						reloadFromFile();
+//					}else{
+//						//Mark as dirty to indicate that save is required to keep contents
+//						setDirty(true);
+//					}
+				}
+			});
+		}
+
+	}
+
 }
 

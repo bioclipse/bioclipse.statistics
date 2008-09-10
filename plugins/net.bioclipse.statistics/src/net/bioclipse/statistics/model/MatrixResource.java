@@ -6,7 +6,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Egon Willighagen - core API and implementation
+ *     Egon Willighagen
+ *     Ola Spjuth
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
@@ -38,7 +39,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 /**
  * Concept of a mathematical matrix.
  * 
- * @author egonw
+ * @author egonw, ospjuth
  */
 public class MatrixResource extends BioObject {
 	
@@ -46,9 +47,13 @@ public class MatrixResource extends BioObject {
 	//private static final Logger logger = Activator.getLogManager().getLogger(MatrixResource.class.toString());
 	
 	private static final Logger logger = Logger.getLogger(MatrixResource.class);
+
+	private static final int TAB_SCANNER = 1;
+	private static final int COMMA_SCANNER = 2;
+	private static final int WHITESPACE_SCANNER = 3;
 	
 	private String name;
-	private boolean isParsed;
+	private boolean parsed;
 	private IFileEditorInput input;
 	
 	public static String ID = "net.bioclipse.statistics.MatrixResource";
@@ -132,9 +137,9 @@ public class MatrixResource extends BioObject {
 //		return null;
 //	}
 
-	private boolean isParsed()
+	public boolean isParsed()
 	{
-		return isParsed;
+		return parsed;
 	}
 	
 	/**
@@ -198,21 +203,43 @@ public class MatrixResource extends BioObject {
 		return false;
 	}
 	
-    private void setParsed(boolean b) {
-		isParsed = b;
+    public void setParsed(boolean b) {
+		parsed = b;
 	}
 
 	private void setParsedResource(IMatrixImplementationResource parsedResource) {
 		this.matrixImpl = parsedResource;
 	}
 
-	private Scanner matrixScanner(String line) {
-        Scanner matrixScanner = new Scanner(line).useDelimiter(",|\\s+");       
+
+	/**
+	 * Scanner for tab-delimited values.
+	 * @param line the input string to separate
+	 * @return
+	 */
+	private Scanner matrixScanner(String line, int scanner_type) {
+
+		Scanner matrixScanner;
+		if (scanner_type==TAB_SCANNER){
+			//Separate on tabs
+	        matrixScanner = new Scanner(line).useDelimiter("\\t");       
+		}
+		else if (scanner_type==COMMA_SCANNER){
+			//Separate on tabs
+	        matrixScanner = new Scanner(line).useDelimiter(",|,\\s+");       
+		}
+		else if (scanner_type==WHITESPACE_SCANNER){
+	        matrixScanner = new Scanner(line).useDelimiter("\\s+");       
+		}
+		else{
+			throw new IllegalArgumentException("No supported scanner type provided");
+		}
+		
         matrixScanner.useLocale(Locale.US); // Assures decimal marker is a point
         
         return matrixScanner;
     }
-    
+
 	private IMatrixImplementationResource parseStringIntoMatrix(
 			String matrixString) 
 	{
@@ -227,19 +254,66 @@ public class MatrixResource extends BioObject {
 			this.setSize(matrixRows, matrixCols);
 			return matrixImpl;
 		}
+
+		//Selected scanner, null from start
+		int matrixScannerType=COMMA_SCANNER;
 		
-		//Using whitespace and "," as delimiters
-		Scanner matrixScanner = matrixScanner(matrixLines[0]);
+		//Test using comma and whitespace as delimiters
+		Scanner testScanner=matrixScanner((matrixLines[0]), matrixScannerType);
 		
+
 		//Determine number of columns
-		while( matrixScanner.hasNext() )
+		while( testScanner.hasNext() )
 		{
-			matrixScanner.next();
+			testScanner.next();
 			matrixCols++;
 		}
 		
+		if (matrixCols<=1){
+			matrixCols=0;
+			//Too few, try tab-separated
+			matrixScannerType=TAB_SCANNER;
+			testScanner=matrixScanner((matrixLines[0]), matrixScannerType);
+			
+			//Determine number of columns
+			while( testScanner.hasNext() )
+			{
+				testScanner.next();
+				matrixCols++;
+			}
+
+			if (matrixCols<=1){
+				matrixCols=0;
+				//Too few, try whitespace-separated
+				matrixScannerType=WHITESPACE_SCANNER;
+				testScanner=matrixScanner((matrixLines[0]), matrixScannerType);			}
+			
+			//Determine number of columns
+			while( testScanner.hasNext() )
+			{
+				testScanner.next();
+				matrixCols++;
+			}
+
+			if (matrixCols<=1){
+				//Too few, give up
+				throw new IllegalArgumentException("Could not parse file");
+			}
+
+		}
+
+		if (matrixScannerType==COMMA_SCANNER){
+			logger.debug("Comma separated scanner used");
+		}
+		else if (matrixScannerType==TAB_SCANNER){
+			logger.debug("Tab separated scanner used");
+		}
+		else if (matrixScannerType==WHITESPACE_SCANNER){
+			logger.debug("WHitespace separated scanner used");
+		}
+		
 		//Check if first row is a header, if this row contains anything but numbers it's considered a header
-		matrixScanner = matrixScanner(matrixLines[0]);
+		Scanner matrixScanner = matrixScanner(matrixLines[0],matrixScannerType);
 		
 		if( !matrixScanner.hasNextDouble() )
 		{
@@ -259,7 +333,7 @@ public class MatrixResource extends BioObject {
 		{
 			for(int i = 1; i < matrixLines.length; i++ )
 			{
-				insertRow( i, matrixLines[i]);
+				insertRow( i, matrixLines[i], matrixScannerType);
 			}
 		}
 		//No column headers, read into matrix from first line
@@ -267,7 +341,7 @@ public class MatrixResource extends BioObject {
 		{
 			for(int i = 0; i < matrixLines.length; i++ )
 			{
-				insertRow( i+1, matrixLines[i]);
+				insertRow( i+1, matrixLines[i], matrixScannerType);
 			}
 		}
 		
@@ -277,9 +351,9 @@ public class MatrixResource extends BioObject {
 	}
 
 	//Utility method for inserting a row into the matrix (not the column header)
-	private void insertRow( int row, String rowString )
+	private void insertRow( int row, String rowString, int matrixScannerType )
 	{
-		Scanner matrixScanner = matrixScanner(rowString);
+		Scanner matrixScanner = matrixScanner(rowString, matrixScannerType);
 		
 		if( !matrixScanner.hasNextDouble() ) {
 			matrixImpl.setRowName(row, matrixScanner.next());
