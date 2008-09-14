@@ -76,16 +76,19 @@ public class ChartUtils
 	 * @param xLabel X axis label
 	 * @param yLabel Y axis label
 	 * @param title Chart title
+	 * @param analysisMatrixEditor 
+	 * @param indices 
 	 */
 	public static void linePlot( double[] xValues, double[] yValues,
-			String xLabel, String yLabel, String title )
+			String xLabel, String yLabel, String title, int[] indices, IEditorPart dataSource )
 	{
 		setupData(xValues, yValues, xLabel, yLabel, title);
 
 		PcmLineChartDataset dataset = new PcmLineChartDataset(values, nameOfObs, xLabel, yLabel, "", title, null);
 		chart = ChartFactory.createXYLineChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true , false);
 		
-		ChartDescriptor cd = new ChartDescriptor(null,null,ChartConstants.LINE_PLOT,xLabel,yLabel);
+		ChartDescriptor cd = new ChartDescriptor(dataSource,indices,ChartConstants.LINE_PLOT,xLabel,yLabel);
+		chartManager.put(chart, cd);
 		
 		view.display( chart );
 	}
@@ -198,7 +201,7 @@ public class ChartUtils
 	 * @param title Histogram title
 	 */
 	public static void histogram(double[] values, int bins,
-			String xLabel, String yLabel, String title)
+			String xLabel, String yLabel, String title, IEditorPart dataSource)
 	{
 		setupData(values, null, xLabel, yLabel, title);
 		HistogramDataset histogramData = new HistogramDataset();
@@ -213,6 +216,11 @@ public class ChartUtils
 				false, 
 				false
 		);
+		
+		ChartDescriptor descriptor = new ChartDescriptor(dataSource, null, ChartConstants.HISTOGRAM, xLabel, yLabel);
+		
+		chartManager.put(chart, descriptor);
+		
 		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.HISTOGRAM;
 	}
@@ -255,14 +263,19 @@ public class ChartUtils
 	 * @param xLabel X axis label
 	 * @param yLabel Y axis label
 	 * @param title Chart title
+	 * @param dataSource 
+	 * @param indices 
 	 */
-	public static void timeSeries(double[] dataValues, double[] timeValues, String xLabel, String yLabel, String title)
+	public static void timeSeries(double[] dataValues, double[] timeValues, String xLabel, String yLabel, String title, int[] indices, IEditorPart dataSource)
 	{
 		setupData(dataValues, timeValues, xLabel, yLabel, title);
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		chart = ChartFactory.createTimeSeriesChart(title, xLabel, yLabel, (XYDataset)dataset, false, false, false);
 
+		ChartDescriptor descriptor = new ChartDescriptor(dataSource, indices, ChartConstants.TIME_SERIES, xLabel, yLabel);
+		chartManager.put(chart, descriptor);
+		
 		view.display( chart );
 		ChartUtils.currentPlotType = ChartConstants.TIME_SERIES;
 	}

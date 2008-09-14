@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.ui.IEditorPart;
 
 import net.bioclipse.chart.ChartUtils;
 
@@ -59,7 +60,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 			Display display = Display.getDefault();
 			Shell shell = new Shell(display);
 			HistogramDialog inst = new HistogramDialog(shell, SWT.NULL, new double[0]);
-			inst.open();
+			inst.open(null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -70,7 +71,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 		this.values = values;
 	}
 
-	public void open() {
+	public void open(final IEditorPart dataSource) {
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -115,7 +116,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 						// TODO Auto-generated method stub
 						super.widgetSelected(e);
 						ChartUtils.histogram(values, Integer.parseInt(binsText.getText()),
-								xAxisText.getText(), yAxisText.getText(), chartNameText.getText());
+								xAxisText.getText(), yAxisText.getText(), chartNameText.getText(), dataSource);
 						dialogShell.close();
 					}
 					

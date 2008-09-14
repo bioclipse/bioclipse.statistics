@@ -11,7 +11,6 @@ package net.bioclipse.plugins.views;
 
 import java.awt.Frame;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +31,6 @@ import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.JFreeChartActionFactory;
 import net.bioclipse.model.JFreeChartTab;
-import net.bioclipse.model.PlotPointData;
 import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.apache.log4j.Logger;
@@ -45,7 +43,6 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
@@ -57,13 +54,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IPageListener;
-import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartSite;
 import org.eclipse.ui.part.ViewPart;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -209,8 +202,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		if( selection instanceof CellSelection){
 			CellSelection cs = (CellSelection) selection;
 			Object source = cs.getSource();
-			List<CellData> list = cs.toList();
-			List<String> colNames = cs.getColNames();
 
 			Set<JFreeChart> keySet = ChartUtils.keySet();
 			Iterator<JFreeChart> i = keySet.iterator();
@@ -245,8 +236,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 					}
 				}
 				chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
-
-
 			}
 		}
 	}
@@ -317,6 +306,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	
 		final ChartPanel chartPanel = new ChartPanel(chart);
 		
+		//Since methods are called on a java.awt.Frame it has to be called on the swing/awt thread 
 		SwingUtilities.invokeLater(new Runnable()
 		{
 	

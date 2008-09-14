@@ -351,10 +351,10 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 							    		yAxisText.getText(), chartText.getText(), indices, dataSource);
 							    break;
 							case ChartConstants.LINE_PLOT:
-    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText());
+    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
     							break;
     						case ChartConstants.TIME_SERIES:
-    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText());
+    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
     							break;
     						default: 
     							throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
