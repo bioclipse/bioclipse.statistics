@@ -20,6 +20,8 @@ public class CellData
 {
 	//Name of the column containing the selected cell
 	private String colName;
+	private String rowName;
+	private int col;
 	//Row of the selected cell
 	private int row;
 	//Value of the selected cell
@@ -43,10 +45,10 @@ public class CellData
 	public void setColName(String colName) {
 		this.colName = colName;
 	}
-	public int getRow() {
+	public int getRowIndex() {
 		return row;
 	}
-	public void setRow(int row) {
+	public void setRowIndex(int row) {
 		this.row = row;
 	}
 	public double getValue() {
@@ -55,6 +57,20 @@ public class CellData
 	public void setValue(double value) {
 		this.value = value;
 	}
-	
-	
+
+	public void setRowName(String rowName) {
+		this.rowName = rowName;
+	}
+
+	public String getRowName() {
+		return rowName;
+	}
+
+	public void setColIndex(int colIndex) {
+		this.col = colIndex;
+	}
+
+	public int getColIndex() {
+		return col;
+	}
 }

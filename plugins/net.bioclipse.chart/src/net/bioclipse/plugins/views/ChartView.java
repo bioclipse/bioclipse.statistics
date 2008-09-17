@@ -19,6 +19,8 @@ import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
+import net.bioclipse.chart.events.CellChangeListener;
+import net.bioclipse.chart.events.CellChangedEvent;
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
@@ -70,7 +72,7 @@ import org.jfree.chart.plot.XYPlot;
  * @see ChartUtils
  */
 
-public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener {
+public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener, CellChangeListener {
 	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
 	private Composite parent;
 	private List<ISelectionChangedListener> selectionListeners;
@@ -90,6 +92,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
 		pmh = new ScatterPlotMouseHandler();
 		factory = new JFreeChartActionFactory();
+		ChartUtils.registerCellChangeListener(this);
 	}
 
 	/**
@@ -231,7 +234,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 					CellData cd = cellIterator.next();
 					if( cd.getColName().equals(chartDescriptor.getXLabel()) || cd.getColName().equals(chartDescriptor.getYLabel()) )
 					{	
-						renderer.addMarkedPoint(0, cd.getRow());
+						renderer.addMarkedPoint(0, cd.getRowIndex());
 						
 					}
 				}
@@ -359,5 +362,10 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				saveImageActionSVG.setEnabled(false);
 			}
 		}
+	}
+
+	public void handleCellChangeEvent(CellChangedEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

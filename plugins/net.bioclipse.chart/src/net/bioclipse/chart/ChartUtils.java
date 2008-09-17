@@ -12,10 +12,15 @@ package net.bioclipse.chart;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
+import net.bioclipse.chart.events.CellChangeListener;
+import net.bioclipse.chart.events.CellChangeProvider;
+import net.bioclipse.chart.events.CellChangedEvent;
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartConstants;
@@ -23,7 +28,6 @@ import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
-import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PcmLineChartDataset;
 import net.bioclipse.plugins.views.ChartView;
 
@@ -67,6 +71,9 @@ public class ChartUtils
 	private static int currentPlotType = -1;
 	static int[] indices;
 	private static ChartManager chartManager = new ChartManager();
+	
+	private static List<CellChangeProvider> providers = new ArrayList<CellChangeProvider>();
+	private static List<CellChangeListener> listeners = new ArrayList<CellChangeListener>();
 	
 	/**
 	 * Displays data in a line plot
@@ -122,7 +129,6 @@ public class ChartUtils
 	 * @param index
 	 * @deprecated
 	 */
-	@SuppressWarnings("unchecked")
 	public static void markPoints( CellSelection cs )
 	{
 		if( chart != null && ChartUtils.currentPlotType == ChartConstants.SCATTER_PLOT )
@@ -137,7 +143,7 @@ public class ChartUtils
 				CellData cd = iter.next();
 				if( cd.getColName().equals(ChartUtils.xColumn) || cd.getColName().equals(ChartUtils.yColumn) )
 				{	
-					renderer.addMarkedPoint(0, cd.getRow());
+					renderer.addMarkedPoint(0, cd.getRowIndex());
 					chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
 				}
 			}
@@ -356,6 +362,22 @@ public class ChartUtils
 		return new Image(parent.getDisplay(), imageData);
 	}
 	
+	public static void registerCellChangeProvider( CellChangeProvider provider )
+	{
+		if( !providers.contains(provider))
+		{
+			providers.add(provider);
+		}
+	}
+	
+	public static void registerCellChangeListener( CellChangeListener listener )
+	{
+		if( !listeners.contains(listener) )
+		{
+			listeners.add(listener);
+		}
+	}
+	
 	//These methods delegate to the model
 	//TODO:  Write general Interface/Abstract class for model so its not hardwired to ChartManager
 	public static ChartDescriptor getChartDescriptor(JFreeChart key) {
@@ -392,5 +414,66 @@ public class ChartUtils
 
 	public static Set<JFreeChart> keySet() {
 		return chartManager.keySet();
+	}
+
+	public static void handleCellChangeEvent(CellChangedEvent e) {
+//		Iterator<CellChangeListener> iterator = listeners.iterator();
+//		while( iterator.hasNext() )
+//		{
+//			CellChangeListener listener = iterator.next();
+//			listener.handleCellChangeEvent(e);
+//		}
+		Set<JFreeChart> keySet = chartManager.keySet();
+		Iterator<JFreeChart> iterator = keySet.iterator();
+		while( iterator.hasNext()){
+			JFreeChart chart = iterator.next();
+			
+			ChartDescriptor desc = chartManager.get(chart);
+			
+			String domainLabel = desc.getXLabel();
+			String rangeLabel = desc.getYLabel();
+			CellData data = e.getCellData();
+			
+			if( domainLabel.equals(data.getColName()) || rangeLabel.equals(data.getColName()))
+			{
+				DefaultXYDataset dataset = (DefaultXYDataset) chart.getXYPlot().getDataset();
+				int itemCount = dataset.getItemCount(0);
+				double[] yValues = new double[itemCount];
+				double[] xValues = new double[itemCount];
+				for( int i=0;i<itemCount;i++)
+				{
+					double x = dataset.getXValue(0, i);
+					double y = dataset.getYValue(0, i);
+					xValues[i]=x;
+					yValues[i]=y;
+				}
+				int indices[] = desc.getSourceIndices();
+				if( domainLabel.equals(e.getCellData().getColName())){
+					int rowIndex = data.getRowIndex();
+					for(int i=0;i<indices.length;i++){
+						if(indices[i] == rowIndex){
+							xValues[i]=data.getValue();
+						}
+					}
+				}
+				else if( rangeLabel.equals(e.getCellData().getColName()) ){
+					int rowIndex = data.getRowIndex();
+					for(int i=0;i<indices.length;i++){
+						if( indices[i] == rowIndex){
+							yValues[i]=data.getValue();
+						}
+					}
+				}
+				double[][] chartData = new double[2][];
+				chartData[0] = xValues;
+				chartData[1] = yValues;
+				
+				dataset.getSeriesKey(0);
+				Comparable seriesKey = dataset.getSeriesKey(0);
+				
+				dataset.removeSeries(seriesKey);
+				dataset.addSeries(seriesKey, chartData);
+			}
+		}
 	}
 }

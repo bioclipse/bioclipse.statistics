@@ -10,6 +10,7 @@
 package net.bioclipse.dialogs;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 import net.bioclipse.chart.ChartUtils;
@@ -62,9 +63,12 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 	private Vector<ColumnData> columns;
 	private int diagramType;
 	private Label plotTypeLabel;
+	private Button rowRadioButton;
+	private Button colRadioButton;
 	private Combo plotTypeCombo;
 	private Label seperator;
 	private boolean isPlotTypeEnabled;
+	private List<ColumnData> columnDataList;
 
 	/**
 	* Auto-generated main method to display this 
@@ -95,6 +99,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 		this.columns = columns;
 		this.isPlotTypeEnabled = enablePlotType;
 		this.diagramType = diagramType;
+		
+		columnDataList = columns;
 	}
 
 	public void open() {
@@ -105,8 +111,41 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 			dialogShell.setLayout(new FormLayout());
 			dialogShell.layout();
 			dialogShell.pack();			
-			dialogShell.setSize(434, 309);
+			dialogShell.setSize(434, 322);
 			dialogShell.setText("Chart Dialog");
+			{
+				rowRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+				FormData rowButtonLData = new FormData();
+				rowButtonLData.width = 217;
+				rowButtonLData.height = 20;
+				rowButtonLData.left =  new FormAttachment(0, 1000, 57);
+				rowButtonLData.top =  new FormAttachment(0, 1000, 176);
+				rowRadioButton.setLayoutData(rowButtonLData);
+				rowRadioButton.setText("Data series in rows");
+				rowRadioButton.addSelectionListener(new SelectionAdapter() {
+
+					@Override
+					public void widgetSelected(SelectionEvent e) {
+						// TODO Auto-generated method stub
+						super.widgetSelected(e);
+					}
+					
+				});
+			}
+			{
+				colRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+				FormData colRadioButtonLData = new FormData();
+				colRadioButtonLData.width = 217;
+				colRadioButtonLData.height = 20;
+				colRadioButtonLData.left =  new FormAttachment(0, 1000, 57);
+				colRadioButtonLData.top =  new FormAttachment(0, 1000, 157);
+				colRadioButton.setLayoutData(colRadioButtonLData);
+				colRadioButton.setText("Data series in columns");
+				colRadioButton.addSelectionListener(new SelectionAdapter() {
+				});
+				colRadioButton.setSelection(true);
+				
+			}
 			{
 				plotTypeCombo = new Combo(dialogShell, SWT.DROP_DOWN | SWT.READ_ONLY);
 				plotTypeCombo.add("Scatter Plot");
@@ -176,11 +215,11 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				FormData yValuesComboLData = new FormData();
 				yValuesComboLData.width = 140;
 				yValuesComboLData.height = 28;
-				yValuesComboLData.left =  new FormAttachment(0, 1000, 146);
-				yValuesComboLData.top =  new FormAttachment(0, 1000, 202);
+				yValuesComboLData.left =  new FormAttachment(0, 1000, 141);
+				yValuesComboLData.top =  new FormAttachment(0, 1000, 236);
 				yValuesCombo.setLayoutData(yValuesComboLData);
-				yValuesCombo.setItems(items);
-				yValuesCombo.select(1);
+//				yValuesCombo.setItems(items);
+//				yValuesCombo.select(1);
 				yValuesCombo.addSelectionListener(new ValidSelectionAdapter());
 			}
 			{
@@ -189,8 +228,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				FormData yValuesLabelLData = new FormData();
 				yValuesLabelLData.width = 56;
 				yValuesLabelLData.height = 21;
-				yValuesLabelLData.left =  new FormAttachment(0, 1000, 62);
-				yValuesLabelLData.top =  new FormAttachment(0, 1000, 202);
+				yValuesLabelLData.left =  new FormAttachment(0, 1000, 57);
+				yValuesLabelLData.top =  new FormAttachment(0, 1000, 243);
 				yValuesLabel.setLayoutData(yValuesLabelLData);
 				yValuesLabel.setAlignment(SWT.CENTER);
 			}
@@ -259,11 +298,11 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				FormData xValuesComboLData = new FormData();
 				xValuesComboLData.width = 140;
 				xValuesComboLData.height = 28;
-				xValuesComboLData.left =  new FormAttachment(0, 1000, 146);
-				xValuesComboLData.top =  new FormAttachment(0, 1000, 167);
+				xValuesComboLData.left =  new FormAttachment(0, 1000, 141);
+				xValuesComboLData.top =  new FormAttachment(0, 1000, 202);
 				xValuesCombo.setLayoutData(xValuesComboLData);
-				xValuesCombo.setItems(items);
-				xValuesCombo.select(0);
+//				xValuesCombo.setItems(items);
+//				xValuesCombo.select(0);
 				xValuesCombo.addSelectionListener( new ValidSelectionAdapter() );
 			}
 			
@@ -275,8 +314,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				FormData xValuesLabelLData = new FormData();
 				xValuesLabelLData.width = 56;
 				xValuesLabelLData.height = 28;
-				xValuesLabelLData.left =  new FormAttachment(0, 1000, 62);
-				xValuesLabelLData.top =  new FormAttachment(0, 1000, 167);
+				xValuesLabelLData.left =  new FormAttachment(0, 1000, 57);
+				xValuesLabelLData.top =  new FormAttachment(0, 1000, 208);
 				xValuesLabel.setLayoutData(xValuesLabelLData);
 				// Commented out: not sure if it's used, and Eclipse 3.2 becomes sad -- CM
 //				xValuesLabel.setDragDetect(false);
@@ -299,7 +338,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				cancelButtonLData.width = 77;
 				cancelButtonLData.height = 28;
 				cancelButtonLData.left =  new FormAttachment(0, 1000, 287);
-				cancelButtonLData.top =  new FormAttachment(0, 1000, 245);
+				cancelButtonLData.top =  new FormAttachment(0, 1000, 260);
 				cancelButton.setLayoutData(cancelButtonLData);
 				cancelButton.addSelectionListener(new SelectionAdapter() 
 				{
@@ -319,7 +358,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				okButtonLData.width = 56;
 				okButtonLData.height = 28;
 				okButtonLData.left =  new FormAttachment(0, 1000, 366);
-				okButtonLData.top =  new FormAttachment(0, 1000, 245);
+				okButtonLData.top =  new FormAttachment(0, 1000, 260);
 				okButton.setLayoutData(okButtonLData);
 				
 				okButton.addSelectionListener(new SelectionAdapter() {

@@ -19,28 +19,43 @@ import org.eclipse.ui.IEditorPart;
  */
 public class ColumnData
 {
-	private String label;
+	private String colLabel;
+	private String rowLabel;
+	public String getRowLabel() {
+		return rowLabel;
+	}
+
+	public void setRowLabel(String rowLabel) {
+		this.rowLabel = rowLabel;
+	}
+
 	private Vector<Cell> data;
 	private IEditorPart dataSource;
 
 	public ColumnData()
 	{
 		data = new Vector<Cell>();
-		label = "";
+		colLabel = "";
 	}
 	
-	public ColumnData(String label)
+	public ColumnData(String colLabel)
 	{
 		data = new Vector<Cell>();
-		this.label = label;
+		this.colLabel = colLabel;
+	}
+	
+	public ColumnData(String colLabel, String rowLabel){
+		this.colLabel = colLabel;
+		this.rowLabel = rowLabel;
+		data = new Vector<Cell>();
 	}
 
 	public String getLabel() {
-		return label;
+		return colLabel;
 	}
 
 	public void setLabel(String label) {
-		this.label = label;
+		this.colLabel = label;
 	}
 	
 	public double[] getValues()
@@ -92,7 +107,7 @@ public class ColumnData
 		if( !(obj instanceof String) )
 			return false;
 		String compLabel = (String)obj;
-		if( compLabel.equals(this.label))
+		if( compLabel.equals(this.colLabel))
 			return true;
 		return false;
 	}
