@@ -669,10 +669,10 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
 			    break;
 			case ChartConstants.LINE_PLOT:
-				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel());
+				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
 				break;
 			case ChartConstants.TIME_SERIES:
-				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel());
+				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
 				break;
 			default: 
 				throw new IllegalArgumentException("Illegal value for plotType"); 
@@ -697,7 +697,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 
 		HistogramDialog hd = new HistogramDialog(Display.getCurrent().getActiveShell(),
 				SWT.NULL, values);
-		hd.open();
+		hd.open(this);
 	}
 
 	@Override
@@ -835,6 +835,5 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		}
 
 	}
-
 }
 
