@@ -7,9 +7,7 @@
  *
  *******************************************************************************/
 package net.bioclipse.r;
-
 import java.util.*;
-
 public abstract class R{
     public void destroy(){
     }
@@ -18,7 +16,6 @@ public abstract class R{
     }
     static protected String preParsedToR(ArrayList<Object> l){
         String rString=new String();
-
         for(int i=0; i<l.size(); i++){
             Object o=l.get(i);
             if((i&1)==0)rString+=o;
