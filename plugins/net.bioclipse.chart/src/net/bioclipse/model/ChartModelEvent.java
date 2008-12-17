@@ -6,20 +6,15 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  *****************************************************************************/
-
 package net.bioclipse.model;
-
 public class ChartModelEvent 
 {
-	private ChartEventType type;
-
-	public ChartModelEvent(ChartEventType eventType) {
-		type = eventType;
-	}
-	
-	public ChartEventType getEventType()
-	{
-		return type;
-	}
-
+        private ChartEventType type;
+        public ChartModelEvent(ChartEventType eventType) {
+                type = eventType;
+        }
+        public ChartEventType getEventType()
+        {
+                return type;
+        }
 }

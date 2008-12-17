@@ -6,7 +6,6 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  *****************************************************************************/
-
 /* ===========================================================
  * JFreeChart : a free chart library for the Java(tm) platform
  * ===========================================================
@@ -51,80 +50,59 @@
  * 25-Jan-2007 : Implemented PublicCloneable (DG);
  *
  */
-
 package net.bioclipse.model;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.jfree.data.DomainOrder;
 import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.util.PublicCloneable;
-
 /**
  * A dataset used by JFreeChart to plot a Line Chart from BioClipse.
-
  */
 public class PcmLineChartDataset extends AbstractXYDataset 
         implements XYDataset, PublicCloneable {
-
     /**
      * Storage for the series keys.  This list must be kept in sync with the
      * seriesList.
      */
     private List seriesKeys;
-    
     /** 
      * Storage for the series in the dataset.  We use a list because the
      * order of the series is significant.  This list must be kept in sync 
      * with the seriesKeys list.
      */ 
     private List seriesList;
-   
     /**The label of the x-axis*/
     private String xLabel;
-    
     /**The label of the y-axis*/
     private String yLabel;
-   
     /**The array containing the name of the observations*/
     private String [] nameOfObs;
-    
     /**The label of the plot*/
     private String plotLabel;
-    
     /**The statusarray, used for removing points from the dataset*/
     private ArrayList<Integer> statusArray;
-    
     /**The number of datapoints*/ //Used by JFreeChart to determine how many measurement there is to be drawn
     private int dataPoints;
-    
     /** The number of measurement*/
     private int numberMeasurement;
-    
 //	The following is used by JFreeChart to determine how big the plot will be
-    
-	/** The minimum domain value. */
-	private Number domainMin;
-
-	/** The maximum domain value. */
-	private Number domainMax;
-
-	/** The minimum range value. */
-	private Number rangeMin;
-
-	/** The maximum range value. */
-	private Number rangeMax;
-
-	/** The range of the domain. */
-	private Range domainRange;
-
-	/** The range. */
-	private Range range;
+        /** The minimum domain value. */
+        private Number domainMin;
+        /** The maximum domain value. */
+        private Number domainMax;
+        /** The minimum range value. */
+        private Number rangeMin;
+        /** The maximum range value. */
+        private Number rangeMax;
+        /** The range of the domain. */
+        private Range domainRange;
+        /** The range. */
+        private Range range;
     /**
      * Creates a new <code>DefaultPCMXYDataset</code> instance, initially 
      * containing no data.
@@ -133,7 +111,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         this.seriesKeys = new java.util.ArrayList();
         this.seriesList = new java.util.ArrayList();    
     }
-    
     /**
      * Returns the number of series in the dataset.
      *
@@ -142,7 +119,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
     public int getSeriesCount() {
         return this.seriesList.size();
     }
-
     /**
      * Returns the key for a series.  
      *
@@ -160,7 +136,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         }
         return (Comparable) this.seriesKeys.get(series);
     }
-
     /**
      * Returns the index of the series with the specified key, or -1 if there 
      * is no such series in the dataset.
@@ -172,7 +147,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
     public int indexOf(Comparable seriesKey) {
         return this.seriesKeys.indexOf(seriesKey);
     }
-
     /**
      * Returns the order of the domain (x-) values in the dataset.  In this
      * implementation, we cannot guarantee that the x-values are ordered, so 
@@ -183,7 +157,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
     public DomainOrder getDomainOrder() {
         return DomainOrder.NONE;
     }
-
     /**
      * Returns the number of items in the specified series.
      * 
@@ -202,7 +175,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         double[][] seriesArray = (double[][]) this.seriesList.get(series);
         return seriesArray[0].length;
     }
-
     /**
      * Returns the x-value for an item within a series.
      * 
@@ -224,7 +196,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         double[][] seriesData = (double[][]) this.seriesList.get(series);
         return seriesData[0][item];
     }
-
     /**
      * Returns the x-value for an item within a series.
      * 
@@ -245,7 +216,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
     public Number getX(int series, int item) {
         return new Double(getXValue(series, item));
     }
-
     /**
      * Returns the y-value for an item within a series.
      * 
@@ -267,7 +237,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         double[][] seriesData = (double[][]) this.seriesList.get(series);
         return seriesData[1][item];
     }
-
     /**
      * Returns the y-value for an item within a series.
      * 
@@ -288,7 +257,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
     public Number getY(int series, int item) {
         return new Double(getYValue(series, item));
     }
-
     /**
      * Adds a series or if a series with the same key already exists replaces
      * the data for that series, then sends a {@link DatasetChangeEvent} to 
@@ -326,7 +294,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         }
         notifyListeners(new DatasetChangeEvent(this, this));
     }
-
     /**
      * Removes a series from the dataset, then sends a 
      * {@link DatasetChangeEvent} to all registered listeners.
@@ -342,7 +309,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
             notifyListeners(new DatasetChangeEvent(this, this));
         }
     }
-    
     /**
      * Tests this <code>DefaultXYDataset</code> instance for equality with an
      * arbitrary object.  This method returns <code>true</code> if and only if:
@@ -385,7 +351,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         }
         return true;
     }
-    
     /**
      * Returns a hash code for this instance.
      * 
@@ -397,7 +362,6 @@ public class PcmLineChartDataset extends AbstractXYDataset
         result = 29 * result + this.seriesList.hashCode();
         return result;
     }
-    
     /**
      * Creates an independent copy of this dataset.
      * 
@@ -424,17 +388,16 @@ public class PcmLineChartDataset extends AbstractXYDataset
         return clone;
     }
     /**
-	 * Creates a dataset. Also makes the intervals for the plot
-	 *
-	 * @param Values		the values of the measurements
-	 * @param nameOfObs		the name of the measurements
-	 * @param xLabel		the label of the x-axis of the plot
-	 * @param yLabel		the label of the y-axis of the plot
-	 * @param legend		the legend of the plot
-	 * @param plotLabel		the name of the label
-	 * @param I				the statusarray of the plot
-	 */
-    
+         * Creates a dataset. Also makes the intervals for the plot
+         *
+         * @param Values		the values of the measurements
+         * @param nameOfObs		the name of the measurements
+         * @param xLabel		the label of the x-axis of the plot
+         * @param yLabel		the label of the y-axis of the plot
+         * @param legend		the legend of the plot
+         * @param plotLabel		the name of the label
+         * @param I				the statusarray of the plot
+         */
     public PcmLineChartDataset(double [][]values, String [] nameOfObs, String xLabel, String yLabel, String legend, String plotLabel, ArrayList<Integer> rI) {
         this.seriesKeys = new java.util.ArrayList();
         this.seriesList = new java.util.ArrayList();    
@@ -445,262 +408,240 @@ public class PcmLineChartDataset extends AbstractXYDataset
         this.plotLabel = plotLabel;
         this.statusArray = rI;
         double minX = Double.POSITIVE_INFINITY;
-		double maxX = Double.NEGATIVE_INFINITY;
-		double minY = Double.POSITIVE_INFINITY;
-		double maxY = Double.NEGATIVE_INFINITY;
-		dataPoints = 1;
-		
-		numberMeasurement = nameOfObs.length;
-				
-	    for (int i=0; i<nameOfObs.length; i++) {
-	        if (values[0][i] > maxX) {
-	        	maxX = values[0][i];   // new maximum
-	        }
-	    }
-	    
-	    for (int i=0; i<nameOfObs.length; i++) {
-	        if (values[0][i] < minX) {
-	        	minX = values[0][i];   // new maximum
-	        }
-	    }
-	    
-	    for (int i=0; i<nameOfObs.length; i++) {
-	        if (values[1][i] > maxY) {
-	        	maxY = values[1][i];   // new maximum
-	        }
-	    }
-	    
-	    for (int i=0; i<nameOfObs.length; i++) {
-	        if (values[1][i] < minY) {
-	        	minY = values[1][i];   // new maximum
-	        }
-	    }
-	    this.domainMin = new Double(minX);
-		this.domainMax = new Double(maxX);
-		this.domainRange = new Range(minX, maxX);
-		this.rangeMin = new Double(minY);
-		this.rangeMax = new Double(maxY);
-		this.range = new Range(minY, maxY);
+                double maxX = Double.NEGATIVE_INFINITY;
+                double minY = Double.POSITIVE_INFINITY;
+                double maxY = Double.NEGATIVE_INFINITY;
+                dataPoints = 1;
+                numberMeasurement = nameOfObs.length;
+            for (int i=0; i<nameOfObs.length; i++) {
+                if (values[0][i] > maxX) {
+                        maxX = values[0][i];   // new maximum
+                }
+            }
+            for (int i=0; i<nameOfObs.length; i++) {
+                if (values[0][i] < minX) {
+                        minX = values[0][i];   // new maximum
+                }
+            }
+            for (int i=0; i<nameOfObs.length; i++) {
+                if (values[1][i] > maxY) {
+                        maxY = values[1][i];   // new maximum
+                }
+            }
+            for (int i=0; i<nameOfObs.length; i++) {
+                if (values[1][i] < minY) {
+                        minY = values[1][i];   // new maximum
+                }
+            }
+            this.domainMin = new Double(minX);
+                this.domainMax = new Double(maxX);
+                this.domainRange = new Range(minX, maxX);
+                this.rangeMin = new Double(minY);
+                this.rangeMax = new Double(maxY);
+                this.range = new Range(minY, maxY);
     }
     /**
-	 * Returns the label of x-axis
-	 *
-	 * @return the label of x-axis
-	 */
+         * Returns the label of x-axis
+         *
+         * @return the label of x-axis
+         */
     public String getXLabel(){
     	return this.xLabel;
     }
     /**
-	 * Returns the label of y-axis
-	 *
-	 * @return the label of y-axis
-	 */
+         * Returns the label of y-axis
+         *
+         * @return the label of y-axis
+         */
     public String getYLabel(){
     	return this.yLabel;
     }
     /**
-	 * Returns the name of the measurement
-	 * @param item  the index (zero-based) of the required item.
-	
-	 * @return the name of the measurement
-	 */
+         * Returns the name of the measurement
+         * @param item  the index (zero-based) of the required item.
+         * @return the name of the measurement
+         */
     public String getName(int item){
     	return this.nameOfObs[item];
     }
     /**
-	 * Returns the label of the plot
-	 *
-	 * @return the label of the plot
-	 */	
+         * Returns the label of the plot
+         *
+         * @return the label of the plot
+         */	
     public String getPlotLabel(){
     	return this.plotLabel;
     }
-	/**
-	 * Returns the minimum domain value.
-	 *
-	 * @return The minimum domain value.
-	 */
+        /**
+         * Returns the minimum domain value.
+         *
+         * @return The minimum domain value.
+         */
     public double getDomainLowerBound() {
-		return this.domainMin.doubleValue();
-	}
+                return this.domainMin.doubleValue();
+        }
     /**
-	 * Sets the status of the measurement in the statusarray, either 0 or 1.
-	 * @param nummer		the number of the 
-	 * @param newStatus		the new status, either 0 or 1
-	 */
+         * Sets the status of the measurement in the statusarray, either 0 or 1.
+         * @param nummer		the number of the 
+         * @param newStatus		the new status, either 0 or 1
+         */
     public void setStatus(int nummer, int newStatus){
-		statusArray.set(nummer, newStatus);
-	}
+                statusArray.set(nummer, newStatus);
+        }
     /**
-	 * Returns the value of the statusarray, either 0 or 1.
-	 * @param measurement
-	 * @return the status of the measurement
-	 */
-	
-	public int getStatus(int measurement){
-		return statusArray.get(measurement);
-	}
-	/**
-	 * Returns the statusarray which is used for the update of the chart when points are deselected
-	 * 
-	 * @return the statusarray
-	 */
-	public ArrayList<Integer> getStatusArray(){
-		return this.statusArray;
-	}
-	/**
-	 * Returns the lower bound for the domain.
-	 * 
-	 * @param includeInterval  include the x-interval?
-	 * 
-	 * @return The lower bound.
-	 */
-	public double getDomainLowerBound(boolean includeInterval) {
-		return this.domainMin.doubleValue();
-	}
-
-	/**
-	 * Returns the maximum domain value.
-	 *
-	 * @return The maximum domain value.
-	 */
-	public double getDomainUpperBound() {
-		return this.domainMax.doubleValue();
-	}
-
-	/**
-	 * Returns the upper bound for the domain.
-	 * 
-	 * @param includeInterval  include the x-interval?
-	 * 
-	 * @return The upper bound.
-	 */
-	public double getDomainUpperBound(boolean includeInterval) {
-		return this.domainMax.doubleValue();
-	}
-
-	/**
-	 * Returns the range of values in the domain.
-	 *
-	 * @return the range.
-	 */
-	public Range getDomainBounds() {
-		return this.domainRange;
-	}
-
-	/**
-	 * Returns the bounds for the domain.
-	 * 
-	 * @param includeInterval  include the x-interval?
-	 * 
-	 * @return The bounds.
-	 */
-	public Range getDomainBounds(boolean includeInterval) {
-		return this.domainRange;
-	}
-
-	/**
-	 * Returns the range of values in the domain.
-	 *
-	 * @return the range.
-	 */
-	public Range getDomainRange() {
-		return this.domainRange;
-	}
-
-	/**
-	 * Returns the minimum range value.
-	 *
-	 * @return The minimum range value.
-	 */
-	public double getRangeLowerBound() {
-		return this.rangeMin.doubleValue();
-	}
-
-	/**
-	 * Returns the lower bound for the range.
-	 * 
-	 * @param includeInterval  include the y-interval?
-	 * 
-	 * @return The lower bound.
-	 */
-	public double getRangeLowerBound(boolean includeInterval) {
-		return this.rangeMin.doubleValue();
-	}
-
-	/**
-	 * Returns the maximum range value.
-	 *
-	 * @return The maximum range value.
-	 */
-	public double getRangeUpperBound() {
-		return this.rangeMax.doubleValue();
-	}
-
-	/**
-	 * Returns the upper bound for the range.
-	 * 
-	 * @param includeInterval  include the y-interval?
-	 * 
-	 * @return The upper bound.
-	 */
-	public double getRangeUpperBound(boolean includeInterval) {
-		return this.rangeMax.doubleValue();
-	}
-
-	/**
-	 * Returns the range of values in the range (y-values).
-	 *
-	 * @param includeInterval  include the y-interval?
-	 * 
-	 * @return The range.
-	 */
-	public Range getRangeBounds(boolean includeInterval) {
-		return this.range;
-	}
-
-	/**
-	 * Returns the range of y-values.
-	 * 
-	 * @return The range.
-	 */
-	public Range getValueRange() {
-		return this.range;
-	}
-
-	/**
-	 * Returns the minimum domain value.
-	 * 
-	 * @return The minimum domain value.
-	 */
-	public Number getMinimumDomainValue() {
-		return this.domainMin;
-	}
-
-	/**
-	 * Returns the maximum domain value.
-	 * 
-	 * @return The maximum domain value.
-	 */
-	public Number getMaximumDomainValue() {
-		return this.domainMax;
-	}
-
-	/**
-	 * Returns the minimum range value.
-	 * 
-	 * @return The minimum range value.
-	 */
-	public Number getMinimumRangeValue() {
-		return this.domainMin;
-	}
-
-	/**
-	 * Returns the maximum range value.
-	 * 
-	 * @return The maximum range value.
-	 */
-	public Number getMaximumRangeValue() {
-		return this.domainMax;
-	}
+         * Returns the value of the statusarray, either 0 or 1.
+         * @param measurement
+         * @return the status of the measurement
+         */
+        public int getStatus(int measurement){
+                return statusArray.get(measurement);
+        }
+        /**
+         * Returns the statusarray which is used for the update of the chart when points are deselected
+         * 
+         * @return the statusarray
+         */
+        public ArrayList<Integer> getStatusArray(){
+                return this.statusArray;
+        }
+        /**
+         * Returns the lower bound for the domain.
+         * 
+         * @param includeInterval  include the x-interval?
+         * 
+         * @return The lower bound.
+         */
+        public double getDomainLowerBound(boolean includeInterval) {
+                return this.domainMin.doubleValue();
+        }
+        /**
+         * Returns the maximum domain value.
+         *
+         * @return The maximum domain value.
+         */
+        public double getDomainUpperBound() {
+                return this.domainMax.doubleValue();
+        }
+        /**
+         * Returns the upper bound for the domain.
+         * 
+         * @param includeInterval  include the x-interval?
+         * 
+         * @return The upper bound.
+         */
+        public double getDomainUpperBound(boolean includeInterval) {
+                return this.domainMax.doubleValue();
+        }
+        /**
+         * Returns the range of values in the domain.
+         *
+         * @return the range.
+         */
+        public Range getDomainBounds() {
+                return this.domainRange;
+        }
+        /**
+         * Returns the bounds for the domain.
+         * 
+         * @param includeInterval  include the x-interval?
+         * 
+         * @return The bounds.
+         */
+        public Range getDomainBounds(boolean includeInterval) {
+                return this.domainRange;
+        }
+        /**
+         * Returns the range of values in the domain.
+         *
+         * @return the range.
+         */
+        public Range getDomainRange() {
+                return this.domainRange;
+        }
+        /**
+         * Returns the minimum range value.
+         *
+         * @return The minimum range value.
+         */
+        public double getRangeLowerBound() {
+                return this.rangeMin.doubleValue();
+        }
+        /**
+         * Returns the lower bound for the range.
+         * 
+         * @param includeInterval  include the y-interval?
+         * 
+         * @return The lower bound.
+         */
+        public double getRangeLowerBound(boolean includeInterval) {
+                return this.rangeMin.doubleValue();
+        }
+        /**
+         * Returns the maximum range value.
+         *
+         * @return The maximum range value.
+         */
+        public double getRangeUpperBound() {
+                return this.rangeMax.doubleValue();
+        }
+        /**
+         * Returns the upper bound for the range.
+         * 
+         * @param includeInterval  include the y-interval?
+         * 
+         * @return The upper bound.
+         */
+        public double getRangeUpperBound(boolean includeInterval) {
+                return this.rangeMax.doubleValue();
+        }
+        /**
+         * Returns the range of values in the range (y-values).
+         *
+         * @param includeInterval  include the y-interval?
+         * 
+         * @return The range.
+         */
+        public Range getRangeBounds(boolean includeInterval) {
+                return this.range;
+        }
+        /**
+         * Returns the range of y-values.
+         * 
+         * @return The range.
+         */
+        public Range getValueRange() {
+                return this.range;
+        }
+        /**
+         * Returns the minimum domain value.
+         * 
+         * @return The minimum domain value.
+         */
+        public Number getMinimumDomainValue() {
+                return this.domainMin;
+        }
+        /**
+         * Returns the maximum domain value.
+         * 
+         * @return The maximum domain value.
+         */
+        public Number getMaximumDomainValue() {
+                return this.domainMax;
+        }
+        /**
+         * Returns the minimum range value.
+         * 
+         * @return The minimum range value.
+         */
+        public Number getMinimumRangeValue() {
+                return this.domainMin;
+        }
+        /**
+         * Returns the maximum range value.
+         * 
+         * @return The maximum range value.
+         */
+        public Number getMaximumRangeValue() {
+                return this.domainMax;
+        }
 }

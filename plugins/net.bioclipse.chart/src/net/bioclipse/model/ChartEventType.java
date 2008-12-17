@@ -6,11 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  *****************************************************************************/
-
 package net.bioclipse.model;
-
 public enum ChartEventType {
-	ACTIVE_CHART_CHANGED,
-	CHART_REMOVED,
-	CHART_ADDED
+        ACTIVE_CHART_CHANGED,
+        CHART_REMOVED,
+        CHART_ADDED
 }
