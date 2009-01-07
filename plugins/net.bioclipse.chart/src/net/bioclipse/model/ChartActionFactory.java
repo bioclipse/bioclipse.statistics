@@ -6,7 +6,10 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  *****************************************************************************/
+
 package net.bioclipse.model;
+
+
 /**
  * Interface for creating actions pertaining to charts
  * @author Eskil Andersen
@@ -14,7 +17,7 @@ package net.bioclipse.model;
  */
 public interface ChartActionFactory 
 {
-        public ChartAction createExportSvgAction();
-        public ChartAction createExtportJpegAction();
-        public ChartAction createExportPngAction();
+	public ChartAction createExportSvgAction();
+	public ChartAction createExtportJpegAction();
+	public ChartAction createExportPngAction();
 }

@@ -6,7 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  *****************************************************************************/
+
 package net.bioclipse.model;
+
 public interface ChartModelListener {
-        public void handleChartModelEvent(ChartModelEvent e);
+	public void handleChartModelEvent(ChartModelEvent e);
 }
