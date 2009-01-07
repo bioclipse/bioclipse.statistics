@@ -7,13 +7,18 @@
  *
  *******************************************************************************/
 package net.bioclipse.r;
+
 import net.bioclipse.r.R;
 import net.bioclipse.scripting.OutputProvider;
 import net.bioclipse.ui.JsPluginable;
+
 import java.util.*;
 import java.io.*;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+
+
 public class TextR extends R implements Runnable, JsPluginable {
     private Process rProcess;
     private OutputStream stdin;
@@ -23,11 +28,13 @@ public class TextR extends R implements Runnable, JsPluginable {
     private Thread thread;
     private byte[] outbuffer=new byte[256];
 //    private byte[] errbuffer=new byte[256];
+    
     public TextR(OutputProvider op) throws NoRException{
         Runtime r=Runtime.getRuntime();
         String[] rArgs=
             new String[]{"--vanilla", "--slave", "--no-save", "--no-restore-data"};
         Vector<String> rCommand=new Vector<String>(Arrays.asList(rArgs));
+        
         if(System.getProperty("os.name").startsWith("Windows")){
             // Hello, Windows!
             // What is the switch to make R interactive on Windows?
@@ -52,6 +59,7 @@ public class TextR extends R implements Runnable, JsPluginable {
             catch(IOException ioe){
                 throw new NoRException(ioe);
             }
+
             rCommand.add(0, ptyWrapper);
             try{rProcess=r.exec(rCommand.toArray(rArgs));}
             catch(IOException ioe){
@@ -62,6 +70,7 @@ public class TextR extends R implements Runnable, JsPluginable {
         stdin=rProcess.getOutputStream();
         stdout=rProcess.getInputStream();
         stderr=rProcess.getErrorStream();
+
         outputProvider=op;
         thread=new Thread(this, "Interactive R");
         thread.start();
@@ -100,5 +109,6 @@ public class TextR extends R implements Runnable, JsPluginable {
                 outputProvider.output("<Character encoding failed>");
             }
         }
+            
     }
 }

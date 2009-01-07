@@ -7,6 +7,7 @@
  *
  *******************************************************************************/
 package net.bioclipse.r;
+
 public class NoRException extends Exception {
     private String message;
     public NoRException(String m){
