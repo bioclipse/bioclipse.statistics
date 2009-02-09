@@ -4,7 +4,6 @@ Bundle-Name: Bioclipse Statistics
 Bundle-SymbolicName: net.bioclipse.statistics;singleton:=true
 Bundle-Version: 1.2.0
 Bundle-Vendor: The Bioclipse Team
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.workbench.texteditor,
@@ -14,14 +13,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.core.resources,
  net.bioclipse.core
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.statistics,
  net.bioclipse.statistics.editors,
  net.bioclipse.statistics.model,
- net.bioclipse.statistics.model.type,
  org.eclipse.nebula.widgets.grid,
  org.eclipse.nebula.widgets.grid.internal
 Bundle-Activator: net.bioclipse.statistics.Activator
 Bundle-ClassPath: .,
  jars/org.eclipse.nebula.widgets.grid_1.0.0.jar
 Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
