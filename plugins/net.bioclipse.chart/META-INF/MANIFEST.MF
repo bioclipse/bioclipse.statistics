@@ -4,12 +4,11 @@ Bundle-Name: Chart Plug-in
 Bundle-SymbolicName: net.bioclipse.chart;singleton:=true
 Bundle-Version: 1.2.0
 Bundle-Vendor: Ola Spjuth, Eskil Andersen
-Bundle-Localization: plugin
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.views,
  org.eclipse.core.resources
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bioclipse.chart.Activator
 Bundle-ClassPath: chart.jar,
  jars/batik-awt-util.jar,
@@ -266,3 +265,4 @@ Export-Package: com.keypoint,
  org.jfree.ui.tabbedui;uses:="javax.swing",
  org.jfree.util;uses:="org.jfree.base.config,org.jfree.ui,javax.swing"
 Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
