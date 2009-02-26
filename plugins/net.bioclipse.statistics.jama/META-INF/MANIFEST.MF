@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Jama Matrix Library Plugin
+Bundle-Name: Jama Matrix Library
 Bundle-SymbolicName: net.bioclipse.statistics.jama;singleton:=true
-Bundle-Version: 1.2.0
+Bundle-Version: 2.0.0.B20090227
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.bioclipse.statistics
