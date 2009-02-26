@@ -361,7 +361,12 @@ public class MatrixResource extends BioObject {
 		int col = 1;
 		while( matrixScanner.hasNext() )
 		{
-			double value = matrixScanner.nextDouble();
+		    double value=Double.NaN;
+		    try {
+			value = matrixScanner.nextDouble();
+	      }catch (Exception e){
+	          logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Error: " + e.getMessage());
+	      }
 			try {
 				if (col > matrixImpl.getColumnCount()) {
 					// disregard data that does not fit the matrix
