@@ -7,5 +7,20 @@
       <rContribution id="net.bioclipse.r.TextR"
                      service="net.bioclipse.r.TextRFactory" />
    </extension>
+   
+   <extension
+         point="org.eclipse.ui.views">
+
+      <view
+         name="R Console"
+         icon="icons/source.gif"
+         category="net.bioclipse.ScriptingCategory"
+         class="net.bioclipse.r.ui.views.RConsoleView"
+         id="net.bioclipse.r.ui.views.RConsoleView">
+         <description>
+            R Console View
+         </description>
+      </view>
+   </extension>
 
 </plugin>
