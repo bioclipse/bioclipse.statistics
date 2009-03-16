@@ -10,12 +10,13 @@ package net.bioclipse.r.ui.views;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import net.bioclipse.r.NoRException;
 import net.bioclipse.r.TextR;
 import net.bioclipse.scripting.OutputProvider;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
+
+import org.eclipse.swt.widgets.Display;
 
 public class RConsoleView extends ScriptingConsoleView {
     TextR env;
@@ -23,8 +24,12 @@ public class RConsoleView extends ScriptingConsoleView {
     public RConsoleView() throws NoRException {
         env = new TextR(new OutputProvider() {
             @Override
-            public void output( String s ) {
-                printMessage(s);
+            public void output( final String s ) {
+                Display.getDefault().asyncExec( new Runnable() {
+                    public void run() {
+                        printMessage(s);
+                    }
+                });
             }
         });
     }
