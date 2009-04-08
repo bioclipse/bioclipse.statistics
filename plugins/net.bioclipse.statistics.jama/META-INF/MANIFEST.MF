@@ -7,7 +7,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  net.bioclipse.statistics
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: net.bioclipse.plugins.Bc_jamaPlugin
+Bundle-Activator: net.bioclipse.plugins.Activator
 Export-Package: Jama,
  net.bioclipse.model,
  net.bioclipse.plugins
