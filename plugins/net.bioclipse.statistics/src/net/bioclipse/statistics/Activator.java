@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 Bioclipse Project
+ * Copyright (c) 2006-2009 Bioclipse Project
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,15 +7,11 @@
  *
  * Contributors:
  *     Egon Willighagen - core API and implementation
+ *     Ola Spjuth - updated for Bioclipse 2.0
  *******************************************************************************/
 package net.bioclipse.statistics;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Properties;
-
 import org.eclipse.ui.plugin.*;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.osgi.framework.BundleContext;
 
@@ -23,12 +19,11 @@ import org.osgi.framework.BundleContext;
 /**
  * Adds matrix power to Bioclipse.
  * 
- * @author egonw
+ * @author egonw, olas
  */
 public class Activator extends AbstractUIPlugin {
 	
-	private final String PLUGIN_ID="net.bioclipse.statistics";
-	private final String LOG_PROPERTIES_FILE="logger.properties";
+	public static final String PLUGIN_ID="net.bioclipse.statistics";
 	
 	//The shared instance.
 	private static Activator plugin;
@@ -46,10 +41,6 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		
-		// New logger with com.tools.logging
-		configureLogger();
-		
-		System.out.println("Starting statistics plugin...");
 	}
 	
 	/**
@@ -75,29 +66,8 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return AbstractUIPlugin.imageDescriptorFromPlugin("net.bioclipse.statistics", path);
+		return AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 	
-	private void configureLogger() {
 
-		try {
-			URL url = Platform.getBundle(PLUGIN_ID).getEntry("/" + LOG_PROPERTIES_FILE);
-			
-			InputStream propertiesInputStream = url.openStream();
-			
-			
-			if (propertiesInputStream != null) {
-				Properties props = new Properties();
-				props.load(propertiesInputStream);
-				propertiesInputStream.close();
-			}	
-		} 
-		catch (Exception e) {
-			String message = "Error while initializing log properties." + 
-			e.getMessage();
-			System.err.println(message);
-			throw new RuntimeException(
-					"Error while initializing log properties.",e);
-		}         
-	}	
 }
