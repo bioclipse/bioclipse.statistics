@@ -194,8 +194,8 @@ public class MatrixResource extends BioObject {
 				setParsed(true);
 				return true;
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			    throw new RuntimeException(
+			        "Exception occured when parsing the resource", e1);
 			}
 		}
 		
