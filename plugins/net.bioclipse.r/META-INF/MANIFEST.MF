@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: R Plug-in
+Bundle-Name: R for Bioclipse
 Bundle-SymbolicName: net.bioclipse.r;singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0.B20090409
 Bundle-Activator: net.bioclipse.r.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.core,
  net.bioclipse.scripting,
  net.bioclipse.ui,
- net.bioclipse.scripting.ui;bundle-version="2.0.0",
- org.eclipse.ui;bundle-version="3.4.1"
-Eclipse-LazyStart: true
+ net.bioclipse.scripting.ui,
+ org.eclipse.ui
+Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r
 Import-Package: org.apache.log4j
+Bundle-Vendor: The Bioclipse Team
