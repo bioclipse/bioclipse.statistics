@@ -81,7 +81,7 @@ public class TextR extends R implements Runnable, JsPluginable {
     public void destroy(){
         rProcess.destroy();
     }
-    public void eval(ArrayList<Object> l)throws IOException{
+    public void eval(List<Object> l)throws IOException{
         String rCode=preParsedToR(l)+"\n";
         stdin.write(rCode.getBytes("ISO-8859-1"));
         stdin.flush();

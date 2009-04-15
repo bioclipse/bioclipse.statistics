@@ -16,7 +16,7 @@ public abstract class R{
     protected void finalize(){
         destroy();
     }
-    static protected String preParsedToR(ArrayList<Object> l){
+    static protected String preParsedToR(List<Object> l){
         String rString=new String();
 
         for(int i=0; i<l.size(); i++){
