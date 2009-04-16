@@ -22,7 +22,9 @@ import net.bioclipse.scripting.JsThread;
 import net.bioclipse.scripting.OutputProvider;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 
 public class RConsoleView extends ScriptingConsoleView {
     TextR env;
@@ -58,6 +60,9 @@ public class RConsoleView extends ScriptingConsoleView {
                 });
             }
         });
+        String loc=Platform.getLocation().toOSString();
+        if (loc!=null)
+            executeCommand( "setwd(\""+ loc +"\")");
     }
 
     @Override
