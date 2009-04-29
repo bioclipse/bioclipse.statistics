@@ -50,11 +50,16 @@ public class TextR extends R implements Runnable, JsPluginable {
             // OK, so here the arguments don't do anything. *** TODO.
             String ptyWrapper;
             try{
+                String osPart=(System.getProperty("os.name") + "-" 
+                        + System.getProperty("os.arch")).toLowerCase();
+                
+                //We can't have spaces in file name, so handle Mac OS X individually
+                if (osPart.equals( "mac os x-i386" ))
+                    osPart="macosx-i386";
+
                 ptyWrapper=FileLocator.toFileURL(
                         Platform.getBundle("net.bioclipse.r").getEntry("/native-bin")
-                ).getFile()+"pty-"+
-                ((System.getProperty("os.name")+"-"+System.getProperty("os.arch"))
-                        .toLowerCase());
+                ).getFile()+"pty-"+ osPart;
             }
             catch(IOException ioe){
                 throw new NoRException(ioe);
@@ -63,7 +68,8 @@ public class TextR extends R implements Runnable, JsPluginable {
             rCommand.add(0, ptyWrapper);
             try{rProcess=r.exec(rCommand.toArray(rArgs));}
             catch(IOException ioe){
-                throw new NoRException("R is not supported on this platform.");
+                throw new NoRException("R is not supported on this platform: " 
+                                       + ioe.getMessage());
             }
             // *** Add test to see if the wrapper execed R OK. Bah, how?
         }
