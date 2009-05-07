@@ -24,7 +24,6 @@ import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.PlatformUI;
 
 public class RConsoleView extends ScriptingConsoleView {
     TextR env;
@@ -68,12 +67,7 @@ public class RConsoleView extends ScriptingConsoleView {
     @Override
     protected String executeCommand( String command ) {
         List<Object> al;
-//        try {
-            al = interpolateJsVariables(command);
-//        }
-//        catch (RuntimeException rte) {
-//            return rte.toString();
-//        }
+        al = interpolateJsVariables(command);
 
         try {
             env.eval( al );
@@ -123,4 +117,7 @@ public class RConsoleView extends ScriptingConsoleView {
         return al;
     }
 
+    protected void waitUntilCommandFinished() {
+        // Don't know if there's a way to sensibly implement this method for R.
+    }
 }
