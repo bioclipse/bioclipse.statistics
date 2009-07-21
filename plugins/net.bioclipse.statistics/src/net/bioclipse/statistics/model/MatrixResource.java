@@ -51,6 +51,8 @@ public class MatrixResource extends BioObject {
 	private static final int TAB_SCANNER = 1;
 	private static final int COMMA_SCANNER = 2;
 	private static final int WHITESPACE_SCANNER = 3;
+
+    private static final String HARDCODED_RESPONSE_COLUMN_NAME = "RESPONSE";
 	
 	private String name;
 	private boolean parsed;
@@ -172,7 +174,7 @@ public class MatrixResource extends BioObject {
 					matrixBuilder.append("\n");
 				}
 				
-				matrixImpl = parseStringIntoMatrix(matrixBuilder.toString());
+				parseStringIntoMatrix(matrixBuilder.toString());
 				
 				//Old parser
 //				read(new String(getPersistedResource().getInMemoryResource()));
@@ -240,7 +242,7 @@ public class MatrixResource extends BioObject {
         return matrixScanner;
     }
 
-	private IMatrixImplementationResource parseStringIntoMatrix(
+	private void parseStringIntoMatrix(
 			String matrixString) 
 	{
 		
@@ -252,7 +254,6 @@ public class MatrixResource extends BioObject {
 //			BioclipseConsole.writeToConsole("Matrix is empty!");
 			logger.debug("Matrix is empty!");
 			this.setSize(matrixRows, matrixCols);
-			return matrixImpl;
 		}
 
 		//Selected scanner, null from start
@@ -322,7 +323,15 @@ public class MatrixResource extends BioObject {
 			int index = 0;
 			while( matrixScanner.hasNext()) {
 				index++;
-				matrixImpl.setColumnName(index, matrixScanner.next());
+				String colname = matrixScanner.next();
+				matrixImpl.setColumnName(index, colname);
+				
+				//Handle response column for a hardcoded name
+				//TODO: refactor this out
+				if (colname.equalsIgnoreCase( HARDCODED_RESPONSE_COLUMN_NAME ) ){
+				    matrixImpl.setResponseColumn( index );
+				}
+				
 			}
 		}
 		
@@ -347,7 +356,6 @@ public class MatrixResource extends BioObject {
 		
 		matrixScanner.close();
 		logger.debug("Parsed matrix");		
-		return matrixImpl;
 	}
 
 	//Utility method for inserting a row into the matrix (not the column header)
@@ -361,25 +369,32 @@ public class MatrixResource extends BioObject {
 		int col = 1;
 		while( matrixScanner.hasNext() )
 		{
-		    double value=Double.NaN;
-		    try {
-			value = matrixScanner.nextDouble();
-	      }catch (Exception e){
-	          logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Error: " + e.getMessage());
-	      }
-			try {
-				if (col > matrixImpl.getColumnCount()) {
-					// disregard data that does not fit the matrix
-					logger.error("Found more data than can fit the matrix: too few labels?");
-				} else {
-					matrixImpl.set(row, col, value);
-				}
-			} catch (Exception e) 
-			{
-				logger.error("Failed to insert " + value + "at row " + row + ", col: " +col );
-				e.printStackTrace();
-			}
-			col++;
+		    //If we have responses and this is the response column, add it
+		    if (matrixImpl.hasResponseColumn() && matrixImpl.getResponseColumn()==col){
+            String value = matrixScanner.next();
+		        matrixImpl.setResponse( row, value );
+		    }
+		    else{
+		        double value=Double.NaN;
+		        try {
+		            value = matrixScanner.nextDouble();
+		        }catch (Exception e){
+		            logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Expected double but was: " + matrixScanner.next() + " Error: " + e.getMessage());
+		        }
+		        try {
+		            if (col > matrixImpl.getColumnCount()) {
+		                // disregard data that does not fit the matrix
+		                logger.error("Found more data than can fit the matrix: too few labels?");
+		            } else {
+		                matrixImpl.set(row, col, value);
+		            }
+		        } catch (Exception e) 
+		        {
+		            logger.error("Failed to insert " + value + "at row " + row + ", col: " +col );
+		            e.printStackTrace();
+		        }
+		    }
+		    col++;
 		}
 		
 	}
@@ -407,14 +422,18 @@ public class MatrixResource extends BioObject {
 		}
 	}
 	
-	public double get(int row, int col) {
-		if (matrixImpl == null) return 0.0;
+	public String get(int row, int col) {
+		if (matrixImpl == null) return "null";
 		try {
-			return matrixImpl.get(row, col);
+		    if (matrixImpl.hasResponseColumn() 
+		            && col==matrixImpl.getResponseColumn()){
+		        return matrixImpl.getResponse( row );
+		    }
+			return "" + matrixImpl.get(row, col);
 		} catch (Exception e) {
 			logger.error("Could not determine cell content!", e);
 		}
-		return -1.0;
+		return "error";
 	}
 
 	public int getColumnCount() {
@@ -641,7 +660,10 @@ public class MatrixResource extends BioObject {
 	
 	public void setSize(int row, int col) {
 		if (matrixImpl == null) findMatrixImplementation();
-		matrixImpl = matrixImpl.getInstance(row, col);
+		if (matrixImpl.hasResponseColumn())
+		    matrixImpl = matrixImpl.getInstance(row, col, matrixImpl.getResponseColumn());
+		else
+        matrixImpl = matrixImpl.getInstance(row, col);
 		setParsedResource(matrixImpl);
 		setParsed(true);
 	}

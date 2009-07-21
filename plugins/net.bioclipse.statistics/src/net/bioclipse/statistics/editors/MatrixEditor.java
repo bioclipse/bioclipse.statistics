@@ -1,15 +1,19 @@
 /*****************************************************************************
- * Copyright (c) 2008 Bioclipse Project
+ * Copyright (c) 2008-2009 The Bioclipse Project Contributors
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+
+ * Contributors:
+ *     Jonathan Alvarsson
+ *     Eskil Andersen
+ *     Ola Spjuth
  *
  *****************************************************************************/
 
 package net.bioclipse.statistics.editors;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -28,13 +32,10 @@ import net.bioclipse.statistics.model.MatrixResource;
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
@@ -59,10 +60,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -81,17 +80,18 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.EditorPart;
 
 
 /**
  * A spreadsheet like editor for editing matrices.
  * 
- * @author jonalv, Eskil Andersen
+ * @author jonalv, Eskil Andersen, Ola Spjuth
  *
  */
-public class MatrixEditor extends EditorPart implements ISelectionListener, ISelectionProvider, IResourceChangeListener  {
+public class MatrixEditor extends EditorPart implements ISelectionListener, 
+                                                        ISelectionProvider, 
+                                                        IResourceChangeListener{
 
 	private static final Logger logger = 
 		Logger.getLogger( MatrixEditor.class.toString() );
@@ -102,8 +102,9 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	private List<ISelectionChangedListener> selectionListeners;
 	private ISelection currentSelection;
 
-	private final Clipboard cb = new Clipboard(
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell().getDisplay() );
+	private final Clipboard cb = 
+	    new Clipboard(PlatformUI.getWorkbench()
+	                  .getActiveWorkbenchWindow().getShell().getDisplay() );
 
 	private MatrixResource matrix;
 
@@ -149,7 +150,9 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	}
 
 	@Override
-	public void init(IEditorSite site, IEditorInput input) throws PartInitException {
+	public void init(IEditorSite site, IEditorInput input) 
+	            throws PartInitException {
+	    
 		super.setSite(site);
 		super.setInput(input);
 		logger.debug("initializing matrix editor...");
@@ -176,6 +179,12 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
                                        message );
     }
 
+    private void showError(String message) {
+        MessageDialog.openError( getSite().getShell(),
+                                       "Error",
+                                       message );
+    }
+
 	@Override
 	public boolean isDirty() {
 		return this.isDirty;
@@ -191,14 +200,16 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		logger.debug("Creating editor part...");
 		parent.setLayout(new FillLayout());
 
-		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.VIRTUAL | SWT.MULTI);
+		grid = new Grid( parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | 
+		                 SWT.VIRTUAL | SWT.MULTI);
 		grid.setHeaderVisible(true);
 		grid.setRowHeaderVisible(true);
 		grid.setCellSelectionEnabled(true);
 
 		
 		//Set up the matrix as a model for the grid
-		matrix = new MatrixResource(editorInput.getName(),(IFileEditorInput) this.editorInput);
+		matrix = new MatrixResource(editorInput.getName(),
+		                            (IFileEditorInput) this.editorInput);
 		matrix.parseResource();		
 
 		setupGridForMatrix(matrix);
@@ -209,7 +220,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 		//Register context menu with the workbench for extensions
 		//this.getSite().registerContextMenu(manager, this);
 		
-		//Register MatrixGridEditor with the page as a receiver of SelectionChangedEvents
+		//Register MatrixGridEditor with the page as a receiver of 
+		//SelectionChangedEvents
 		getSite().getPage().addSelectionListener(this);
 		
 		//Register MatrixGridEditor as a SelectionProvider
@@ -233,8 +245,13 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 					String colName = gc.getText();
 					GridItem gi = grid.getItem(p.y);
 					String value = gi.getText(p.x);
-					CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
-					cs.addCell(cd);
+					try{
+		          CellData cd = new CellData(colName,p.y,Double.parseDouble(value));
+		          cs.addCell(cd);
+					}catch (NumberFormatException e){
+					    logger.debug( "Swallowed a numberformat exception since cells " +
+					    		"in MatrixEditor are required to be double." );
+					}
 				}
 				//Sets the selection to the selected cells
 				MatrixEditor.this.setSelection(cs);
@@ -349,7 +366,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 				String rowName = newMatrix.getRowName(index+1);
 				item.setHeaderText( rowName == null ? index + "" : rowName );
 				for (int i = 0; i < newMatrix.getColumnCount(); i++) {
-					item.setText(i, newMatrix.get(index+1, i+1) + "");
+					item.setText(i, newMatrix.get(index+1, i+1));
 				}
 			}
 		} );
@@ -437,7 +454,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	}
 
 	/**
-	 * Handles cell editing events like doubleclicks and pressing enter on a column
+	 * Handles cell editing events like doubleclick and pressing enter on a column
 	 * @author Eskil Andersen
 	 *
 	 */
@@ -483,7 +500,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 							return;
 						}
 						//Make sure that last character is not a dot
-						else if( !(textField.getText().charAt(textField.getText().length()-1) == '.'))
+						else if( !(textField.getText().charAt(
+						                            textField.getText().length()-1) == '.'))
 						{
 							//If string starts with a dot prepend a zero in the text displayed
 							if( textField.getText().startsWith(".")){
@@ -600,8 +618,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 	}
 
 	/**
-	 * Call when plotting scatter plots, line plots or time series. Sets up the data
-	 * and calls plot functions from net.bioclipse.chart
+	 * Call when plotting scatter plots, line plots or time series. Sets up the 
+	 * data and calls plot functions from net.bioclipse.chart
 	 * @param plotType ChartConstants.LINE_PLOT, SCATTER_PLOT or TIME_SERIES
 	 */
 	public void plot( int plotType )
@@ -644,16 +662,25 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 				cd = j.next();
 				if( cd.getLabel().equals(grid.getColumn(cellSelection[i].x).getText()))
 				{
-					cd.add(Double.parseDouble(gi.getText(cellSelection[i].x)),cellSelection[i].y);
+				    try{
+			          cd.add(Double.parseDouble(gi.getText(cellSelection[i].x)),
+			                 cellSelection[i].y);
+				    }catch (NumberFormatException e){
+				        showError( "Selection contains cells that could not be parsed " +
+				        		"into a value. " +
+				        		"Please select only values before trying to plot again." );
+				    }
 				}
 			}
 			
 		}	
 		
-		//Setup a dialog where the user can adjust settings and plot if more than 2 columns are selected
+		//Setup a dialog where the user can adjust settings and plot if more than 2 
+		//columns are selected
 		if( columnsVector.size() != 2)
 		{
-			ChartDialog chartDialog = new ChartDialog(Display.getCurrent().getActiveShell(),
+			ChartDialog chartDialog = new ChartDialog(Display.getCurrent()
+			                                          .getActiveShell(),
 					SWT.NULL, plotType, columnsVector, true);
 			chartDialog.open();
 		}
@@ -666,13 +693,20 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 			switch( plotType )
 			{
 			case ChartConstants.SCATTER_PLOT:
-			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
+			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(),
+			                            cdx.getLabel(), cdy.getLabel(), 
+			                            cdx.getLabel() + " against " + cdy.getLabel(), 
+			                            cdx.getIndices(), this);
 			    break;
 			case ChartConstants.LINE_PLOT:
-				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
+				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
+				                    cdy.getLabel(), cdx.getLabel() + " against " + 
+				                    cdy.getLabel(), cdx.getIndices(), this);
 				break;
 			case ChartConstants.TIME_SERIES:
-				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), cdy.getLabel(), cdx.getLabel() + " against " + cdy.getLabel(), cdx.getIndices(), this);
+				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
+				                      cdy.getLabel(), cdx.getLabel() + " against " + 
+				                      cdy.getLabel(), cdx.getIndices(), this);
 				break;
 			default: 
 				throw new IllegalArgumentException("Illegal value for plotType"); 
@@ -734,7 +768,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 
 						PlotPointData element = (PlotPointData) ss.getFirstElement();
 
-						//Match the column names i element where x and y values reside with their column numbers in grid
+						//Match the column names i element where x and y values reside with 
+						//their column numbers in grid
 						for( int i = 0; i < grid.getColumnCount(); i++)
 						{
 							GridColumn gc = grid.getColumn(i);
@@ -823,7 +858,9 @@ public class MatrixEditor extends EditorPart implements ISelectionListener, ISel
 			Display.getDefault().asyncExec(new Runnable(){
 
 				public void run() {
-//					boolean answer=MessageDialog.openConfirm(getSite().getShell(), "Resource changed", "Matric has been changed on file. Would you like to reload contents from file?");
+//					boolean answer=MessageDialog.openConfirm(getSite().getShell(), 
+//				    "Resource changed", "Matric has been changed on file. Would you 
+//				    like to reload contents from file?");
 //					if (answer){
 						reloadFromFile();
 //					}else{
