@@ -73,6 +73,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.ISelectionListener;
@@ -850,7 +851,16 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
         
 		
 		if (docDelta.getKind()==IResourceDelta.REMOVED){
-			showMessage("Matrix file has been removed!");
+		    
+		    final IEditorPart toclose=this;
+		    
+	      Display.getDefault().asyncExec(new Runnable(){
+            public void run() {
+                logger.debug("Matrix file has been removed!");
+                getSite().getPage().closeEditor( toclose, false );
+            }
+	      });
+
 			return;
 		}
 
@@ -859,7 +869,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 
 				public void run() {
 //					boolean answer=MessageDialog.openConfirm(getSite().getShell(), 
-//				    "Resource changed", "Matric has been changed on file. Would you 
+//				    "Resource changed", "Matrix has been changed on file. Would you 
 //				    like to reload contents from file?");
 //					if (answer){
 						reloadFromFile();
