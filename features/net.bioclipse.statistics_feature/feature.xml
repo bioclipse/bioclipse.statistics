@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="net.bioclipse.statistics_feature"
+      label="Bioclipse Statistics"
+      version="2.1.1"
+      provider-name="The Bioclipse Project">
+   <install-handler library="net.bioclipse.statistics/"/>
+
+   <description>
+      Feature that extends Bioclipse with statistics related functionality.
+   </description>
+
+   <copyright>
+      Various authors.
+   </copyright>
+
+   <license>
+      The Eclipse Public License + exception to allow GPL plugins to use this feature as explained in the first Bioclipse paper.
+   </license>
+
+   <plugin
+         id="net.bioclipse.statistics"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.bioclipse.statistics.jama"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.bioclipse.chart"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>
