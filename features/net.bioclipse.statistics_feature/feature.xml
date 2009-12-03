@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.statistics_feature"
       label="Bioclipse Statistics"
-      version="2.1.1"
+      version="2.2.0.RC2"
       provider-name="The Bioclipse Project">
    <install-handler library="net.bioclipse.statistics/"/>
 
