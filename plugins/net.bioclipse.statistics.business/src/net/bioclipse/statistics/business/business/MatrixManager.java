@@ -13,8 +13,10 @@ package net.bioclipse.statistics.business.business;
 import java.util.StringTokenizer;
 
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.statistics.model.IMatrixImplementationResource;
-import net.bioclipse.model.JamaMatrix;
+import net.bioclipse.statistics.model.IMatrixResource;
+import net.bioclipse.statistics.model.MatrixResource;
+
+import org.eclipse.ui.IFileEditorInput;
 
 public class MatrixManager implements IBioclipseManager {
 
@@ -26,16 +28,17 @@ public class MatrixManager implements IBioclipseManager {
         return "matrix";
     }
 
-    public IMatrixImplementationResource create(
+    public IMatrixResource create(
             String valueSequence, int ncol) {
         StringTokenizer tokenizer = new StringTokenizer(valueSequence);
         int tokenCount = tokenizer.countTokens();
         double ceil = Math.ceil((double)tokenCount/(double)ncol);
         int nrow = (int)ceil;
-        
-        IMatrixImplementationResource matrix =
-            new JamaMatrix().getInstance(nrow, ncol);
-        
+
+        IMatrixResource matrix =
+            new MatrixResource("", (IFileEditorInput)null);
+        matrix.setSize(nrow, ncol);
+
         int rowCount = 0;
         int colCount = 0;
         while (tokenizer.hasMoreTokens()) {

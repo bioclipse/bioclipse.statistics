@@ -14,7 +14,7 @@ import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.statistics.model.IMatrixImplementationResource;
+import net.bioclipse.statistics.model.IMatrixResource;
 
 @PublishedClass(
     value="Manager to assist working with Bioclipse Matrix domain " +
@@ -27,7 +27,7 @@ public interface IMatrixManager extends IBioclipseManager {
         "Creates a new matrix domain object, staring from a sequence " +
         "of values and a given number of columns."
     )
-    public IMatrixImplementationResource create(
+    public IMatrixResource create(
         String valueSequence, int ncol);
 
 }
