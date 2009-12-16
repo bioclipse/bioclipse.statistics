@@ -60,5 +60,20 @@ public class MatrixManager implements IBioclipseManager {
         
         return matrix;
     }
+    
+    public IMatrixResource create(double[][] values) {
+        IMatrixResource matrix =
+            new MatrixResource("", (IFileEditorInput)null);
+        int ncol = values.length;
+        int nrow = values[0].length;
+        matrix.setSize(ncol, nrow);
+        
+        for (int row=0; row<nrow; row++) {
+            for (int col=0; col<ncol; col++) {
+                matrix.set(row, col, values[row][col]);
+            }
+        }
+        return matrix;
+    }
 
 }

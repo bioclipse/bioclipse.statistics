@@ -30,4 +30,11 @@ public interface IMatrixManager extends IBioclipseManager {
     public IMatrixResource create(
         String valueSequence, int ncol);
 
+    @Recorded
+    @PublishedMethod(methodSummary=
+        "Creates a new matrix domain object, starting from a array of " +
+        "double arrays."
+    )
+    public IMatrixResource create(double[][] values);
+
 }
