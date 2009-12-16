@@ -593,6 +593,16 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		return buffer.toString();
 	}
 	
+	public String toString() {
+	    String result = "Matrix:\n";
+	    try {
+            result = matrixImpl.toString();
+        } catch (Exception exception) {
+            result = result + exception.getMessage();
+        }
+        return result;
+	}
+
 	/**
 	 * This method is from the Jama library.
 	 * 
