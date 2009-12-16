@@ -41,7 +41,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
  * 
  * @author egonw, ospjuth
  */
-public class MatrixResource extends BioObject {
+public class MatrixResource extends BioObject implements IMatrixResource {
 	
 	//Bioclipse 1 logger
 	//private static final Logger logger = Activator.getLogManager().getLogger(MatrixResource.class.toString());
@@ -63,6 +63,11 @@ public class MatrixResource extends BioObject {
 	private MatrixResourcePropertySource propSource;
 	
 	private IMatrixImplementationResource matrixImpl;
+	
+	public MatrixResource() {
+	    this.name = "";
+	    this.input = null;
+	}
 	
 	public MatrixResource(String name, IFileEditorInput input) {
 //		super(name);

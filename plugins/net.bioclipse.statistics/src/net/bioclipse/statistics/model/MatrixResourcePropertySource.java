@@ -32,7 +32,7 @@ public class MatrixResourcePropertySource extends BioObjectPropertySource implem
 			{ ROW_SIZE, new TextPropertyDescriptor(ROW_SIZE, "Row count")},		  
 	};	
 
-	private MatrixResource item;
+	private IMatrixResource item;
 	
 	public MatrixResourcePropertySource(MatrixResource item) {
 		super(item);

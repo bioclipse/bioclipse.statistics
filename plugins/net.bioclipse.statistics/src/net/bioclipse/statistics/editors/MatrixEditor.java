@@ -27,6 +27,7 @@ import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;
 import net.bioclipse.model.PlotPointData;
+import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
 
 import org.apache.log4j.Logger;
@@ -346,7 +347,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		grid.setMenu(menu);
 	}
 	
-	private void setupGridForMatrix(final MatrixResource newMatrix) {
+	private void setupGridForMatrix(final IMatrixResource newMatrix) {
 		
 		grid.setItemCount( newMatrix.getRowCount() );
 		grid.setItemHeight(20);
