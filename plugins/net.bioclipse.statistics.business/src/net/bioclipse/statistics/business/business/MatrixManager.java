@@ -70,7 +70,7 @@ public class MatrixManager implements IBioclipseManager {
         
         for (int row=0; row<nrow; row++) {
             for (int col=0; col<ncol; col++) {
-                matrix.set(row, col, values[row][col]);
+                matrix.set(row+1, col+1, values[row][col]);
             }
         }
         return matrix;
