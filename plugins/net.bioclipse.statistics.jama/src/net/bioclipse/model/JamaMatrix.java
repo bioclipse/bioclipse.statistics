@@ -177,4 +177,28 @@ public class JamaMatrix extends MatrixImplementationResource {
         responseColumnIndex=index;
     }
 
+    public String toString() {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("JamaMatrix:\n");
+        try {
+            for (int row=0; row<getRowCount(); row++) {
+                if (getRowName(row+1) != null) {
+                    buffer.append(getRowName(row+1)).append(',');
+                }
+
+                for (int col=0; col<getColumnCount(); col++) {
+                    buffer.append(get(row+1, col+1));
+                    if (col<getColumnCount()) {
+                        buffer.append(',');
+                    }
+                }
+                buffer.append('\n');
+            }
+            buffer.append('\n');
+        } catch (Exception exception) {
+            buffer.append(exception.getMessage());
+        }
+        return buffer.toString();
+    }
+
 }
