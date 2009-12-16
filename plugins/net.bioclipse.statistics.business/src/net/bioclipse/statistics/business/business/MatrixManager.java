@@ -10,13 +10,13 @@
  ******************************************************************************/
 package net.bioclipse.statistics.business.business;
 
-import net.bioclipse.managers.business.IBioclipseManager;
+import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
+import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.statistics.model.IMatrixImplementationResource;
+import net.bioclipse.model.JamaMatrix;
 
 public class MatrixManager implements IBioclipseManager {
-
-    private static final Logger logger = Logger.getLogger(MatrixManager.class);
 
     /**
      * Gives a short one word name of the manager used as variable name when
@@ -25,4 +25,37 @@ public class MatrixManager implements IBioclipseManager {
     public String getManagerName() {
         return "matrix";
     }
+
+    public IMatrixImplementationResource create(
+            String valueSequence, int ncol) {
+        StringTokenizer tokenizer = new StringTokenizer(valueSequence);
+        int tokenCount = tokenizer.countTokens();
+        double ceil = Math.ceil((double)tokenCount/(double)ncol);
+        int nrow = (int)ceil;
+        
+        IMatrixImplementationResource matrix =
+            new JamaMatrix().getInstance(nrow, ncol);
+        
+        int rowCount = 0;
+        int colCount = 0;
+        while (tokenizer.hasMoreTokens()) {
+            double value = Double.NaN;
+            try {
+                value = Double.parseDouble(tokenizer.nextToken());
+            } catch (NumberFormatException exception) {}
+            try {
+                matrix.set(rowCount+1, colCount+1, value);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            colCount++;
+            if (colCount == ncol) {
+                colCount = 0;
+                rowCount++;
+            }
+        }
+        
+        return matrix;
+    }
+
 }
