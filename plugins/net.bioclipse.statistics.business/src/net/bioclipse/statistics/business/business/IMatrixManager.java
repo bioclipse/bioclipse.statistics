@@ -37,4 +37,16 @@ public interface IMatrixManager extends IBioclipseManager {
     )
     public IMatrixResource create(double[][] values);
 
+    @Recorded
+    @PublishedMethod(methodSummary=
+        "Sets the column labels of the matrix."
+    )
+    public void setColumnLabels(IMatrixResource matrix, String[] names);
+
+    @Recorded
+    @PublishedMethod(methodSummary=
+        "Sets the row labels of the matrix."
+    )
+    public void setRowLabels(IMatrixResource matrix, String[] names);
+
 }

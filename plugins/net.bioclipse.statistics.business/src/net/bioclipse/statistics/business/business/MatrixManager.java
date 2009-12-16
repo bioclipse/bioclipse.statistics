@@ -76,4 +76,20 @@ public class MatrixManager implements IBioclipseManager {
         return matrix;
     }
 
+    public void setColumnLabels(IMatrixResource matrix, String[] names) {
+        int col = 1;
+        for (String name : names) {
+            matrix.setColumnName(col, name);
+            col++;
+        }
+    }
+
+    public void setRowLabels(IMatrixResource matrix, String[] names) {
+        int row = 1;
+        for (String name : names) {
+            matrix.setRowName(row, name);
+            row++;
+        }
+    }
+
 }
