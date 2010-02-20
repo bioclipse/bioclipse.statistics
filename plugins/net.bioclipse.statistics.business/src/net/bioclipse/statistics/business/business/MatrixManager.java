@@ -10,8 +10,10 @@
  ******************************************************************************/
 package net.bioclipse.statistics.business.business;
 
+import java.util.List;
 import java.util.StringTokenizer;
 
+import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
@@ -92,4 +94,25 @@ public class MatrixManager implements IBioclipseManager {
         }
     }
 
+    public IMatrixResource empty() {
+        IMatrixResource matrix = new MatrixResource("", (IFileEditorInput)null);
+        matrix.setSize(0,0);
+        return matrix;
+    }
+
+    public IMatrixResource addRow(IMatrixResource matrix, List<Double> values)
+    throws BioclipseException {
+    	int row = matrix.getRowCount();
+    	if (row != 0 && values.size() != matrix.getColumnCount())
+    		throw new BioclipseException(
+    			"The existing matrix has a different number of columns than " +
+    			"the number of values in the List."
+    		);
+
+    	row += 1;
+    	for (int col=1; col<=values.size(); col++) {
+    		matrix.set(row, col, values.get(col-1));
+    	}
+    	return matrix;
+    }
 }
