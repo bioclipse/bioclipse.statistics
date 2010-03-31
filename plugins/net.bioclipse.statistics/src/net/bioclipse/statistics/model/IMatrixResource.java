@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* *****************************************************************************
  * Copyright (c) 2009  Egon Willighagen <egonw.willighagen@gmail.com>
  *
  * All rights reserved. This program and the accompanying materials
