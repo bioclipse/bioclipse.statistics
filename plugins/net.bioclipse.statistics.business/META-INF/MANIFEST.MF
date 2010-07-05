@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Bioclipse Matrix Manager
 Bundle-SymbolicName: net.bioclipse.statistics.business; singleton:=true
-Bundle-Version: 2.4.0.RC1
+Bundle-Version: 2.4.0.RC3
 Bundle-Activator: net.bioclipse.statistics.business.Activator
 Bundle-Vendor: The Bioclipse Project
 Export-Package: net.bioclipse.statistics.business, net.bioclipse.statistics.business.business
