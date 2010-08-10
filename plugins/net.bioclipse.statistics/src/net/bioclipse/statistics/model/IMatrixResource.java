@@ -34,4 +34,5 @@ public interface IMatrixResource {
 
     public abstract void setRowName(int index, String name);
 
+    public abstract String asCSV();
 }
