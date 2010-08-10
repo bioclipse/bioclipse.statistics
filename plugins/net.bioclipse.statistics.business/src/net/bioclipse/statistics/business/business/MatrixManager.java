@@ -10,6 +10,9 @@
  ******************************************************************************/
 package net.bioclipse.statistics.business.business;
 
+import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -18,6 +21,10 @@ import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IFileEditorInput;
 
 public class MatrixManager implements IBioclipseManager {
@@ -114,5 +121,29 @@ public class MatrixManager implements IBioclipseManager {
     		matrix.set(row, col, values.get(col-1));
     	}
     	return matrix;
+    }
+    
+    public void saveAsCSV(IMatrixResource matrix, IFile target,
+    		              IProgressMonitor monitor)
+    throws InvocationTargetException, BioclipseException, CoreException {
+    	if (target.exists()) {
+            throw new BioclipseException("File already exists!");
+        }
+    	if (monitor == null) monitor = new NullProgressMonitor();
+
+    	monitor.beginTask("Writing file", 1);
+    	try {
+			target.create(
+				new ByteArrayInputStream(
+					matrix.asCSV().getBytes("US-ASCII")
+				),
+				false, monitor 
+			);
+			monitor.worked(1);
+		} catch (UnsupportedEncodingException e) {
+			// e.printStackTrace();
+		} finally {
+			monitor.done();
+		}
     }
 }
