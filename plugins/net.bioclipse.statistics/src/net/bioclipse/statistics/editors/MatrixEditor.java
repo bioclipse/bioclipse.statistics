@@ -163,6 +163,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			this.editorInput = feditorinput;
 			this.resource=feditorinput.getFile();
 			this.project=resource.getProject();
+			setPartName(this.resource.getName());
 		}else{
 			showMessage("MatrixEditor can currently only be opened on a File");
 			dispose();
