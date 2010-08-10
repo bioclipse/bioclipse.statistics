@@ -10,7 +10,10 @@
  ******************************************************************************/
 package net.bioclipse.statistics.business.business;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import org.eclipse.core.runtime.CoreException;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -70,5 +73,13 @@ public interface IMatrixManager extends IBioclipseManager {
         params="IMatrixResource matrix, String[] names"
     )
     public void setRowLabels(IMatrixResource matrix, String[] names);
-
+    
+    @Recorded
+    @PublishedMethod(
+    	params="IMatrixResource matrix, String fileName",
+    	methodSummary="Saves a matrix as CSV file."
+    )
+    public void saveAsCSV(IMatrixResource matrix, String fileName)
+    throws InvocationTargetException, BioclipseException, CoreException;
+    
 }
