@@ -719,6 +719,17 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	public String asCSV() {
         StringBuffer buffer = new StringBuffer();
         try {
+            for (int col=1; col<=getColumnCount(); col++) {
+            	String colName = getColumnName(col);
+            	if (colName == null) {
+            		colName = "";
+            	} else {
+//            		colName.replaceAll("\"", "\\\"");
+            	}
+            	buffer.append(colName);
+            	if (col<getColumnCount()) buffer.append(',');
+            }
+            buffer.append('\n');
             for (int row=0; row<getRowCount(); row++) {
                 if (getRowName(row+1) != null) {
                     buffer.append(getRowName(row+1)).append(',');
