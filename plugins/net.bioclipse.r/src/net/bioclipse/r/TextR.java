@@ -54,7 +54,7 @@ public class TextR extends R implements Runnable, JsPluginable {
                         + System.getProperty("os.arch")).toLowerCase();
                 
                 //We can't have spaces in file name, so handle Mac OS X individually
-                if (osPart.equals( "mac os x-i386" ))
+                if (osPart.startsWith( "mac os x" ))
                     osPart="macosx-i386";
 
                 ptyWrapper=FileLocator.toFileURL(
