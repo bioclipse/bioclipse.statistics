@@ -5,14 +5,13 @@ Bundle-SymbolicName: net.bioclipse.statistics.jama;singleton:=true
 Bundle-Version: 2.4.0.20100709
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- net.bioclipse.statistics
+ net.bioclipse.statistics,
+ net.bioclipse.jama;bundle-version="1.0.2"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bioclipse.plugins.Activator
-Export-Package: Jama,
- net.bioclipse.model,
+Export-Package: net.bioclipse.model,
  net.bioclipse.plugins
-Bundle-ClassPath: .,
- jars/Jama-1.0.1.jar
+Bundle-ClassPath: .
 Bundle-Vendor: The Bioclipse Team
 Import-Package: org.apache.log4j
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
