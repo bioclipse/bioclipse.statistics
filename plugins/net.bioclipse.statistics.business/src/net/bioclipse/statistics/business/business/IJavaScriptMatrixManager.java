@@ -10,7 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.statistics.business.business;
 
-import net.bioclipse.managers.business.IBioclipseJSManager;
+import net.bioclipse.core.api.managers.IBioclipseJSManager;
 
 public interface IJavaScriptMatrixManager
        extends IMatrixManager, IBioclipseJSManager {

@@ -13,8 +13,8 @@ package net.bioclipse.statistics.business.business;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import net.bioclipse.core.business.BioclipseException;
-import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.core.api.BioclipseException;
+import net.bioclipse.core.api.managers.IBioclipseManager;
 import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
 

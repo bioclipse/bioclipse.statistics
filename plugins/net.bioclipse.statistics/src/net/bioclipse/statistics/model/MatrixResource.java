@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
 
-import net.bioclipse.core.domain.BioObject;
+import net.bioclipse.core.api.domain.BioObject;
 //import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
