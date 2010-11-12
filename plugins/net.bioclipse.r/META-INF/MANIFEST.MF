@@ -14,3 +14,6 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r
 Import-Package: org.apache.log4j
 Bundle-Vendor: The Bioclipse Team
+Bundle-ClassPath: .,
+ jar/REngine.jar,
+ jar/JRIEngine.jar
