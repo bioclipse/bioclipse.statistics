@@ -3,12 +3,6 @@
 <plugin>
 
    <extension
-         point="net.bioclipse.ui.r_provider">
-      <rContribution id="net.bioclipse.r.TextR"
-                     service="net.bioclipse.r.TextRFactory" />
-   </extension>
-   
-   <extension
          point="org.eclipse.ui.views">
 
       <view
