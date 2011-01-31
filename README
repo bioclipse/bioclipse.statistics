@@ -1,2 +1,17 @@
 Repository for the Bioclipse-Statistics features.
 
+In order to use the R feature, you need to boot Bioclipse with an additional argument:
+
+  -Djava.library.path="/Library/Frameworks/R.framework/Resources/library/rJava/jri:"
+
+The above path is for OS/X. The rjava package can be installed from within R with:
+
+  install.packages("rJava")
+
+Debian (Ubuntu?) users can install the r-cran-rjava package with:
+
+  apt-get install r-cran-rjava
+
+The path to set for java.library.path is then:
+
+  /usr/lib/R/site-library/rJava/jri
