@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.r_feature"
       label="Bioclipse-R Integration"
-      version="2.4.0.20100709"
+      version="2.4.1.20110201"
       provider-name="The Bioclipse Project"
       plugin="net.bioclipse.r">
    <install-handler library="net.bioclipse.r/"/>
