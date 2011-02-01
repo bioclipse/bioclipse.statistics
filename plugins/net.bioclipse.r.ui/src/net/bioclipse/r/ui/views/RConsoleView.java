@@ -8,9 +8,8 @@
  *******************************************************************************/
 package net.bioclipse.r.ui.views;
 
+import net.bioclipse.r.Rengine;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
-
-import org.rosuda.JRI.Rengine;
 
 public class RConsoleView extends ScriptingConsoleView {
 
@@ -25,7 +24,7 @@ public class RConsoleView extends ScriptingConsoleView {
     	echoCommand(command);
     	System.out.println("R cmd: " + command);
     	try {
-    		String returnVal = re.eval(command).toString();
+    		String returnVal = re.evalCommand(command);
     		System.out.println(" -> " + returnVal);
     		printMessage(returnVal);
     		return returnVal;

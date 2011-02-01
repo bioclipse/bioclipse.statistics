@@ -5,11 +5,7 @@ Bundle-SymbolicName: net.bioclipse.r;singleton:=true
 Bundle-Version: 2.4.0.20100709
 Bundle-Activator: net.bioclipse.r.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bioclipse.core,
- net.bioclipse.scripting,
- net.bioclipse.ui,
- net.bioclipse.scripting.ui,
- org.eclipse.ui
+ net.bioclipse.core
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r
 Import-Package: org.apache.log4j

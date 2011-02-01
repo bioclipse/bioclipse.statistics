@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+
+      <view
+         name="R Console"
+         icon="icons/source.gif"
+         category="net.bioclipse.ScriptingCategory"
+         class="net.bioclipse.r.ui.views.RConsoleView"
+         id="net.bioclipse.r.ui.views.RConsoleView">
+         <description>
+            R Console View
+         </description>
+      </view>
+   </extension>
+
+</plugin>
