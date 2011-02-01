@@ -13,18 +13,28 @@ import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 import org.rosuda.JRI.Rengine;
 
 public class RConsoleView extends ScriptingConsoleView {
-    private Rengine re;
+
+	private Rengine re;
 
     public RConsoleView() {
-        re = new Rengine(new String[] {"--vanilla"}, false, null);
+    	re = new Rengine(new String[] {"--vanilla"}, false, null);
     }
 
     @Override
     protected String executeCommand( String command ) {
-        return re.eval(command).toString();
+    	echoCommand(command);
+    	System.out.println("R cmd: " + command);
+    	String returnVal = re.eval(command).toString();
+    	System.out.println(" -> " + returnVal);
+    	printMessage(returnVal);
+    	return returnVal;
     }
 
     protected void waitUntilCommandFinished() {
         // Don't know if there's a way to sensibly implement this method for R.
+    }
+
+    private void echoCommand(final String command) {
+        printMessage(NEWLINE + "> " + command + NEWLINE);
     }
 }
