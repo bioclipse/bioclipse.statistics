@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: R Manager Plugin
+Bundle-SymbolicName: net.bioclipse.r.business; singleton:=true
+Bundle-Version: 2.4.1.20110201
+Bundle-Activator: net.bioclipse.r.business.Activator
+Bundle-Vendor: The Bioclipse Project
+Export-Package: net.bioclipse.r.business
+Require-Bundle: org.eclipse.core.runtime,
+ net.bioclipse.core,
+ net.bioclipse.scripting,
+ org.springframework.bundle.spring.aop,
+ net.sf.cglib,
+ org.springframework.osgi.aopalliance.osgi,
+ net.bioclipse.r
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.log4j
+Bundle-ActivationPolicy: lazy

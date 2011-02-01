@@ -14,5 +14,5 @@ public class Rengine extends org.rosuda.JRI.Rengine {
 	public synchronized String evalCommand(String s) {
 		return super.eval(s).toString();
 	}
-	
+
 }
