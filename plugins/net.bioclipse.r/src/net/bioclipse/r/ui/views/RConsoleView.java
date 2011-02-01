@@ -24,10 +24,15 @@ public class RConsoleView extends ScriptingConsoleView {
     protected String executeCommand( String command ) {
     	echoCommand(command);
     	System.out.println("R cmd: " + command);
-    	String returnVal = re.eval(command).toString();
-    	System.out.println(" -> " + returnVal);
-    	printMessage(returnVal);
-    	return returnVal;
+    	try {
+    		String returnVal = re.eval(command).toString();
+    		System.out.println(" -> " + returnVal);
+    		printMessage(returnVal);
+    		return returnVal;
+    	} catch (Throwable error) {
+    		error.printStackTrace();
+    		return "Error: " + error.getMessage();
+    	}
     }
 
     protected void waitUntilCommandFinished() {
