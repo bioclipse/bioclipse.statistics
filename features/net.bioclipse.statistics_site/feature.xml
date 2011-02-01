@@ -21,4 +21,8 @@
          id="net.bioclipse.statistics_feature"
          version="0.0.0"/>
 
+   <includes
+         id="net.bioclipse.r_feature"
+         version="0.0.0"/>
+
 </feature>
