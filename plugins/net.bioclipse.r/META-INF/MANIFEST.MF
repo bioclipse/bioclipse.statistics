@@ -7,7 +7,10 @@ Bundle-Activator: net.bioclipse.r.Activator
 Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.core
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bioclipse.r
+Export-Package: net.bioclipse.r,
+ org.rosuda.JRI,
+ org.rosuda.REngine,
+ org.rosuda.REngine.JRI
 Import-Package: org.apache.log4j
 Bundle-Vendor: The Bioclipse Team
 Bundle-ClassPath: .,

@@ -16,29 +16,38 @@ public class RConsoleView extends ScriptingConsoleView {
 	private Rengine re;
 
     public RConsoleView() {
-    	re = new Rengine(new String[] {"--vanilla"}, false, null);
+        BioclipseRLoopCallback lc = new BioclipseRLoopCallback(this);
+        re = new Rengine(new String[] {"--vanilla"}, false, lc);
+    	  if (!org.rosuda.JRI.Rengine.versionCheck()) {
+    	      System.err.println("Rengine: Version mismatch, java files don't match library version.");
+    	  }
+    	  lc.doWrite = true;   // enable verbose output from R. 
     }
 
     @Override
     protected String executeCommand( String command ) {
-    	echoCommand(command);
-    	System.out.println("R cmd: " + command);
-    	try {
-    		String returnVal = re.evalCommand(command);
-    		System.out.println(" -> " + returnVal);
-    		printMessage(returnVal);
-    		return returnVal;
-    	} catch (Throwable error) {
-    		error.printStackTrace();
-    		return "Error: " + error.getMessage();
-    	}
+        echoCommand(command);
+        System.out.println("R cmd: " + command);
+        String returnVal;
+
+        if (command.equals("q()") || command.equals("quit()") ) { returnVal = "Cannot quit R from here"; }
+        else {
+            try { returnVal = re.evalCommand(command); }
+            catch (Throwable error) {
+    	      error.printStackTrace();
+    	      return "Error: " + error.getMessage();
+            }
+        }
+        System.out.println(" -> " + returnVal);
+        printMessage(returnVal);
+        return returnVal;
     }
 
     protected void waitUntilCommandFinished() {
         // Don't know if there's a way to sensibly implement this method for R.
     }
 
-    private void echoCommand(final String command) {
+    void echoCommand(final String command) {
         printMessage(NEWLINE + "> " + command + NEWLINE);
     }
 }
