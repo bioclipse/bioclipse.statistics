@@ -22,7 +22,10 @@ public class RBusinessManager implements IBioclipseManager {
 	private Rengine rEngine;
 	
 	{
-		rEngine = new Rengine(new String[] {"--vanilla"}, false, null);
+	    logger.debug("Starting R..");
+	    logger.debug("R_HOME =" + System.getenv("R_HOME"));
+	    logger.debug("java.library.path =" + System.getProperty("java.library.path"));
+	    rEngine = new Rengine(new String[] {"--vanilla"}, false, null);
 	}
 	
     /**
@@ -34,16 +37,15 @@ public class RBusinessManager implements IBioclipseManager {
     }
 
     public String eval(String command) {
-    	logger.debug("R cmd: " + command);
+        logger.debug("R cmd: " + command);
+         // get the Rengine.
     	try {
     		String returnVal = rEngine.evalCommand(command);
     		logger.debug(" -> " + returnVal);
     		return returnVal;
     	} catch (Throwable error) {
     		logger.debug(
-    			"Error while evaluating R command: " + error.getMessage(),
-    			error
-    		);
+    			"Error while evaluating R command: " + error.getMessage(), error );
     		return "Error: " + error.getMessage();
     	}
     }
