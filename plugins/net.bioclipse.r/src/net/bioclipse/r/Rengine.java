@@ -14,8 +14,8 @@ public class Rengine extends org.rosuda.JRI.Rengine {
 	
 	public synchronized String evalCommand(String s) {
 	    REXP result = super.eval(s, true);
-	    if (result != null) { return result.toString();  }
-	    else { return null; }
+	    if (result != null) { return result.toString(); }
+	    else { return (""); }
 	}
 
 }
