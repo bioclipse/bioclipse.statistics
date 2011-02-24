@@ -26,6 +26,7 @@ public class Rengine extends Thread {
 				e.printStackTrace();
 				System.exit(1);
 			}
+                // System.exit(1); // why?
         }
     }
 
@@ -75,6 +76,7 @@ public class Rengine extends Thread {
     /** return the current main R engine instance. Since there can be only one true R instance at a time, this is also the only instance. This may not be true for future versions, though.
 	@return current instance of the R engine or <code>null</code> if no R engine was started yet. */
     public static Rengine getMainEngine() { return mainEngine; }
+    public static int DEBUG      = 1;
 
     /* public static Thread getMainRThread() { return mainRThread; } */
 
