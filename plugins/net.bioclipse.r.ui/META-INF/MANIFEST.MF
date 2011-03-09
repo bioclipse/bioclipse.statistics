@@ -10,11 +10,17 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.ui,
  net.bioclipse.scripting.ui,
  org.eclipse.ui,
- net.bioclipse.r
+ net.bioclipse.r,
+ de.walware.rj.servi,
+ de.walware.rj.data
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r.ui,
  net.bioclipse.r.ui.views
-Import-Package: org.apache.log4j,
+Import-Package: de.walware.rj.data,
+ de.walware.rj.servi,
+ de.walware.rj.servi.rcpdemo,
+ de.walware.rj.services,
+ org.apache.log4j,
  org.slf4j
 Bundle-Vendor: The Bioclipse Team
 Bundle-ClassPath: .
