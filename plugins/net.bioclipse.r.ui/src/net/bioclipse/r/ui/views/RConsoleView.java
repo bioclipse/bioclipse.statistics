@@ -8,7 +8,15 @@
  *******************************************************************************/
 package net.bioclipse.r.ui.views;
 
-import net.bioclipse.r.Rengine;
+import java.util.NoSuchElementException;
+
+import javax.security.auth.login.LoginException;
+
+import de.walware.rj.servi.RServi;
+import de.walware.rj.data.RObject;
+import de.walware.rj.servi.rcpdemo.RServiManager;
+import org.eclipse.core.runtime.CoreException;
+
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.slf4j.Logger;
@@ -16,20 +24,19 @@ import org.slf4j.LoggerFactory;
 
 public class RConsoleView extends ScriptingConsoleView {
 
-    private Rengine re;
+    private RServi rs;
+    public String R_home;
+    private RServiManager rm;
     final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
 
-    public RConsoleView() {
-        BioclipseRLoopCallback lc = new BioclipseRLoopCallback(this);
+    public RConsoleView() throws LoginException, NoSuchElementException, CoreException {
         logger.info("RConsole: Starting R..");
-        logger.debug("RConsole: R_HOME =" + System.getenv("R_HOME"));
+        R_home = System.getenv("R_HOME");
+        logger.debug("RConsole: R_HOME =" + R_home);
         logger.debug("RConsole: java.library.path =" + System.getProperty("java.library.path"));
-
-        re = new Rengine(new String[] {"--vanilla"}, false, lc);
-    	  if (!org.rosuda.JRI.Rengine.versionCheck()) {
-    	      logger.error("Rengine: Version mismatch, java files don't match library version.");
-    	  }
-    	  lc.doWrite = true;   // enable output to R-consoleView. 
+//        String URL = "rmi://127.0.0.1/rservi-pool";
+        rm.setEmbedded(R_home);
+        rs = rm.getRServi("task");
     }
 
     @Override
@@ -43,7 +50,10 @@ public class RConsoleView extends ScriptingConsoleView {
         else if (System.getenv("R_HOME") == null)   // check if R_HOME is set to avoid crash.
             returnVal = "R_HOME not set."; 
         else {
-            try { returnVal = re.evalCommand(command); }
+            try {
+                RObject data = rs.evalData(command, null);
+                returnVal = "Success";              // Todo: Use RObject to extract information
+            }
             catch (Throwable error) {
     	      error.printStackTrace();
     	      return "Error: " + error.getMessage();
