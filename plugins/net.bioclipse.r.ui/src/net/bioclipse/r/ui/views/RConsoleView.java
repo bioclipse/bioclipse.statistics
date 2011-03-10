@@ -26,7 +26,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
     private RServi rs;
     public String R_home;
-    private RServiManager rm;
+    private RServiManager rm = new RServiManager("app");
     final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
 
     public RConsoleView() throws LoginException, NoSuchElementException, CoreException {
