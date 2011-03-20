@@ -11,7 +11,6 @@
 package net.bioclipse.r.business;
 
 import net.bioclipse.managers.business.IBioclipseManager;
-import net.bioclipse.r.Rengine;
 
 import org.apache.log4j.Logger;
 
@@ -19,13 +18,10 @@ public class RBusinessManager implements IBioclipseManager {
 	
 	private static final Logger logger = Logger.getLogger(RBusinessManager.class);
 
-	private Rengine rEngine;
-	
 	{
 	    logger.debug("Starting R..");
 	    logger.debug("R_HOME =" + System.getenv("R_HOME"));
 	    logger.debug("java.library.path =" + System.getProperty("java.library.path"));
-	    rEngine = new Rengine(new String[] {"--vanilla"}, false, null);
 	}
 	
     /**
@@ -38,9 +34,8 @@ public class RBusinessManager implements IBioclipseManager {
 
     public String eval(String command) {
         logger.debug("R cmd: " + command);
-         // get the Rengine.
     	try {
-    		String returnVal = rEngine.evalCommand(command);
+    		String returnVal = "disabled";
     		logger.debug(" -> " + returnVal);
     		return returnVal;
     	} catch (Throwable error) {
