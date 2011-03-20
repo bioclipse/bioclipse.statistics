@@ -14,7 +14,7 @@ import javax.security.auth.login.LoginException;
 
 import de.walware.rj.servi.RServi;
 import de.walware.rj.data.RObject;
-import de.walware.rj.servi.rcpdemo.RServiManager;
+import net.bioclipse.r.RServiManager;
 import org.eclipse.core.runtime.CoreException;
 
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
