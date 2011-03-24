@@ -1,3 +1,12 @@
+/* *****************************************************************************
+ *Copyright (c) 2011 Christian Ander & stephan.wahlbrink@walware.de
+ *All rights reserved. This program and the accompanying materials
+ *are made available under the terms of the Eclipse Public License v1.0
+ *which accompanies this distribution, and is available at
+ *http://www.eclipse.org/legal/epl-v10.html
+ *
+ *******************************************************************************/
+
 package net.bioclipse.r;
 
 import java.io.File;
@@ -17,7 +26,7 @@ import de.walware.rj.RjException;
 //import de.walware.rj.eclient.graphics.ERGraphicFactory;  // Not want graphics at this time
 import de.walware.rj.rsetups.RSetup;
 import de.walware.rj.rsetups.RSetupUtil;
-import de.walware.rj.server.RjsComConfig;
+//import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.servi.pool.EmbeddedRServiManager;
