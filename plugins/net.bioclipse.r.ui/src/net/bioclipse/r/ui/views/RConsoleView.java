@@ -45,7 +45,7 @@ public class RConsoleView extends ScriptingConsoleView {
         logger.debug("R cmd: " + command);
         String returnVal;
         try {
-        	RObject data = rs.evalData("capture.output(print("+command+"))",null);	// capture.output(print( )) gives a string output from R, otherwise R objects.
+        	RObject data = rs.evalData("capture.output(print(("+command+")))",null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
         	RStore rData = data.getData();
         	StringBuilder builder = new StringBuilder();
         	for(int i=0;i<rData.getLength();i++) {
