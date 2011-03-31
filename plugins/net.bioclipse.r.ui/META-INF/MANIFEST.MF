@@ -18,7 +18,6 @@ Export-Package: net.bioclipse.r.ui,
  net.bioclipse.r.ui.views
 Import-Package: de.walware.rj.data,
  de.walware.rj.servi,
- de.walware.rj.servi.rcpdemo,
  de.walware.rj.services,
  org.apache.log4j,
  org.slf4j
