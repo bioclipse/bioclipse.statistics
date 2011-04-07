@@ -19,9 +19,8 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final Logger logger = Logger.getLogger(RBusinessManager.class);
 
 	{
-	    logger.debug("Starting R..");
+	    logger.debug("Starting R mangaer..");
 	    logger.debug("R_HOME =" + System.getenv("R_HOME"));
-	    logger.debug("java.library.path =" + System.getProperty("java.library.path"));
 	}
 	
     /**
