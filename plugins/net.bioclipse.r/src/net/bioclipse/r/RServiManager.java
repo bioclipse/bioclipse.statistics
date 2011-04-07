@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -36,6 +37,12 @@ import de.walware.rj.servi.pool.RServiNodeFactory;
 
 public class RServiManager {
 	
+	private static final Logger logger = Logger.getLogger(RServiManager.class);
+	
+	{
+	logger.info("Starting R-servi Manager");
+    logger.debug("R_HOME =" + System.getenv("R_HOME"));
+	}
 	
 	private static final int EMBEDDED = 1;
 	private static final int POOL = 2;
