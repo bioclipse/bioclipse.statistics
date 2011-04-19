@@ -1,5 +1,5 @@
 /* *****************************************************************************
- *Copyright (c) 2011 Christian Ander & stephan.wahlbrink@walware.de
+ *Copyright (c) 2011 christian.ander@gmail.com & stephan.wahlbrink@walware.de
  *All rights reserved. This program and the accompanying materials
  *are made available under the terms of the Eclipse Public License v1.0
  *which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
 package net.bioclipse.r;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -41,7 +42,7 @@ public class RServiManager {
 	
 	{
 	logger.info("Starting R-servi Manager");
-    logger.debug("R_HOME =" + System.getenv("R_HOME"));
+    logger.debug("R_HOME=" + System.getenv("R_HOME"));
 	}
 	
 	private static final int EMBEDDED = 1;
@@ -49,15 +50,11 @@ public class RServiManager {
 	private static final int RSETUP = 3;
 	
 	private static class Config {
-		
 		private int mode;
 		private String address;
-		
 	}
 	
-	
 	private String name;
-	
 	private Config config = new Config();
 	
 	private EmbeddedRServiManager embeddedR;
@@ -80,22 +77,52 @@ public class RServiManager {
 //	    RjsComConfig.setProperty("rj.servi.graphicFactory", graphicFactory);
 	}
 	
+//	Check if R_HOME is correctly set and tries to correct simple errors.
+	public String checkRPath(String path) throws FileNotFoundException {
+		Boolean trustRPath = false;
+		String OS = System.getProperty("os.name").toString();
+		if (OS.startsWith("Mac")) {
+			if (!path.endsWith("/"))
+				path += "/";
+			trustRPath = rExist(path + "R");
+		} else if (OS.startsWith("Windows")) {
+			if (!path.endsWith("\\"))
+				path += "\\";
+			if (rExist(path + "bin\\R.exe"))
+				trustRPath = true;
+			else if (rExist(path + "R.exe"))
+				path = path.substring(0, path.indexOf("bin\\"));
+				logger.info("R_HOME path corrected, removed bin\\ from path.");
+				trustRPath = true;
+			}
+		if (!trustRPath)
+			throw new FileNotFoundException("Incorrect R_HOME path: " + path);
+		logger.debug("New path: " + path);
+		return path;
+	}
+	
+	private Boolean rExist(String testPath) {
+		File f = new File(testPath);
+		return f.exists();
+	}
 	
 	public ISchedulingRule getSchedulingRule() {
 		return schedulingRule;
 	}
+
 	
 	public void setEmbedded(final String rHome) throws CoreException {
-		final Config config = new Config();
-		config.mode = EMBEDDED;
-		config.address = rHome;
-		this.config = config;
+			logger.debug("Using path: " + rHome);
+			final Config config = new Config();
+			config.mode = EMBEDDED;
+			config.address = rHome;
+			this.config = config;
 		
-		final RServiNodeConfig rConfig = new RServiNodeConfig();
-		rConfig.setRHome(rHome);
-		rConfig.setEnableVerbose(true);
+			final RServiNodeConfig rConfig = new RServiNodeConfig();
+			rConfig.setRHome(rHome);
+			rConfig.setEnableVerbose(true);
 		
-		startEmbedded(rConfig);
+			startEmbedded(rConfig);
 	}
 	
 	public void setPool(final String poolAddress) {
