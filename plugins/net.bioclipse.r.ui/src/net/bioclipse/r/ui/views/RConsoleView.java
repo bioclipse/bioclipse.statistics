@@ -5,19 +5,11 @@
  *which accompanies this distribution, and is available at
  *http://www.eclipse.org/legal/epl-v10.html
  *
+ *Contact: http://www.bioclipse.net/
  *******************************************************************************/
 package net.bioclipse.r.ui.views;
-
-import java.util.NoSuchElementException;
-
-import javax.security.auth.login.LoginException;
-
-import de.walware.rj.servi.RServi;
-import de.walware.rj.data.RObject;
-import de.walware.rj.data.RStore;
-import net.bioclipse.r.RServiManager;
-import org.eclipse.core.runtime.CoreException;
-
+import net.bioclipse.r.business.Activator;
+import net.bioclipse.r.business.IRBusinessManager;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.slf4j.Logger;
@@ -25,59 +17,24 @@ import org.slf4j.LoggerFactory;
 
 public class RConsoleView extends ScriptingConsoleView {
 
-    private RServi rs;
-    public String R_home;
-    private RServiManager rm = new RServiManager("app");
-    final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
+   final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
+   private IRBusinessManager r;
 
-    public RConsoleView() throws LoginException, NoSuchElementException, CoreException {
-        logger.info("RConsole: Starting R..");
-        R_home = System.getenv("R_HOME");
-        logger.debug("RConsole: R_HOME =" + R_home);
-//        String URL = "rmi://127.0.0.1/rservi-pool";
-        rm.setEmbedded(R_home);
-        rs = rm.getRServi("task");
+    public RConsoleView() {
+        logger.info("Starting R console UI");
+        r = Activator.getDefault().getJavaRBusinessManager();
     }
 
     @Override
     protected String executeCommand( String command ) {
-        echoCommand(command);
-        logger.debug("R cmd: " + command);
         String returnVal;
-        try {
-        	RObject data = rs.evalData("capture.output(print(("+command+")))",null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
-        	RStore rData = data.getData();
-        	StringBuilder builder = new StringBuilder();
-        	for(int i=0;i<rData.getLength();i++) {
-        		builder.append(rData.getChar(i));
-        	}
-        	returnVal = builder.toString();
-        }
-        catch (CoreException rError) {	// Catch R errors.
-        	returnVal = "Error: " + extractRError(rError.getMessage());
-        }
-        catch (Throwable error) {
-        	error.printStackTrace();
-        	returnVal = "Error: " + error.getMessage();
-        }
-        logger.debug(" -> " + returnVal);
+        echoCommand(command);
+    	if (r.isWorking()) {
+        	returnVal = r.eval(command);
+    	} else
+    		returnVal = "R console is inactivated: " + r.getStatus();
         printMessage(returnVal);
-        return returnVal;
-    }
-    
-    private String extractRError(String error) {
-    	logger.debug("full error:" + error);
-    	String result = error;
-    	if (error.startsWith("Evaluation failed")) {
-    		result = error.substring(error.indexOf(":")+1).trim();
-    		
-    		int index;
-    		if ((index=result.indexOf("):")) > 0) {
-    			result = result.substring(index+2, result.lastIndexOf(">.")).trim();
-    		}
-    	}
-    	
-    	return result;
+    	return returnVal;
     }
 
     protected void waitUntilCommandFinished() {

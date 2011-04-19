@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright (c) 2011  Egon Willighagen <egon.willighagen@gmail.com>
+ * 					   Christian Ander  <christian.ander@gmail.com>
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -26,5 +27,6 @@ public interface IRBusinessManager extends IBioclipseManager {
         params = "String command"
     )
     public String eval(String command);
-	
+	public String  getStatus();
+	public Boolean isWorking();
 }
