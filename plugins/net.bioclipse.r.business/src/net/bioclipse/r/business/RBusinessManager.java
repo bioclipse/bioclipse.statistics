@@ -23,6 +23,10 @@ import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import net.bioclipse.r.RServiManager;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IWorkspace;
 
 public class RBusinessManager implements IBioclipseManager {
 	
@@ -45,13 +49,20 @@ public class RBusinessManager implements IBioclipseManager {
 			working = false;
 			status = e.getMessage();
 		}
-		catch (CoreException e) { // Catch R startup errors.
+		catch (CoreException e) { // Catch rj startup error.
 			working = false;
 			status = extractRjError(e.getCause().getCause().getMessage());
 		}
 		if (working) {
-			try { rservi = rsmanager.getRServi("task"); }
-			catch (CoreException e){ 
+			try {
+				rservi = rsmanager.getRServi("task");
+//				rservi.evalData("session.save()", null);
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				IWorkspaceRoot root = workspace.getRoot();
+				IPath location = root.getLocation();
+				logger.debug(location.toString());
+			}
+			catch (CoreException e) { 
 			working = false;
 			status = e.getMessage();
 			}
@@ -79,7 +90,7 @@ public class RBusinessManager implements IBioclipseManager {
         logger.debug("R cmd: " + command);
         String returnVal;
         try {
-        	RObject data = rservi.evalData("capture.output(print(("+command+")))",null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+        	RObject data = rservi.evalData("capture.output(print(("+command+")))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
         	RStore rData = data.getData();
         	StringBuilder builder = new StringBuilder();
         	for(int i=0;i<rData.getLength();i++) {

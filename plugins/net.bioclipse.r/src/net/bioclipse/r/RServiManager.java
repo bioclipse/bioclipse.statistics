@@ -94,7 +94,14 @@ public class RServiManager {
 				path = path.substring(0, path.indexOf("bin\\"));
 				logger.info("R_HOME path corrected, removed bin\\ from path.");
 				trustRPath = true;
-			}
+		} else if (OS.startsWith("Linux")) {
+			if (!path.endsWith("/"))
+				path += "/";
+			trustRPath = rExist(path + "bin/R");
+//			link: /usr/bin/R -> /usr/lib/R/bin/R
+//			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
+//		    R_HOME is /usr/lib/R
+		}
 		if (!trustRPath)
 			throw new FileNotFoundException("Incorrect R_HOME path: " + path);
 		logger.debug("New path: " + path);

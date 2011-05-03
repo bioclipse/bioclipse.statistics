@@ -22,21 +22,26 @@ public class RConsoleView extends ScriptingConsoleView {
 
     public RConsoleView() {
         logger.info("Starting R console UI");
-        r = Activator.getDefault().getJavaRBusinessManager();
     }
 
     @Override
     protected String executeCommand( String command ) {
-        String returnVal;
-        echoCommand(command);
+    	String returnVal = "";
+    	if (r == null)
+    		getRBusinessManager();
+    	echoCommand(command);
     	if (r.isWorking()) {
-        	returnVal = r.eval(command);
+    		returnVal = r.eval(command);
     	} else
     		returnVal = "R console is inactivated: " + r.getStatus();
-        printMessage(returnVal);
+    	printMessage(returnVal);
     	return returnVal;
     }
 
+    private void getRBusinessManager() {
+    	r = Activator.getDefault().getJavaRBusinessManager();    	
+    }
+    
     protected void waitUntilCommandFinished() {
         // Don't know if there's a way to sensibly implement this method for R.
     }

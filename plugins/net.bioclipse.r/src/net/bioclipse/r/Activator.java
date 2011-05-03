@@ -50,7 +50,7 @@ public class Activator extends Plugin {
 
 	public synchronized RServiManager getRServiManager() {
 		if (rserviManager == null) {
-			rserviManager = new RServiManager("RCPDemo");
+//			rserviManager = new RServiManager("RCPDemo"); // is this needed?
 		}
 		return rserviManager;
 	}
