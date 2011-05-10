@@ -39,7 +39,8 @@ public class RConsoleView extends ScriptingConsoleView {
     }
 
     private void getRBusinessManager() {
-    	r = Activator.getDefault().getJavaRBusinessManager();    	
+    	r = Activator.getDefault().getJavaRBusinessManager();
+    	printMessage(r.getStatus());
     }
     
     protected void waitUntilCommandFinished() {

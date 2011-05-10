@@ -26,7 +26,7 @@ public interface IRBusinessManager extends IBioclipseManager {
         methodSummary = "Evaluates a R command.",
         params = "String command"
     )
-    public String eval(String command);
+    public String  eval(String command);
 	public String  getStatus();
 	public Boolean isWorking();
 }

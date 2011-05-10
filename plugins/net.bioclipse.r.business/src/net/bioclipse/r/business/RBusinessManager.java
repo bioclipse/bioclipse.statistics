@@ -11,10 +11,17 @@
  ******************************************************************************/
 package net.bioclipse.r.business;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.NoSuchElementException;
 import javax.security.auth.login.LoginException;
+import javax.swing.filechooser.FileFilter;
 
+import net.bioclipse.business.BioclipsePlatformManager;
+import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import org.apache.log4j.Logger;
 
@@ -35,10 +42,18 @@ public class RBusinessManager implements IBioclipseManager {
 	public  String  R_HOME;
 	private String  status  = "";
 	private Boolean working = true;
-	private RServiManager rsmanager = new RServiManager("app");
+	private IPath	workspacePath;
+	private RServiManager rsmanager = new RServiManager("Rconsole");
+    public static String NEWLINE = System.getProperty("line.separator");
+
 	
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+		workspacePath = root.getLocation();
+		logger.debug("Bioclipse workingdirectory: " + workspacePath.toString());
+	    
 	    R_HOME = System.getenv("R_HOME");
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
@@ -55,12 +70,8 @@ public class RBusinessManager implements IBioclipseManager {
 		}
 		if (working) {
 			try {
-				rservi = rsmanager.getRServi("task");
-//				rservi.evalData("session.save()", null);
-				IWorkspace workspace = ResourcesPlugin.getWorkspace();
-				IWorkspaceRoot root = workspace.getRoot();
-				IPath location = root.getLocation();
-				logger.debug(location.toString());
+				rservi = rsmanager.getRServi("Rconsole");
+				initSession();
 			}
 			catch (CoreException e) { 
 			working = false;
@@ -86,11 +97,35 @@ public class RBusinessManager implements IBioclipseManager {
     	return working;
     }
     
+    private void initSession() {
+    	File file = new File(workspacePath.toString()+"/r");
+		if (!file.exists())
+			file.mkdir();
+		eval("setwd(\""+file.getAbsolutePath()+"\")");
+		status = "R workspace: " + eval("getwd()").substring(3);
+		eval("x11()");
+		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
+			@Override
+			public boolean accept(File dir, String name) {
+				logger.debug(name);
+			return name.contains(".RData");
+			}
+		};
+		// Show R sessionfiles for user
+		String[] files = file.list(filter);
+		for(int i=0; i<files.length; i++){
+			status += NEWLINE + "Found R session: " + files[i];
+		}
+		status += NEWLINE + "Use load(\"file\") and save.image(\"file\")";
+    }
+    
     public String eval(String command) {
         logger.debug("R cmd: " + command);
         String returnVal;
-        try {
-        	RObject data = rservi.evalData("capture.output(print(("+command+")))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+        if (command.startsWith("?"))
+        	returnVal = help(command.substring(1));
+        else try {
+        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
         	RStore rData = data.getData();
         	StringBuilder builder = new StringBuilder();
         	for(int i=0;i<rData.getLength();i++) {
@@ -109,14 +144,28 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
         }
 
+    private String help(String url) {
+    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
+    	try {
+			bioclipse.openURL(new URL(url));
+			return "";
+		} catch (MalformedURLException e) {
+			return e.getMessage();
+		} catch (BioclipseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return e.getMessage();
+		}
+    }
+    
     private String extractRjError(String error) {
-    	String newline = System.getProperty("line.separator");
     	error = error.substring(error.indexOf("JR library path:"));
-    	error = error.replaceFirst(newline, "");
-    	error = error.substring(0, error.indexOf(newline)).trim();
-    	error = "Path to rj package not found." + newline + error;
+    	error = error.replaceFirst(NEWLINE, "");
+    	error = error.substring(0, error.indexOf(NEWLINE)).trim();
+    	error = "Path to rj package not found." + NEWLINE + error;
     	return error;
     }
+
     private String extractRError(String error) {
     	logger.debug("full error: " + error);
     	String result = error;
