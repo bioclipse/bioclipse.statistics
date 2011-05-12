@@ -144,18 +144,21 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
         }
 
-    private String help(String url) {
-    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
-    	try {
-			bioclipse.openURL(new URL(url));
-			return "";
-		} catch (MalformedURLException e) {
-			return e.getMessage();
-		} catch (BioclipseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return e.getMessage();
-		}
+    private String help(String command) {
+    	eval("help("+ command +", help_type=\"html\")");
+    	return "";
+    	
+//    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
+//    	try {
+//			bioclipse.openURL(new URL(url));
+//			return "";
+//		} catch (MalformedURLException e) {
+//			return e.getMessage();
+//		} catch (BioclipseException e) {
+//			 TODO Auto-generated catch block
+//			e.printStackTrace();
+//			return e.getMessage();
+//		}
     }
     
     private String extractRjError(String error) {
