@@ -14,14 +14,14 @@ package net.bioclipse.r.business;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.net.MalformedURLException;
-import java.net.URL;
+//import java.net.MalformedURLException;
+//import java.net.URL;
 import java.util.NoSuchElementException;
 import javax.security.auth.login.LoginException;
-import javax.swing.filechooser.FileFilter;
+//import javax.swing.filechooser.FileFilter;
 
-import net.bioclipse.business.BioclipsePlatformManager;
-import net.bioclipse.core.business.BioclipseException;
+//import net.bioclipse.business.BioclipsePlatformManager;
+//import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import org.apache.log4j.Logger;
 
@@ -55,10 +55,17 @@ public class RBusinessManager implements IBioclipseManager {
 		logger.debug("Bioclipse workingdirectory: " + workspacePath.toString());
 	    
 	    R_HOME = System.getenv("R_HOME");
+	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
+//		TODO integrate checkR_HOME() and checkRPath in one go! or?
+			checkR_HOME();
 			R_HOME = rsmanager.checkRPath(R_HOME);
 			rsmanager.setEmbedded(R_HOME);
+		}
+		catch (NullPointerException e)  {
+			working = false;
+			status  = e.getMessage();
 		}
 		catch (FileNotFoundException e) {
 			working = false;
@@ -95,6 +102,11 @@ public class RBusinessManager implements IBioclipseManager {
     
     public Boolean isWorking() {
     	return working;
+    }
+    
+    private void checkR_HOME() throws NullPointerException {
+    	if (R_HOME == null)
+			throw new NullPointerException("R_HOME is not set, set path in your system.");
     }
     
     private void initSession() {
@@ -148,6 +160,7 @@ public class RBusinessManager implements IBioclipseManager {
     	eval("help("+ command +", help_type=\"html\")");
     	return "";
     	
+//		TODO remove this if not used.
 //    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
 //    	try {
 //			bioclipse.openURL(new URL(url));
