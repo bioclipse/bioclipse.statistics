@@ -50,7 +50,7 @@ public class RBusinessManager implements IBioclipseManager {
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = workspace.getRoot();
+		IWorkspaceRoot root  = workspace.getRoot();
 		workspacePath = root.getLocation();
 		logger.debug("Bioclipse workingdirectory: " + workspacePath.toString());
 	    
@@ -58,14 +58,8 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
-//		TODO integrate checkR_HOME() and checkRPath in one go! or?
-			checkR_HOME();
-			R_HOME = rsmanager.checkRPath(R_HOME);
+			R_HOME = checkR_HOME(R_HOME);
 			rsmanager.setEmbedded(R_HOME);
-		}
-		catch (NullPointerException e)  {
-			working = false;
-			status  = e.getMessage();
 		}
 		catch (FileNotFoundException e) {
 			working = false;
@@ -103,11 +97,42 @@ public class RBusinessManager implements IBioclipseManager {
     public Boolean isWorking() {
     	return working;
     }
-    
-    private void checkR_HOME() throws NullPointerException {
-    	if (R_HOME == null)
-			throw new NullPointerException("R_HOME is not set, set path in your system.");
-    }
+        
+//	Check if R_HOME is correctly set and tries to correct simple errors.
+	public String checkR_HOME(String path) throws FileNotFoundException {
+		String OS = System.getProperty("os.name").toString();
+		Boolean trustRPath = false;
+		if (OS.startsWith("Mac")) {
+			if (R_HOME == null)			
+				path = "/Library/Frameworks/R.framework/Resources/";
+			if (!path.endsWith("/"))
+				path += "/";
+			trustRPath = rExist(path + "R");
+		} else if (OS.startsWith("Windows")) {
+			if (R_HOME == null)			
+				path = "C:\\Program Files\\R\\R-2.12.2\\";
+//			TODO check paths for 2.13.xx and 64bit versions.
+			if (!path.endsWith("\\"))
+				path += "\\";
+			trustRPath =rExist(path + "bin\\R.exe"); 
+		} else if (OS.startsWith("Linux")) {
+			if (!path.endsWith("/"))
+				path += "/";
+			trustRPath = rExist(path + "bin/R");
+//			link: /usr/bin/R -> /usr/lib/R/bin/R
+//			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
+//		    R_HOME is /usr/lib/R
+		}
+		if (!trustRPath)
+			throw new FileNotFoundException("Incorrect R_HOME path: " + path);
+		logger.debug("New path: " + path);
+		return path;
+	}
+
+	private Boolean rExist(String testPath) {
+		File f = new File(testPath);
+		return f.exists();
+	}
     
     private void initSession() {
     	File file = new File(workspacePath.toString()+"/r");

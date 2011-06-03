@@ -10,7 +10,6 @@
 package net.bioclipse.r;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -76,48 +75,11 @@ public class RServiManager {
 		
 //	    RjsComConfig.setProperty("rj.servi.graphicFactory", graphicFactory);
 	}
-	
-//	Check if R_HOME is correctly set and tries to correct simple errors.
-	public String checkRPath(String path) throws FileNotFoundException {
-		Boolean trustRPath = false;
-		String OS = System.getProperty("os.name").toString();
-		if (OS.startsWith("Mac")) {
-			if (!path.endsWith("/"))
-				path += "/";
-			trustRPath = rExist(path + "R");
-		} else if (OS.startsWith("Windows")) {
-			if (!path.endsWith("\\"))
-				path += "\\";
-			if (rExist(path + "bin\\R.exe"))
-				trustRPath = true;
-			else if (rExist(path + "R.exe"))
-				path = path.substring(0, path.indexOf("bin\\"));
-				logger.info("R_HOME path corrected, removed bin\\ from path.");
-				trustRPath = true;
-		} else if (OS.startsWith("Linux")) {
-			if (!path.endsWith("/"))
-				path += "/";
-			trustRPath = rExist(path + "bin/R");
-//			link: /usr/bin/R -> /usr/lib/R/bin/R
-//			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
-//		    R_HOME is /usr/lib/R
-		}
-		if (!trustRPath)
-			throw new FileNotFoundException("Incorrect R_HOME path: " + path);
-		logger.debug("New path: " + path);
-		return path;
-	}
-	
-	private Boolean rExist(String testPath) {
-		File f = new File(testPath);
-		return f.exists();
-	}
-	
+			
 	public ISchedulingRule getSchedulingRule() {
 		return schedulingRule;
 	}
 
-	
 	public void setEmbedded(final String rHome) throws CoreException {
 			logger.debug("Using path: " + rHome);
 			final Config config = new Config();
