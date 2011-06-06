@@ -1,30 +1,3 @@
 Repository for the Bioclipse-Statistics features.
 
-HOWTO
-
-1. Set the java.library.path
-
-In order to use the R feature, you need to boot Bioclipse with an additional argument:
-
-  -Djava.library.path="/Library/Frameworks/R.framework/Resources/library/rJava/jri:"
-
-The above path is for OS/X. The rjava package can be installed from within R with:
-
-  install.packages("rJava")
-
-Debian (Ubuntu?) users can install the r-cran-rjava package with:
-
-  apt-get install r-cran-rjava
-
-The path to set for java.library.path is then:
-
-  /usr/lib/R/site-library/rJava/jri
-
-2. Set the R_HOME environment variable
-
-At least on Linux you must set the R_HOME environment (and have R installed) before
-you boot Bioclipse (or Eclipse, if you use that to start Bioclipse):
-
-  apt-get install r-base-core
-  export R_HOME=/usr/lib/R
-  eclipse
+Details can be found in the Bioclipse wiki: http://wiki.bioclipse.net/index.php?title=Integrate_R_in_Bioclipse
