@@ -11,9 +11,11 @@
  ******************************************************************************/
 package net.bioclipse.r.business;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 //import java.net.MalformedURLException;
 //import java.net.URL;
 import java.util.NoSuchElementException;
@@ -59,7 +61,8 @@ public class RBusinessManager implements IBioclipseManager {
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
 			R_HOME = checkR_HOME(R_HOME);
-			rsmanager.setEmbedded(R_HOME);
+			checkRj();
+			rsmanager.setEmbedded(R_HOME);		// Start Rservi
 		}
 		catch (FileNotFoundException e) {
 			working = false;
@@ -96,6 +99,62 @@ public class RBusinessManager implements IBioclipseManager {
     
     public Boolean isWorking() {
     	return working;
+    }
+
+	public boolean runCmd(String command) {
+		logger.debug(command);
+		StringBuilder s = new StringBuilder();
+		String     line = null;
+		boolean  result = false; // if command is successful
+		try {
+            Runtime rt = Runtime.getRuntime();
+            Process pr = rt.exec(new String[] { "bash", "-c", command });
+            int exitVal = pr.waitFor();
+            
+            if (exitVal != 0) {		// Command fail
+            		BufferedReader input = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
+            		
+                s.append("ERROR: ");
+                while((line=input.readLine()) != null) {
+                    s.append(line);
+                    s.append("\n");
+                }
+            }
+            else {					// Command success
+	            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+	
+	            while((line=input.readLine()) != null) {
+	                s.append(line);
+	                s.append("\n");
+	                result = true;
+	            }
+            }
+        } catch(Exception e) {
+            logger.error(e.toString());
+            e.printStackTrace();
+        }
+        logger.debug(s.toString());
+        return result;
+	}
+    
+    private void checkRj() throws FileNotFoundException {
+    	if (!runCmd("R -e \".find.package('rJava')\" -s")) {
+    		logger.debug("Error: Package rJava not found.");
+    		if (!runCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
+    			status = "Error finding rJava, use install.packages('rJava') within R";
+    			logger.debug("Error: Installation of rJava failed.");
+	    		working = false;
+    		}
+    		
+    	}
+    	if (!runCmd("R -e \".find.package('rj')\" -s")) {
+    		logger.debug("Error: Package rj not found.");
+    		if (!runCmd("R CMD install.packages...)\" -s")) {
+        		status = "Error finding rj";
+    			logger.debug("Error: Installation of rj failed.");
+        		working = false;
+    		}
+    	}
     }
         
 //	Check if R_HOME is correctly set and tries to correct simple errors.
@@ -140,7 +199,7 @@ public class RBusinessManager implements IBioclipseManager {
 			file.mkdir();
 		eval("setwd(\""+file.getAbsolutePath()+"\")");
 		status = "R workspace: " + eval("getwd()").substring(3);
-		eval("x11()");
+//		eval("x11()");
 		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
 			@Override
 			public boolean accept(File dir, String name) {
