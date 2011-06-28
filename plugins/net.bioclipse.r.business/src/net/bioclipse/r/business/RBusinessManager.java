@@ -15,7 +15,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 //import java.net.MalformedURLException;
 //import java.net.URL;
 import java.util.NoSuchElementException;
@@ -61,7 +64,7 @@ public class RBusinessManager implements IBioclipseManager {
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
 			R_HOME = checkR_HOME(R_HOME);
-			checkRj();
+			checkRdependencies();				// check if all plugins are installed in R
 			rsmanager.setEmbedded(R_HOME);		// Start Rservi
 		}
 		catch (FileNotFoundException e) {
@@ -70,7 +73,8 @@ public class RBusinessManager implements IBioclipseManager {
 		}
 		catch (CoreException e) { // Catch rj startup error.
 			working = false;
-			status = extractRjError(e.getCause().getCause().getMessage());
+			status = e.getMessage();
+//			status = extractRjpath(e.getCause().getCause().getMessage());  way to extract rj path.
 		}
 		if (working) {
 			try {
@@ -137,7 +141,10 @@ public class RBusinessManager implements IBioclipseManager {
         return result;
 	}
     
-    private void checkRj() throws FileNotFoundException {
+	/*
+	 * Check if all R dependencies are installed, such as "rj" and "rJava"
+	 */
+	private void checkRdependencies() throws FileNotFoundException {
     	if (!runCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
@@ -168,9 +175,12 @@ public class RBusinessManager implements IBioclipseManager {
 				path += "/";
 			trustRPath = rExist(path + "R");
 		} else if (OS.startsWith("Windows")) {
-			if (R_HOME == null)			
+			if (R_HOME == null) {
 				path = "C:\\Program Files\\R\\R-2.12.2\\";
-//			TODO check paths for 2.13.xx and 64bit versions.
+//				TODO check paths for 2.13.xx and 64bit versions.
+//				String key = "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v Favorites";
+				path = RegQuery("HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R");
+			}
 			if (!path.endsWith("\\"))
 				path += "\\";
 			trustRPath =rExist(path + "bin\\R.exe"); 
@@ -192,8 +202,62 @@ public class RBusinessManager implements IBioclipseManager {
 		File f = new File(testPath);
 		return f.exists();
 	}
-    
-    private void initSession() {
+
+/*
+ * 	Extract registry keys from Windows OS
+ */
+	private String RegQuery(String key) {
+
+		final String REGQUERY_UTIL = "reg query ";
+		final String REGSTR_TOKEN  = "REG_SZ";
+		String QUERY = REGQUERY_UTIL + key;
+		String result;
+
+		final class StreamReader extends Thread {
+			private InputStream is;
+			private StringWriter sw;
+
+			StreamReader(InputStream is) {
+				this.is = is;
+				sw = new StringWriter();
+			}
+
+			public void run() {
+				try {
+					int c;
+					while ((c = is.read()) != -1)
+						sw.write(c);
+				}
+				catch (IOException e) { ; }
+			}
+
+			String getResult() {
+				return sw.toString();
+			}
+		}
+
+		try {
+			Process process = Runtime.getRuntime().exec(QUERY);
+			StreamReader reader = new StreamReader(process.getInputStream());
+			reader.start();
+			process.waitFor();
+			reader.join();
+			result = reader.getResult();
+			int p = result.indexOf(REGSTR_TOKEN);
+			if (p == -1)
+				result = null;
+			result = result.substring(p + REGSTR_TOKEN.length()).trim();
+		}
+		catch (Exception e) {
+			logger.debug(e.getMessage());
+			result = null;
+		}
+
+		logger.debug(result);
+		return result;
+	}
+
+	private void initSession() {
     	File file = new File(workspacePath.toString()+"/r");
 		if (!file.exists())
 			file.mkdir();
@@ -244,7 +308,7 @@ public class RBusinessManager implements IBioclipseManager {
     	eval("help("+ command +", help_type=\"html\")");
     	return "";
     	
-//		TODO remove this if not used.
+//		TODO remove this if not used. To open an in-browser.
 //    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
 //    	try {
 //			bioclipse.openURL(new URL(url));
@@ -258,11 +322,10 @@ public class RBusinessManager implements IBioclipseManager {
 //		}
     }
     
-    private String extractRjError(String error) {
+    private String extractRjpath(String error) {
     	error = error.substring(error.indexOf("JR library path:"));
     	error = error.replaceFirst(NEWLINE, "");
     	error = error.substring(0, error.indexOf(NEWLINE)).trim();
-    	error = "Path to rj package not found." + NEWLINE + error;
     	return error;
     }
 
