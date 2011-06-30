@@ -65,7 +65,7 @@ public class Activator extends Plugin {
         IRBusinessManager manager = null;
         try {
             manager = (IRBusinessManager)
-                      javaFinderTracker.waitForService(1500*10); // 1000*10 is to small.
+                      javaFinderTracker.waitForService(1000*10);
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(
