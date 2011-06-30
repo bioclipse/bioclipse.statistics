@@ -19,6 +19,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
    final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
    private IRBusinessManager r;
+   private boolean working = false;
 
     public RConsoleView() {
         logger.info("Starting R console UI");
@@ -28,19 +29,26 @@ public class RConsoleView extends ScriptingConsoleView {
     protected String executeCommand( String command ) {
     	String returnVal = "";
     	if (r == null)
-    		getRBusinessManager();
+    		working = getRBusinessManager();
     	echoCommand(command);
-    	if (r.isWorking()) {
+/*    	if (working && r.isWorking()) {
     		returnVal = r.eval(command);
     	} else
     		returnVal = "R console is inactivated: " + r.getStatus();
-    	printMessage(returnVal);
+*/    	printMessage(returnVal);
     	return returnVal;
     }
 
-    private void getRBusinessManager() {
-    	r = Activator.getDefault().getJavaRBusinessManager();
-    	printMessage(r.getStatus());
+    private boolean getRBusinessManager() {
+    	try {
+    		r = Activator.getDefault().getJavaRBusinessManager();
+    		printMessage(r.getStatus());
+    	}
+    	catch (IllegalStateException e) {
+    		printMessage("Waiting for JavaRBusinessManager.");
+    		return false;
+    	}
+    	return true;
     }
     
     protected void waitUntilCommandFinished() {
