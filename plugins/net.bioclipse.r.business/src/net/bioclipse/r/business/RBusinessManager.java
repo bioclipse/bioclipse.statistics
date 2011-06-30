@@ -48,8 +48,9 @@ public class RBusinessManager implements IBioclipseManager {
 	private String  status  = "";
 	private Boolean working = true;
 	private IPath	workspacePath;
+	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
-    public static String NEWLINE = System.getProperty("line.separator");
+    public static String NEWLINE    = System.getProperty("line.separator");
 
 	
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
@@ -107,12 +108,23 @@ public class RBusinessManager implements IBioclipseManager {
 
 	public boolean runCmd(String command) {
 		logger.debug(command);
+		
+		
 		StringBuilder s = new StringBuilder();
 		String     line = null;
 		boolean  result = false; // if command is successful
 		try {
             Runtime rt = Runtime.getRuntime();
-            Process pr = rt.exec(new String[] { "bash", "-c", command });
+            Process pr;
+            if (OS.startsWith("Mac"))
+            	pr = rt.exec(new String[] { "bash", "-c", command });
+            else if (OS.startsWith("Windows"))
+            	pr = rt.exec(command);
+            else if (OS.startsWith("Linux"))
+            	// TODO check if Linux command is working           
+            	pr = rt.exec(command);
+            else
+            	pr = rt.exec(command);
             int exitVal = pr.waitFor();
             
             if (exitVal != 0) {		// Command fail
@@ -134,8 +146,9 @@ public class RBusinessManager implements IBioclipseManager {
 	            }
             }
         } catch(Exception e) {
-            logger.error(e.toString());
-            e.printStackTrace();
+        	working = false;
+        	status = e.toString();
+        	logger.error(status);
         }
         logger.debug(s.toString());
         return result;
@@ -166,7 +179,7 @@ public class RBusinessManager implements IBioclipseManager {
         
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
-		String OS = System.getProperty("os.name").toString();
+
 		Boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
 			if (R_HOME == null)			
@@ -176,10 +189,10 @@ public class RBusinessManager implements IBioclipseManager {
 			trustRPath = rExist(path + "R");
 		} else if (OS.startsWith("Windows")) {
 			if (R_HOME == null) {
-				path = "C:\\Program Files\\R\\R-2.12.2\\";
-//				TODO check paths for 2.13.xx and 64bit versions.
-//				String key = "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\" /v Favorites";
-				path = RegQuery("HKEY_LOCAL_MACHINE\\SOFTWARE\\R-core\\R");
+				path = RegQuery("HKLM\\SOFTWARE\\R-core\\R /v InstallPath");
+				logger.debug("Path: " + path);
+				if (path == null)
+					path = "";
 			}
 			if (!path.endsWith("\\"))
 				path += "\\";
@@ -263,7 +276,6 @@ public class RBusinessManager implements IBioclipseManager {
 			file.mkdir();
 		eval("setwd(\""+file.getAbsolutePath()+"\")");
 		status = "R workspace: " + eval("getwd()").substring(3);
-//		eval("x11()");
 		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
 			@Override
 			public boolean accept(File dir, String name) {
