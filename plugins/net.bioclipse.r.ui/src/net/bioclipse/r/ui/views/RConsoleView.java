@@ -19,36 +19,37 @@ public class RConsoleView extends ScriptingConsoleView {
 
    final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
    private IRBusinessManager r;
-   private boolean working = false;
 
-    public RConsoleView() {
-        logger.info("Starting R console UI");
-    }
+   public RConsoleView() {
+	   logger.info("Starting R console UI");
+	   getRBusinessManager();
+   }
 
+/*
+ * Execute the R command - First check if r manager is available.
+ */
     @Override
     protected String executeCommand( String command ) {
-    	String returnVal = "";
-    	if (r == null)
-    		working = getRBusinessManager();
+// 	TODO: fix a nicer welcome text
+    	String returnVal = "Waiting for R Manager, please try again.";
     	echoCommand(command);
-/*    	if (working && r.isWorking()) {
+    	if (r != null)
     		returnVal = r.eval(command);
-    	} else
-    		returnVal = "R console is inactivated: " + r.getStatus();
-*/    	printMessage(returnVal);
+    	else getRBusinessManager();
+      	printMessage(returnVal);
     	return returnVal;
     }
 
-    private boolean getRBusinessManager() {
+    private void getRBusinessManager() {
     	try {
     		r = Activator.getDefault().getJavaRBusinessManager();
     		printMessage(r.getStatus());
+    		logger.debug(r.getStatus());
     	}
     	catch (IllegalStateException e) {
     		printMessage("Waiting for JavaRBusinessManager.");
-    		return false;
+    		logger.debug(e.getMessage());
     	}
-    	return true;
     }
     
     protected void waitUntilCommandFinished() {
