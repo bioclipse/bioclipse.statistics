@@ -169,8 +169,8 @@ public class RBusinessManager implements IBioclipseManager {
     	}
     	if (!runCmd("R -e \".find.package('rj')\" -s")) {
     		logger.debug("Error: Package rj not found.");
-    		if (!runCmd("R CMD install.packages...)\" -s")) {
-        		status = "Error finding rj";
+    		if (!runCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
+    			status = "Error finding rj";
     			logger.debug("Error: Installation of rj failed.");
         		working = false;
     		}
