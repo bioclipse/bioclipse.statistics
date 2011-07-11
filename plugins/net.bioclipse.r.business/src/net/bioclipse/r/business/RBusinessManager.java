@@ -108,8 +108,6 @@ public class RBusinessManager implements IBioclipseManager {
 
 	public boolean runCmd(String command) {
 		logger.debug(command);
-		
-		
 		StringBuilder s = new StringBuilder();
 		String     line = null;
 		boolean  result = false; // if command is successful
@@ -293,26 +291,28 @@ public class RBusinessManager implements IBioclipseManager {
     
     public String eval(String command) {
         logger.debug("R cmd: " + command);
-        String returnVal;
-        if (command.startsWith("?"))
-        	returnVal = help(command.substring(1));
-        else try {
-        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
-        	RStore rData = data.getData();
-        	StringBuilder builder = new StringBuilder();
-        	for(int i=0;i<rData.getLength();i++) {
-        		builder.append(rData.getChar(i));
+        String returnVal = "R console is inactivated: " + status;
+        if (working) {
+	        if (command.startsWith("?"))
+	        	returnVal = help(command.substring(1));
+	        else try {
+	        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+	        	RStore rData = data.getData();
+	        	StringBuilder builder = new StringBuilder();
+	        	for(int i=0;i<rData.getLength();i++) {
+	        		builder.append(rData.getChar(i));
+	        	}
+	        	returnVal = builder.toString();
+	        }
+	        catch (CoreException rError) {	// Catch R errors.
+	        	returnVal = "Error: " + extractRError(rError.getMessage());
+	        }
+	        catch (Throwable error) {
+	        	error.printStackTrace();
+	        	returnVal = "Error: " + error.getMessage();
+	        }
+	        logger.debug(" -> " + returnVal);
         	}
-        	returnVal = builder.toString();
-        }
-        catch (CoreException rError) {	// Catch R errors.
-        	returnVal = "Error: " + extractRError(rError.getMessage());
-        }
-        catch (Throwable error) {
-        	error.printStackTrace();
-        	returnVal = "Error: " + error.getMessage();
-        }
-        logger.debug(" -> " + returnVal);
         return returnVal;
         }
 
