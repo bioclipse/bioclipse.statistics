@@ -52,7 +52,6 @@ public class RBusinessManager implements IBioclipseManager {
 	private RServiManager rsmanager = new RServiManager("Rconsole");
     public static String NEWLINE    = System.getProperty("line.separator");
 
-	
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -64,7 +63,7 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
-			R_HOME = checkR_HOME(R_HOME);
+			R_HOME = checkR_HOME(R_HOME);		// chech if R_HOME is correct
 			checkRdependencies();				// check if all plugins are installed in R
 			rsmanager.setEmbedded(R_HOME);		// Start Rservi
 		}
@@ -72,10 +71,9 @@ public class RBusinessManager implements IBioclipseManager {
 			working = false;
 			status = e.getMessage();
 		}
-		catch (CoreException e) { // Catch rj startup error.
+		catch (CoreException e) { 				// Catch rj startup error.
 			working = false;
 			status = e.getMessage();
-//			status = extractRjpath(e.getCause().getCause().getMessage());  way to extract rj path.
 		}
 		if (working) {
 			try {
@@ -106,7 +104,10 @@ public class RBusinessManager implements IBioclipseManager {
     	return working;
     }
 
-	public boolean runCmd(String command) {
+    /**
+     * Run system commands
+     */
+    public boolean runCmd(String command) {
 		logger.debug(command);
 		StringBuilder s = new StringBuilder();
 		String     line = null;
@@ -152,7 +153,7 @@ public class RBusinessManager implements IBioclipseManager {
         return result;
 	}
     
-	/*
+	/**
 	 * Check if all R dependencies are installed, such as "rj" and "rJava"
 	 */
 	private void checkRdependencies() throws FileNotFoundException {
@@ -172,12 +173,13 @@ public class RBusinessManager implements IBioclipseManager {
     			logger.debug("Error: Installation of rj failed.");
         		working = false;
     		}
+    	} else {
+    		runCmd("R -e \"installed.packages()['rj','Version']\" -s");
     	}
     }
         
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
-
 		Boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
 			if (R_HOME == null)			
@@ -214,9 +216,9 @@ public class RBusinessManager implements IBioclipseManager {
 		return f.exists();
 	}
 
-/*
- * 	Extract registry keys from Windows OS
- */
+	/**
+	 * 	Extract registry keys from Windows OS
+	 */
 	private String RegQuery(String key) {
 
 		final String REGQUERY_UTIL = "reg query ";
@@ -316,6 +318,9 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
         }
 
+    /**
+     * Opens help in browser
+     */
     private String help(String command) {
     	eval("help("+ command +", help_type=\"html\")");
     	return "";
@@ -332,13 +337,6 @@ public class RBusinessManager implements IBioclipseManager {
 //			e.printStackTrace();
 //			return e.getMessage();
 //		}
-    }
-    
-    private String extractRjpath(String error) {
-    	error = error.substring(error.indexOf("JR library path:"));
-    	error = error.replaceFirst(NEWLINE, "");
-    	error = error.substring(0, error.indexOf(NEWLINE)).trim();
-    	return error;
     }
 
     private String extractRError(String error) {
