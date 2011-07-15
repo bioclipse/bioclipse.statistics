@@ -1,5 +1,5 @@
 /* *****************************************************************************
- *Copyright (c) 2011 christian.ander@gmail.com & stephan.wahlbrink@walware.de
+ *Copyright (c) 2011 stephan.wahlbrink@walware.de and christian.ander@gmail.com
  *All rights reserved. This program and the accompanying materials
  *are made available under the terms of the Eclipse Public License v1.0
  *which accompanies this distribution, and is available at
@@ -32,11 +32,11 @@ import de.walware.rj.servi.pool.RServiImplE;
 import de.walware.rj.servi.pool.RServiNodeConfig;
 import de.walware.rj.servi.pool.RServiNodeFactory;
 
-import de.walware.rj.server.RjsComConfig;
-import de.walware.rj.server.client.RClientGraphicFactory;
 /*
  * Disabled graphic parts to reduce dependencies.
  *
+import de.walware.rj.server.RjsComConfig;
+import de.walware.rj.server.client.RClientGraphicFactory;
 import de.walware.rj.eclient.graphics.comclient.ERClientGraphicActionsFactory;
 import de.walware.rj.servi.internal.rcpdemo.Activator; */
 
