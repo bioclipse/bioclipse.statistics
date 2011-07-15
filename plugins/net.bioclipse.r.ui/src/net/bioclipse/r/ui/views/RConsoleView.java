@@ -22,7 +22,6 @@ public class RConsoleView extends ScriptingConsoleView {
 
    public RConsoleView() {
 	   logger.info("Starting R console UI");
-	   getRBusinessManager();
    }
 
 /*
@@ -30,12 +29,15 @@ public class RConsoleView extends ScriptingConsoleView {
  */
     @Override
     protected String executeCommand( String command ) {
-// 	TODO: fix a nicer welcome text
-    	String returnVal = "Waiting for R Manager, please try again.";
+    	String returnVal;
+    	if (r == null) {
+    		getRBusinessManager();
+        	if (r == null)
+        		returnVal = "Waiting for R Manager, please try again.";
+        	else returnVal = r.eval(command);
+    	}
+    	else returnVal = r.eval(command);
     	echoCommand(command);
-    	if (r != null)
-    		returnVal = r.eval(command);
-    	else getRBusinessManager();
       	printMessage(returnVal);
     	return returnVal;
     }
