@@ -113,12 +113,17 @@ public class RBusinessManager implements IBioclipseManager {
 		String     line = null;
 		boolean  result = false; // if command is successful
 		try {
-            Runtime rt = Runtime.getRuntime();
+//TODO: ProcessBuilder might be better.
+			Runtime rt = Runtime.getRuntime();
             Process pr;
+//            ProcessBuilder pb;
             if (OS.startsWith("Mac"))
             	pr = rt.exec(new String[] { "bash", "-c", command });
-            else if (OS.startsWith("Windows"))
+            else if (OS.startsWith("Windows")) {
             	pr = rt.exec(command);
+//            	pb = new ProcessBuilder(command);
+//            	pr = pb.start();
+            }
             else if (OS.startsWith("Linux"))
             	// TODO check if Linux command is working           
             	pr = rt.exec(command);
@@ -153,22 +158,28 @@ public class RBusinessManager implements IBioclipseManager {
         return result;
 	}
     
+    private boolean runRCmd(String Rcommand) {
+    	if (OS.startsWith("Windows"))
+    		return runCmd(R_HOME + "\\bin\\" + Rcommand);
+    	else return runCmd(Rcommand);
+    }
+    
 	/**
 	 * Check if all R dependencies are installed, such as "rj" and "rJava"
 	 */
 	private void checkRdependencies() throws FileNotFoundException {
-    	if (!runCmd("R -e \".find.package('rJava')\" -s")) {
+    	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
-    		if (!runCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
+    		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
     			status = "Error finding rJava, use install.packages('rJava') within R";
     			logger.debug("Error: Installation of rJava failed.");
 	    		working = false;
     		}
     		
     	}
-    	if (!runCmd("R -e \".find.package('rj')\" -s")) {
+    	if (!runRCmd("R -e \".find.package('rj')\" -s")) {
     		logger.debug("Error: Package rj not found.");
-    		if (!runCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
+    		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
     			status = "Error finding rj";
     			logger.debug("Error: Installation of rj failed.");
         		working = false;
@@ -183,31 +194,24 @@ public class RBusinessManager implements IBioclipseManager {
 		Boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
 			if (R_HOME == null)			
-				path = "/Library/Frameworks/R.framework/Resources/";
-			if (!path.endsWith("/"))
-				path += "/";
-			trustRPath = rExist(path + "R");
+				path = "/Library/Frameworks/R.framework/Resources";
+			trustRPath = rExist(path + "/R");
 		} else if (OS.startsWith("Windows")) {
 			if (R_HOME == null) {
 				path = RegQuery("HKLM\\SOFTWARE\\R-core\\R /v InstallPath");
-				logger.debug("Path: " + path);
 				if (path == null)
 					path = "";
 			}
-			if (!path.endsWith("\\"))
-				path += "\\";
-			trustRPath =rExist(path + "bin\\R.exe"); 
+			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			if (!path.endsWith("/"))
-				path += "/";
-			trustRPath = rExist(path + "bin/R");
+			trustRPath = rExist(path + "/bin/R");
 //			link: /usr/bin/R -> /usr/lib/R/bin/R
 //			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
 //		    R_HOME is /usr/lib/R
 		}
 		if (!trustRPath)
 			throw new FileNotFoundException("Incorrect R_HOME path: " + path);
-		logger.debug("New path: " + path);
+		logger.debug("R_HOME = " + path);
 		return path;
 	}
 
