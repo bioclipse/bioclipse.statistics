@@ -171,18 +171,18 @@ public class RBusinessManager implements IBioclipseManager {
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
-    			status = "Error finding rJava, use install.packages('rJava') within R";
+    			status = "Error finding and installing rJava, use install.packages('rJava') within R";
     			logger.debug("Error: Installation of rJava failed.");
-	    		working = false;
+    			throw new FileNotFoundException(status);
     		}
     		
     	}
     	if (!runRCmd("R -e \".find.package('rj')\" -s")) {
     		logger.debug("Error: Package rj not found.");
     		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
-    			status = "Error finding rj";
+    			status = "Error finding and installing rj-package, try from: http://www.walware.de/it/downloads/rj.mframe";
     			logger.debug("Error: Installation of rj failed.");
-        		working = false;
+    			throw new FileNotFoundException(status);
     		}
     	} else {
     		runCmd("R -e \"installed.packages()['rj','Version']\" -s");
