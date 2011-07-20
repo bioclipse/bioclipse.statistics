@@ -21,6 +21,8 @@ public class Activator extends Plugin {
 
     // The shared instance
     private static Activator plugin;
+
+    private RServiManager rserviManager;
     
     /**
      * The constructor
@@ -46,6 +48,13 @@ public class Activator extends Plugin {
         super.stop(context);
     }
 
+	public synchronized RServiManager getRServiManager() {
+		if (rserviManager == null) {
+//			rserviManager = new RServiManager("RCPDemo"); // is this needed?
+		}
+		return rserviManager;
+	}
+	
     /**
      * Returns the shared instance
      *

@@ -5,14 +5,13 @@ Bundle-SymbolicName: net.bioclipse.r;singleton:=true
 Bundle-Version: 2.5.0.qualifier
 Bundle-Activator: net.bioclipse.r.Activator
 Require-Bundle: org.eclipse.core.runtime,
- net.bioclipse.core
+ net.bioclipse.core,
+ de.walware.rj.data;bundle-version="0.5.0",
+ de.walware.rj.server;bundle-version="0.5.0",
+ de.walware.rj.servi;bundle-version="0.5.0"
 Bundle-ActivationPolicy: lazy
-Export-Package: net.bioclipse.r,
- org.rosuda.JRI,
- org.rosuda.REngine,
- org.rosuda.REngine.JRI
-Import-Package: org.apache.log4j
+Export-Package: net.bioclipse.r
+Import-Package: de.walware.ecommons.net,
+ org.apache.log4j
 Bundle-Vendor: The Bioclipse Team
-Bundle-ClassPath: .,
- jar/REngine.jar,
- jar/JRIEngine.jar
+Bundle-ClassPath: .

@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.r_feature"
       label="Bioclipse-R Integration"
-      version="2.4.1.20110201"
+      version="2.5.0.qualifier"
       provider-name="The Bioclipse Project"
       plugin="net.bioclipse.r">
    <install-handler library="net.bioclipse.r/"/>
@@ -18,6 +18,10 @@
    <license>
       The Eclipse Public License + exception to allow GPL plugins to use this feature as explained in the first Bioclipse paper.
    </license>
+
+   <includes
+         id="net.bioclipse.r.walware_feature"
+         version="0.0.0"/>
 
    <plugin
          id="net.bioclipse.r"
