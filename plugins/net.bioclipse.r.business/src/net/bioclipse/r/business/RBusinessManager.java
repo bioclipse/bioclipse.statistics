@@ -65,7 +65,10 @@ public class RBusinessManager implements IBioclipseManager {
 		try {
 			R_HOME = checkR_HOME(R_HOME);		// chech if R_HOME is correct
 			checkRdependencies();				// check if all plugins are installed in R
-			rsmanager.setEmbedded(R_HOME);		// Start Rservi
+			// next, check if there are $HOME-based lib paths
+			String userLibPath = checkUserLibDir();
+			logger.debug("User path: " + userLibPath);
+			rsmanager.setEmbedded(R_HOME, userLibPath);		// Start Rservi
 		}
 		catch (FileNotFoundException e) {
 			working = false;
@@ -190,6 +193,38 @@ public class RBusinessManager implements IBioclipseManager {
     			installRj();
     		}
     	}
+    }
+
+	/**
+	 * For some reason or another, on Linux, when booting R with StatET it does
+	 * not see all the same lib paths as when booted from the command line.
+	 * 
+	 * Thus, this method runs <code>.libPatsh()</code> to detect a user dir
+	 * lib path, by comparing given paths to the user.home Java property,
+	 * and returns that value.
+	 * 
+	 * @return null, if no user.home-based lib path is found
+	 */
+	private String checkUserLibDir() {
+		// user .libPaths() to list all paths known when R is run from the 
+		// command line
+    	if (!runRCmd("R -e \".libPaths()\" -s")) {
+    		logger.error("Could not detect user lib path.");
+    	} else {
+    		// split on '"'. This gives irrelevant strings, but those will
+    		// not match a user.home anyway
+    		String[] parts = status.split("\\\"");
+    		String userHome = System.getProperty("user.home");
+    		logger.debug("user.home: " + userHome);
+    		for (int i=0; i<parts.length; i++) {
+    			String part = parts[i];
+    			if (part != null && part.startsWith(userHome)) {
+    				// OK, we found the first lib path in $HOME
+    				return part;
+    			}
+    		}
+    	}
+		return null;
     }
 
 	private boolean installRj() throws FileNotFoundException {

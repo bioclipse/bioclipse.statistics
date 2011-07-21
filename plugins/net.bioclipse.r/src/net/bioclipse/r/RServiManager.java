@@ -98,6 +98,10 @@ public class RServiManager {
 	}
 
 	public void setEmbedded(final String rHome) throws CoreException {
+		setEmbedded(rHome, null);
+	}
+
+	public void setEmbedded(final String rHome, final String userLibPath) throws CoreException {
 		final Config config = new Config();
 		logger.debug("Using R_HOME: " + rHome);
 		config.mode = EMBEDDED;
@@ -107,6 +111,8 @@ public class RServiManager {
 		final RServiNodeConfig rConfig = new RServiNodeConfig();
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
+		if (userLibPath != null)
+			rConfig.getEnvironmentVariables().put("R_LIBS_USER", userLibPath);
 
 		startEmbedded(rConfig);
 	}
@@ -159,7 +165,7 @@ public class RServiManager {
 				}
 				System.setSecurityManager(new SecurityManager());
 			}
-
+			
 			RMIUtil.INSTANCE.setEmbeddedPrivateMode(true);
 			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry();
 			final RServiNodeFactory nodeFactory = RServiImplE.createLocalhostNodeFactory(this.name, registry);
