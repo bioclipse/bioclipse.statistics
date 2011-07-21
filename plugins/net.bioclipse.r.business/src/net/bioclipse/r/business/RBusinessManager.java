@@ -126,7 +126,7 @@ public class RBusinessManager implements IBioclipseManager {
             }
             else if (OS.startsWith("Linux"))
             	// TODO check if Linux command is working           
-            	pr = rt.exec(command);
+            	pr = rt.exec(new String[] { "sh", "-c", command });
             else
             	pr = rt.exec(command);
             int exitVal = pr.waitFor();
