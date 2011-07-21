@@ -175,7 +175,7 @@ public class RBusinessManager implements IBioclipseManager {
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
-    			status = "Error finding and installing rJava, use install.packages('rJava') within R";
+    			status += "Error finding and installing rJava, use install.packages('rJava') within R";
     			logger.debug("Error: Installation of rJava failed.");
     			throw new FileNotFoundException(status);
     		}
@@ -187,13 +187,22 @@ public class RBusinessManager implements IBioclipseManager {
     	} else {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
     		if (!status.contains("0.5.5-4")) {
-    			status = "Wrong 'rj' package installed, please install version 0.5.5-4";
+    			status += "Wrong 'rj' package installed, please install version 0.5.5-4";
     			logger.debug(status);
-    			runRCmd("R -e \"remove.packages('rj')\" -s");
-    			installRj();
+    			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
+    				installRj();
     		}
     	}
     }
+
+	private boolean installRj() throws FileNotFoundException {
+		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
+			status += "Error installing rj-package, try manually from: http://www.walware.de/it/downloads/rj.mframe";
+			logger.debug("Error: Installation of rj failed.");
+			throw new FileNotFoundException(status);
+		}
+		return working;
+	}
 
 	/**
 	 * For some reason or another, on Linux, when booting R with StatET it does
@@ -227,16 +236,6 @@ public class RBusinessManager implements IBioclipseManager {
 		return null;
     }
 
-	private boolean installRj() throws FileNotFoundException {
-		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
-			status = "Error finding and installing rj-package, try from: http://www.walware.de/it/downloads/rj.mframe";
-			logger.debug("Error: Installation of rj failed.");
-			throw new FileNotFoundException(status);
-		}
-		return working;
-	}
-	
-	
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
 		Boolean trustRPath = false;
