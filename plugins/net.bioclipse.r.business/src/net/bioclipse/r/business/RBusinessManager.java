@@ -176,7 +176,7 @@ public class RBusinessManager implements IBioclipseManager {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
     			status += "Error finding and installing rJava, use install.packages('rJava') within R";
-    			logger.debug("Error: Installation of rJava failed.");
+    			logger.error(status);
     			throw new FileNotFoundException(status);
     		}
     		
@@ -188,7 +188,7 @@ public class RBusinessManager implements IBioclipseManager {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
     		if (!status.contains("0.5.5-4")) {
     			status += "Wrong 'rj' package installed, please install version 0.5.5-4";
-    			logger.debug(status);
+    			logger.error(status);
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
     				installRj();
     		}
@@ -198,7 +198,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private boolean installRj() throws FileNotFoundException {
 		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-0.5')\" -s")) {
 			status += "Error installing rj-package, try manually from: http://www.walware.de/it/downloads/rj.mframe";
-			logger.debug("Error: Installation of rj failed.");
+			logger.error("Error: Installation of rj failed.");
 			throw new FileNotFoundException(status);
 		}
 		return working;
