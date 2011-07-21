@@ -57,7 +57,7 @@ public class RBusinessManager implements IBioclipseManager {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root  = workspace.getRoot();
 		workspacePath = root.getLocation();
-		logger.debug("Bioclipse workingdirectory: " + workspacePath.toString());
+		logger.debug("Bioclipse working directory: " + workspacePath.toString());
 	    
 	    R_HOME = System.getenv("R_HOME");
 	    
