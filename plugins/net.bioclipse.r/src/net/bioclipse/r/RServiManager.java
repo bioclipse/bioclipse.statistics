@@ -111,6 +111,8 @@ public class RServiManager {
 		final RServiNodeConfig rConfig = new RServiNodeConfig();
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
+		// if a user lib path was defined, set that as environment variable
+		// in the embedded 
 		if (userLibPath != null)
 			rConfig.getEnvironmentVariables().put("R_LIBS_USER", userLibPath);
 
