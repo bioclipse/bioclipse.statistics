@@ -15,6 +15,7 @@ import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.statistics.model.IMatrixResource;
 
 @PublishedClass(
     value="Bioclipse manager to interact with R."
@@ -27,6 +28,16 @@ public interface IRBusinessManager extends IBioclipseManager {
         params = "String command"
     )
     public String  eval(String command);
+
 	public String  getStatus();
+
 	public Boolean isWorking();
+
+	@Recorded
+    @PublishedMethod(
+        methodSummary = "Creates a new matrix object with the given variable" +
+        		"name, from the given data.",
+        params = "String varName, IMatrixResource matrixData"
+    )
+	public String createMatrix(String varName, IMatrixResource matrixData);
 }
