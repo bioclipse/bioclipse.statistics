@@ -28,7 +28,8 @@ public interface IMatrixManager extends IBioclipseManager {
     @Recorded
     @PublishedMethod(methodSummary=
         "Creates a new matrix domain object, staring from a sequence " +
-        "of values and a given number of columns."
+        "of values and a given number of columns.",
+        params="String valueSequence, int ncol"
     )
     public IMatrixResource create(
         String valueSequence, int ncol);
@@ -58,13 +59,15 @@ public interface IMatrixManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(methodSummary=
-        "Sets the column labels of the matrix."
+        "Sets the column labels of the matrix.",
+        params="IMatrixResource matrix, String[] names"
     )
     public void setColumnLabels(IMatrixResource matrix, String[] names);
 
     @Recorded
     @PublishedMethod(methodSummary=
-        "Sets the row labels of the matrix."
+        "Sets the row labels of the matrix.",
+        params="IMatrixResource matrix, String[] names"
     )
     public void setRowLabels(IMatrixResource matrix, String[] names);
 
