@@ -40,4 +40,11 @@ public interface IRBusinessManager extends IBioclipseManager {
         params = "String varName, IMatrixResource matrixData"
     )
 	public String createMatrix(String varName, IMatrixResource matrixData);
+
+	@Recorded
+    @PublishedMethod(
+        methodSummary = "Lists all variables defined in the running R " +
+        		"environment."
+    )
+	public String ls();
 }

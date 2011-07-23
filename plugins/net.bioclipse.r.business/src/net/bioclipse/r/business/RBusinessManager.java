@@ -367,6 +367,10 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
         }
 
+    public String ls() {
+    	return eval("ls()");
+    }
+
     /**
      * Opens help in browser
      */
