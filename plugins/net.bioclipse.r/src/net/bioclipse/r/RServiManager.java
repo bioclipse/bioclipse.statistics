@@ -48,7 +48,6 @@ public class RServiManager {
 	
 	{
 		logger.info("Starting R-servi Manager");
-		logger.debug("R_HOME=" + System.getenv("R_HOME"));
 	}
 
 	private static final int EMBEDDED = 1;

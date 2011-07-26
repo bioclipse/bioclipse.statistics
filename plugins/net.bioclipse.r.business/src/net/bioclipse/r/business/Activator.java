@@ -11,14 +11,16 @@
 package net.bioclipse.r.business;
 
 
-import org.eclipse.core.runtime.Plugin;
+//import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
 import org.osgi.util.tracker.ServiceTracker;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+
 
 /**
  * The Activator class controls the plug-in life cycle
  */
-public class Activator extends Plugin {
+public class Activator extends AbstractUIPlugin {
 
     // The shared instance
     private static Activator plugin;
@@ -26,6 +28,7 @@ public class Activator extends Plugin {
     // Trackers for getting the managers
     private ServiceTracker javaFinderTracker;
     private ServiceTracker jsFinderTracker;
+    public static String R_HOME = "";
 
     public Activator() {
     }
