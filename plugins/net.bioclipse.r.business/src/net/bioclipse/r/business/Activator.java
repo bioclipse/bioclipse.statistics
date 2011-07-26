@@ -83,7 +83,7 @@ public class Activator extends Plugin {
         IJavaScriptRBusinessManager manager = null;
         try {
             manager = (IJavaScriptRBusinessManager)
-                      jsFinderTracker.waitForService(1000*20);
+                      jsFinderTracker.waitForService(1000*60);
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(
