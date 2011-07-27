@@ -57,7 +57,11 @@ public class RBusinessManager implements IBioclipseManager {
 		workspacePath = root.getLocation();
 		logger.debug("Bioclipse working directory: " + workspacePath.toString());
 	    
-	    R_HOME = System.getenv("R_HOME");
+	    R_HOME = Activator.R_HOME;
+	    logger.debug("activator R_home: "+ R_HOME);
+	    if (R_HOME.isEmpty()) {
+	    	R_HOME = System.getenv("R_HOME");
+	    }
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
@@ -177,7 +181,7 @@ public class RBusinessManager implements IBioclipseManager {
     			logger.error(status);
     			throw new FileNotFoundException(status);
     		}
-    		
+
     	}
     	if (!runRCmd("R -e \".find.package('rj')\" -s")) {
     		logger.debug("Error: Package rj not found.");

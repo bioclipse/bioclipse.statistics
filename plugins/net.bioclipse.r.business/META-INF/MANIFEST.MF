@@ -13,11 +13,15 @@ Require-Bundle: org.eclipse.core.runtime,
  net.sf.cglib,
  org.springframework.osgi.aopalliance.osgi,
  net.bioclipse.r,
- net.bioclipse.statistics;bundle-version="2.5.0"
+ net.bioclipse.business,
+ net.bioclipse.statistics,
+ org.eclipse.ui;bundle-version="3.6.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: de.walware.rj.data,
  de.walware.rj.servi,
  de.walware.rj.services;version="0.5.0",
  org.apache.log4j,
- org.eclipse.core.resources
+ org.eclipse.core.resources,
+ org.eclipse.jface.preference,
+ org.eclipse.ui
 Bundle-ActivationPolicy: lazy

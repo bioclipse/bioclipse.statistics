@@ -9,5 +9,13 @@
             id="net.bioclipse.r.business.RBusinessManager">
       </scriptContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="net.bioclipse.r.business.RPreferencePage"
+            id="net.bioclipse.r.business.r.prefs"
+            name="R">
+      </page>
+   </extension>
 
 </plugin>
