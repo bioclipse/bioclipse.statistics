@@ -26,6 +26,7 @@ import javax.security.auth.login.LoginException;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.r.RServiManager;
 import net.bioclipse.statistics.model.IMatrixResource;
+//import net.bioclipse.ui.business.Activator;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IWorkspace;
@@ -57,8 +58,12 @@ public class RBusinessManager implements IBioclipseManager {
 		workspacePath = root.getLocation();
 		logger.debug("Bioclipse working directory: " + workspacePath.toString());
 	    
-	    R_HOME = Activator.R_HOME;
-	    logger.debug("activator R_home: "+ R_HOME);
+        //Read R_HOME from prefs
+        R_HOME
+            = Activator.getDefault().getPreferenceStore()
+                       .getString( net.bioclipse.r.business
+                                   .Activator.R_HOME );
+	    logger.debug("Pref R_home: "+ R_HOME);
 	    if (R_HOME.isEmpty()) {
 	    	R_HOME = System.getenv("R_HOME");
 	    }
@@ -242,7 +247,7 @@ public class RBusinessManager implements IBioclipseManager {
 	public String checkR_HOME(String path) throws FileNotFoundException {
 		Boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
-			if (R_HOME == null)			
+			if(!rExist(R_HOME + "/R"))
 				path = "/Library/Frameworks/R.framework/Resources";
 			trustRPath = rExist(path + "/R");
 		} else if (OS.startsWith("Windows")) {
