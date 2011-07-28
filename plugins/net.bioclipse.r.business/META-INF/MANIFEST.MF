@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.r,
  net.bioclipse.business,
  net.bioclipse.statistics,
- org.eclipse.ui;bundle-version="3.6.2"
+ org.eclipse.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: de.walware.rj.data,
  de.walware.rj.servi,
