@@ -14,8 +14,6 @@ import net.bioclipse.r.business.Activator;
 
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.IntegerFieldEditor;
-import org.eclipse.jface.preference.StringFieldEditor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 
@@ -29,9 +27,7 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
 
     @Override
     protected void createFieldEditors() {
-//        IntegerFieldEditor timeoutEditor=new IntegerFieldEditor(Activator.R_HOME, "Timeout (s)",getFieldEditorParent());
-//        timeoutEditor.setValidRange( 1, 999999999 );
-//        addField( timeoutEditor );
+
         DirectoryFieldEditor Rhome = new DirectoryFieldEditor(Activator.R_HOME, "R_HOME", getFieldEditorParent());
         addField( Rhome );
     }
