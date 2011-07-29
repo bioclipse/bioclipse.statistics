@@ -234,7 +234,8 @@ public class RBusinessManager implements IBioclipseManager {
     		logger.debug("user.home: " + userHome);
     		for (int i=0; i<parts.length; i++) {
     			String part = parts[i];
-    			if (part != null && part.startsWith(userHome)) {
+    			// The replacement for front-slashes for windows systems.
+    			if (part != null && part.startsWith(userHome) || part.replace("/", "\\").startsWith(userHome)) {
     				// OK, we found the first lib path in $HOME
     				return part;
     			}
