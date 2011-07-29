@@ -123,16 +123,12 @@ public class RBusinessManager implements IBioclipseManager {
 		String     line = null;
 		boolean  result = false; // if command is successful
 		try {
-//TODO: ProcessBuilder might be better.
 			Runtime rt = Runtime.getRuntime();
             Process pr;
-//            ProcessBuilder pb;
             if (OS.startsWith("Mac"))
             	pr = rt.exec(new String[] { "bash", "-c", command });
             else if (OS.startsWith("Windows")) {
             	pr = rt.exec(command);
-//            	pb = new ProcessBuilder(command);
-//            	pr = pb.start();
             }
             else if (OS.startsWith("Linux"))
             	// TODO check if Linux command is working           
