@@ -346,6 +346,8 @@ public class RBusinessManager implements IBioclipseManager {
 			status += NEWLINE + "Found R session: " + files[i];
 		}
 		status += NEWLINE + "Use load(\"file\") and save.image(\"file\")";
+		if (OS.startsWith("Mac"))	// the default plotting device on Mac(Quartz) is not working good with StatET
+			eval("options(device='x11')");
     }
     
     public String eval(String command) {
