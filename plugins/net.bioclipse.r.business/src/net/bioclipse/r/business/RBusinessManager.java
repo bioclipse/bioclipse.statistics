@@ -50,6 +50,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
     public static String NEWLINE    = System.getProperty("line.separator");
+    public static final String fileseparator = java.io.File.separator;
 
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
@@ -326,11 +327,11 @@ public class RBusinessManager implements IBioclipseManager {
 	}
 
 	private void initSession() {
-    	File file = new File(workspacePath.toString()+"/r");
+    	File file = new File(workspacePath.toString()+fileseparator+"r");
 		if (!file.exists())
 			file.mkdir();
 		// Java crashes when setting working directory with "\" in windows
-		eval("setwd(\""+file.getAbsolutePath().replace("\\", "/")+"\")");
+		eval("setwd(\""+file.getAbsolutePath().replace(fileseparator, "/")+"\")");
 		status = "R workspace: " + eval("getwd()").substring(3);
 		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
 			@Override
