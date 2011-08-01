@@ -329,7 +329,8 @@ public class RBusinessManager implements IBioclipseManager {
     	File file = new File(workspacePath.toString()+"/r");
 		if (!file.exists())
 			file.mkdir();
-		eval("setwd(\""+file.getAbsolutePath()+"\")");
+		// Java crashes when setting working directory with "\" in windows
+		eval("setwd(\""+file.getAbsolutePath().replace("\\", "/")+"\")");
 		status = "R workspace: " + eval("getwd()").substring(3);
 		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
 			@Override
