@@ -110,6 +110,7 @@ public class RServiManager {
 		final RServiNodeConfig rConfig = new RServiNodeConfig();
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
+		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
 		// if a user lib path was defined, set that as environment variable
 		// in the embedded 
 		if (userLibPath != null)
