@@ -63,9 +63,12 @@ public class RBusinessManager implements IBioclipseManager {
         R_HOME
             = Activator.getDefault().getPreferenceStore()
                        .getString( net.bioclipse.r.business
-                                   .Activator.R_HOME );
+                                   .Activator.PREF_R_HOME );
+        
 	    logger.debug("Pref R_home: "+ R_HOME);
+	    boolean emptyRhome=false;
 	    if (R_HOME.isEmpty()) {
+	    	emptyRhome=true;
 	    	R_HOME = System.getenv("R_HOME");
 	    }
 	    
@@ -77,6 +80,21 @@ public class RBusinessManager implements IBioclipseManager {
 			String userLibPath = checkUserLibDir();
 			logger.debug("User path: " + userLibPath);
 			rsmanager.setEmbedded(R_HOME, userLibPath);		// Start Rservi
+
+			//If the preference was empty, we have discovered a new RHOME
+			if (emptyRhome){
+
+				//Set default preference
+				Activator.getDefault().getPreferenceStore()
+	            .setDefault(net.bioclipse.r.business
+	                        .Activator.PREF_R_HOME, R_HOME);
+
+				//Set current preference
+				Activator.getDefault().getPreferenceStore()
+	            .setValue(net.bioclipse.r.business
+	                        .Activator.PREF_R_HOME, R_HOME);
+
+			}
 		}
 		catch (FileNotFoundException e) {
 			working = false;

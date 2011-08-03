@@ -28,7 +28,7 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
     @Override
     protected void createFieldEditors() {
 
-        DirectoryFieldEditor Rhome = new DirectoryFieldEditor(Activator.R_HOME, "R_HOME", getFieldEditorParent());
+        DirectoryFieldEditor Rhome = new DirectoryFieldEditor(Activator.PREF_R_HOME, "R_HOME", getFieldEditorParent());
         addField( Rhome );
     }
 }

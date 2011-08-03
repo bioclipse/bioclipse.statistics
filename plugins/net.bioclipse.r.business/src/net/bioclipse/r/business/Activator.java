@@ -22,13 +22,14 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
  */
 public class Activator extends AbstractUIPlugin {
 
+    public final static String PREF_R_HOME = "PREF_R_HOME";
+
     // The shared instance
     private static Activator plugin;
 
     // Trackers for getting the managers
     private ServiceTracker javaFinderTracker;
     private ServiceTracker jsFinderTracker;
-    public static String R_HOME = "";
 
     public Activator() {
     }
