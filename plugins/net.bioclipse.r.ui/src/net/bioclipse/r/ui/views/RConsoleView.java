@@ -61,4 +61,14 @@ public class RConsoleView extends ScriptingConsoleView {
     void echoCommand(final String command) {
         printMessage(NEWLINE + "> " + command + NEWLINE);
     }
+    
+    @Override
+    protected String interceptDroppedString( String s ) {
+
+        String result = super.interceptDroppedString( s );
+        if ( s.charAt( 0 ) == '\\' || s.charAt( 0 ) == '/' ) {
+            return result.substring( 1 );
+        }
+        return result;
+    }
 }

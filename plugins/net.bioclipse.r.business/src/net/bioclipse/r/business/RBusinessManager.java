@@ -345,7 +345,7 @@ public class RBusinessManager implements IBioclipseManager {
 	}
 
 	private void initSession() {
-    	File file = new File(workspacePath.toString()+fileseparator+"r");
+    	File file = new File(workspacePath.toString());
 		if (!file.exists())
 			file.mkdir();
 		// Java crashes when setting working directory with "\" in windows
