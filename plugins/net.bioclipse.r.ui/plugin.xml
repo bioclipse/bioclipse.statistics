@@ -16,5 +16,76 @@
          </description>
       </view>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="net.bioclipse.r.ui.editors.REditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            extensions="r"
+            icon="icons/r_icon.gif"
+            id="net.bioclipse.r.ui.editors.REditor"
+            name="R Editor">
+      </editor>
+   </extension>
+
+     <extension
+         point="org.eclipse.core.expressions.definitions">
+      <definition
+            id="net.bioclipse.r.ui.editors.REditor.active">
+             <with
+                  variable="activeEditorId">
+               <equals
+                     value="net.bioclipse.r.ui.editors.REditor">
+               </equals>
+           </with>
+      </definition>
+   </extension>
+
+    <extension point="org.eclipse.ui.commands">
+        <command
+           id="net.bioclipse.r.ui.runRSnippet"
+           defaultHandler="net.bioclipse.r.ui.handlers.RunRSnippetHandler"
+           name="Run R snippet"/>
+        <command
+           id="net.bioclipse.r.ui.runRScript"
+           defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
+           name="Run R Script"/>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+
+	  <menuContribution
+			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+			<command
+              commandId="net.bioclipse.r.ui.runRSnippet"
+              label="Run R snippet">
+
+            	<visibleWhen>
+			   		<iterate operator="and" ifEmpty="false">
+		      			<adapt type="org.eclipse.jface.text.ITextSelection" />
+			   		</iterate>
+		    	</visibleWhen>
+        	</command>
+   	</menuContribution>
+
+    <menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+	<toolbar id="net.bioclipse.r.ui.toolbar">
+        <command
+              commandId="net.bioclipse.r.ui.runRScript"
+              label="Run R Script"
+              icon="icons/r_icon.gif">
+			<visibleWhen>
+                  <reference
+                        definitionId="net.bioclipse.r.ui.editors.REditor.active">
+                  </reference>
+               </visibleWhen>
+		</command>
+	</toolbar>
+
+   </menuContribution>
+
+   </extension>
 
 </plugin>
