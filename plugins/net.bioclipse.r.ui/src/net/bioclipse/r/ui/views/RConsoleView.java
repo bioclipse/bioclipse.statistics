@@ -12,6 +12,7 @@ import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
+import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +25,12 @@ public class RConsoleView extends ScriptingConsoleView {
 	   logger.info("Starting R console UI");
    }
 
+   @Override
+	public void createPartControl(Composite parent) {
+		super.createPartControl(parent);
+		getRBusinessManager();
+	}
+
 /*
  * Execute the R command - First check if r manager is available.
  */
@@ -32,11 +39,12 @@ public class RConsoleView extends ScriptingConsoleView {
     	String returnVal;
     	if (r == null) {
     		getRBusinessManager();
-        	if (r == null)
-        		returnVal = "Waiting for R Manager, please try again.";
-        	else returnVal = r.eval(command);
+    		if (r == null)
+    			returnVal = "Waiting for R Manager, please try again.";
+    		else returnVal = r.eval(command);
+    		returnVal = r.eval(command);
     	}
-    	else returnVal = r.eval(command);
+		else returnVal = r.eval(command);
     	echoCommand(command);
       	printMessage(returnVal);
     	return returnVal;
