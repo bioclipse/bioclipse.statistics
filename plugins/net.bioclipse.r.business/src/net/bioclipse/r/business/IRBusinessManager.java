@@ -47,4 +47,10 @@ public interface IRBusinessManager extends IBioclipseManager {
         		"environment."
     )
 	public String ls();
+
+	@Recorded
+	@PublishedMethod(
+			methodSummary = "Passes the selection to eval"
+	)
+	public void evalSnippet(String seltext);
 }

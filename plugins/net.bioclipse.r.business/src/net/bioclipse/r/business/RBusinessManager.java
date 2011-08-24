@@ -395,6 +395,21 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
         }
 
+    public void evalSnippet(String seltext) {
+    	//split up newlines
+		String[] rcmds = seltext.split("\n");
+
+		String msg = NEWLINE + "You selected text: " + NEWLINE;
+
+		//Run commands as individual R commands line by line
+		for (String cmd : rcmds){
+			msg += cmd + NEWLINE;
+			if(!cmd.startsWith("#"))
+				eval(cmd);
+		}
+		logger.debug(msg);
+	}
+
     public String ls() {
     	return eval("ls()");
     }

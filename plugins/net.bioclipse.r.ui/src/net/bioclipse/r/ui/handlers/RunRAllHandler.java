@@ -2,13 +2,14 @@ package net.bioclipse.r.ui.handlers;
 
 import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
+import net.bioclipse.r.ui.editors.REditor;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.jface.text.ITextSelection;
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -17,19 +18,22 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * @author ola
  *
  */
-public class RunRSnippetHandler extends AbstractHandler implements IHandler {
+public class RunRAllHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		ISelection selection = HandlerUtil.getCurrentSelection(event);
-		if (!(selection instanceof ITextSelection)) return null;
+		IEditorPart editor = HandlerUtil.getActiveEditor(event);
+		if (!(editor instanceof REditor)) return null;
+		REditor reditor = (REditor)editor;
 
-		ITextSelection textsel = (ITextSelection) selection;
-		System.out.println("You selected text: " + textsel.getText());
+		IDocument doc = reditor.getDocumentProvider().getDocument(reditor.getEditorInput());
+		String contents = doc.get();
+
+		System.out.println("Editor contents: " + contents);
 
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
-		r.evalSnippet(textsel.getText());
+	   	r.evalSnippet(contents);
 
 		//We are done
 		return null;

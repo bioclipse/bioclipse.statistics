@@ -47,6 +47,10 @@
            defaultHandler="net.bioclipse.r.ui.handlers.RunRSnippetHandler"
            name="Run R snippet"/>
         <command
+           id="net.bioclipse.r.ui.runRAll"
+           defaultHandler="net.bioclipse.r.ui.handlers.RunRAllHandler"
+           name="Run R snippet"/>
+        <command
            id="net.bioclipse.r.ui.runRScript"
            defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
            name="Run R Script"/>
@@ -59,7 +63,21 @@
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
               commandId="net.bioclipse.r.ui.runRSnippet"
-              label="Run R snippet">
+              label="Run selected R snippet">
+
+            	<visibleWhen>
+			   		<iterate operator="and" ifEmpty="false">
+		      			<adapt type="org.eclipse.jface.text.ITextSelection" />
+			   		</iterate>
+		    	</visibleWhen>
+        	</command>
+   	</menuContribution>
+
+	  <menuContribution
+			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+			<command
+              commandId="net.bioclipse.r.ui.runRAll"
+              label="Run R script">
 
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
@@ -74,7 +92,7 @@
 	<toolbar id="net.bioclipse.r.ui.toolbar">
         <command
               commandId="net.bioclipse.r.ui.runRScript"
-              label="Run R Script"
+              label="Source R Script"
               icon="icons/r_icon.gif">
 			<visibleWhen>
                   <reference
