@@ -30,7 +30,7 @@ public class RunRAllHandler extends AbstractHandler implements IHandler {
 		IDocument doc = reditor.getDocumentProvider().getDocument(reditor.getEditorInput());
 		String contents = doc.get();
 
-		System.out.println("Editor contents: " + contents);
+		System.out.println("Editor content: \n" + contents);
 
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
 	   	r.evalSnippet(contents);

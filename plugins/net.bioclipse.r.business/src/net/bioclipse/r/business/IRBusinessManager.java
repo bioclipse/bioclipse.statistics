@@ -52,5 +52,5 @@ public interface IRBusinessManager extends IBioclipseManager {
 	@PublishedMethod(
 			methodSummary = "Passes the selection to eval"
 	)
-	public void evalSnippet(String seltext);
+	public String evalSnippet(String seltext);
 }

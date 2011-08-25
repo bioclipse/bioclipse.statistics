@@ -26,7 +26,7 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 		if (!(selection instanceof ITextSelection)) return null;
 
 		ITextSelection textsel = (ITextSelection) selection;
-		System.out.println("You selected text: " + textsel.getText());
+		System.out.println("You selected text: \n" + textsel.getText());
 
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
 		r.evalSnippet(textsel.getText());
