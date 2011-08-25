@@ -36,17 +36,30 @@ public class RConsoleView extends ScriptingConsoleView {
  */
     @Override
     protected String executeCommand( String command ) {
-    	String returnVal;
-    	if (r == null) {
-    		getRBusinessManager();
-    		if (r == null)
-    			returnVal = "Waiting for R Manager, please try again.";
-    		else returnVal = r.eval(command);
-    		returnVal = r.eval(command);
+/*
+ * TODO
+ * move what possible to RBusinessManager
+ * test on Windows and Linux
+ */
+    	String returnVal = null;
+    	String[] commands = null;
+		String[] lines = null;
+		commands = command.split(";");
+		for (String semics : commands) {
+			lines = semics.split("\n");
+	    	for (String cmd : lines){
+	    		if (r == null) {
+	    			getRBusinessManager();
+	    			if (r == null)
+	    				returnVal = "Waiting for R Manager, please try again.";
+	    			else returnVal = r.eval(cmd);
+	    			returnVal = r.eval(cmd);
+	    		}
+				else returnVal = r.eval(cmd);
+		    	echoCommand(cmd);
+		      	printMessage(returnVal);
+	    	}
     	}
-		else returnVal = r.eval(command);
-    	echoCommand(command);
-      	printMessage(returnVal);
     	return returnVal;
     }
 
