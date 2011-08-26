@@ -48,16 +48,18 @@ public class RConsoleView extends ScriptingConsoleView {
 		for (String semics : commands) {
 			lines = semics.split("\n");
 	    	for (String cmd : lines){
-	    		if (r == null) {
-	    			getRBusinessManager();
-	    			if (r == null)
-	    				returnVal = "Waiting for R Manager, please try again.";
-	    			else returnVal = r.eval(cmd);
-	    			returnVal = r.eval(cmd);
+	    		if (!cmd.startsWith("#") && cmd.length() != 0) {
+		    		if (r == null) {
+		    			getRBusinessManager();
+		    			if (r == null)
+		    				returnVal = "Waiting for R Manager, please try again.";
+		    			else returnVal = r.eval(cmd);
+		    			returnVal = r.eval(cmd);
+		    		}
+					else returnVal = r.eval(cmd);
+			    	echoCommand(cmd);
+			      	printMessage(returnVal);
 	    		}
-				else returnVal = r.eval(cmd);
-		    	echoCommand(cmd);
-		      	printMessage(returnVal);
 	    	}
     	}
     	return returnVal;
