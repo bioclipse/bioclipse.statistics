@@ -11,10 +11,12 @@ Require-Bundle: org.eclipse.core.runtime,
  net.bioclipse.scripting.ui,
  org.eclipse.ui,
  net.bioclipse.r,
- net.bioclipse.r.business;bundle-version="2.5.0",
+ net.bioclipse.r.business,
  net.bioclipse.business,
  org.eclipse.jface.text,
- org.eclipse.ui.editors
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.core.resources
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r.ui,
  net.bioclipse.r.ui.views

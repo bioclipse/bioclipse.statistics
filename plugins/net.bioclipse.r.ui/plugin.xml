@@ -64,10 +64,10 @@
 			<command
               commandId="net.bioclipse.r.ui.runRSnippet"
               label="Run selected R snippet">
-
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
-		      			<adapt type="org.eclipse.jface.text.ITextSelection" />
+		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
+					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
@@ -78,10 +78,10 @@
 			<command
               commandId="net.bioclipse.r.ui.runRAll"
               label="Run R script">
-
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
-		      			<adapt type="org.eclipse.jface.text.ITextSelection" />
+		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
+					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
