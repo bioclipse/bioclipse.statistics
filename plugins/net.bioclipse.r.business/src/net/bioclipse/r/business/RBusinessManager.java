@@ -410,6 +410,11 @@ public class RBusinessManager implements IBioclipseManager {
 		return retVal;
 
 	}
+    public String source(String filepath) {
+
+    	eval("source(\"" + filepath + "\")");
+		return "";
+	}
 
     public String ls() {
     	return eval("ls()");

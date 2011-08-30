@@ -53,4 +53,10 @@ public interface IRBusinessManager extends IBioclipseManager {
 			methodSummary = "Passes the selection to eval"
 	)
 	public String evalSnippet(String seltext);
+
+	@Recorded
+	@PublishedMethod(
+			methodSummary = "Passes source(filepath) to eval"
+	)
+	public String source(String filepath);
 }

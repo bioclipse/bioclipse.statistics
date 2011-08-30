@@ -9,11 +9,13 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
- * Handler to execute an R Script taken from active editor contents.
+ * Handler to source an R Script taken from active editor contents.
  *
  * @author ola
  *
@@ -27,18 +29,15 @@ public class RunRScriptHandler extends AbstractHandler implements IHandler {
 		if (!(editor instanceof REditor)) return null;
 		REditor reditor = (REditor)editor;
 
-		IDocument doc = reditor.getDocumentProvider().getDocument(reditor.getEditorInput());
-		String contents = doc.get();
-
-		System.out.println("Editor contents: " + contents);
+		//Get the file path from editor
+		IEditorInput einput = reditor.getEditorInput();
+		if (!(einput instanceof IFileEditorInput)) return null;
+		IFileEditorInput finput = (IFileEditorInput) einput;
+		String filepath = finput.getFile().getRawLocation().toOSString();
+		System.out.println("File path is: " + filepath);
 
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
-
-	   	String[] scrlines = contents.split("\n");
-    	for (String rcmd: scrlines)
-    		r.eval(rcmd);
-//		r.evalScript(contents);
-//TODO: Implement
+		r.source(filepath);
 
 		//We are done
 		return null;
