@@ -50,7 +50,7 @@ public interface IRBusinessManager extends IBioclipseManager {
 
 	@Recorded
 	@PublishedMethod(
-			methodSummary = "Passes the selection to eval"
+			methodSummary = "Handles selection and editor content execution"
 	)
 	public String evalSnippet(String seltext);
 
@@ -59,4 +59,11 @@ public interface IRBusinessManager extends IBioclipseManager {
 			methodSummary = "Passes source(filepath) to eval"
 	)
 	public String source(String filepath);
+
+	@Recorded
+	@PublishedMethod(
+			methodSummary = "Splits a string on newline and semicolon" +
+					"and returns a String array of commmands"
+	)
+	public String[] parseCommand(String command);
 }

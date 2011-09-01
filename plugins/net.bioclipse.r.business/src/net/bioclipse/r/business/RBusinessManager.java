@@ -393,25 +393,33 @@ public class RBusinessManager implements IBioclipseManager {
 	        logger.debug(" -> " + returnVal);
         	}
         return returnVal;
-        }
+    }
 
     public String evalSnippet(String seltext) {
-    	//split up newlines
-		String[] rcmds = seltext.split("\n");
 		String retVal = null;
-		//Run commands as individual R commands line by line; split line on ";"
-		for (String line : rcmds){
-			String[] cmds = line.split(";");
-			for (String cmd : cmds) {
-				if(!cmd.startsWith("#") && cmd.length() != 0)
-					retVal = eval(cmd);
-			}
-		}
+    	String[] commands = parseCommand(seltext);
+    	for (String cmd : commands) {
+    		retVal = eval(cmd);
+    	}
 		return retVal;
 
 	}
-    public String source(String filepath) {
 
+    public String[] parseCommand(String command) {
+		StringBuilder cmdbuild = new StringBuilder();
+		String[] lines = command.split("\n");
+		for (String line : lines) {
+			if (!line.startsWith("#") && line.length() != 0) {
+				cmdbuild.append(line);
+				cmdbuild.append(";");
+			}
+		}
+		String lncmd = cmdbuild.toString();
+		String[] cmd = lncmd.split(";");
+		return cmd;
+    }
+
+    public String source(String filepath) {
     	eval("source(\"" + filepath + "\")");
 		return "";
 	}
