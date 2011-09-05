@@ -49,7 +49,7 @@
         <command
            id="net.bioclipse.r.ui.runRAll"
            defaultHandler="net.bioclipse.r.ui.handlers.RunRAllHandler"
-           name="Run R snippet"/>
+           name="Run editor content in R"/>
         <command
            id="net.bioclipse.r.ui.runRScript"
            defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
@@ -77,7 +77,7 @@
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
               commandId="net.bioclipse.r.ui.runRAll"
-              label="Run R script">
+              label="Run editor content in R">
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
