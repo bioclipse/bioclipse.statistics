@@ -19,10 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
 
+import net.bioclipse.business.BioclipsePlatformManager;
+import net.bioclipse.core.business.BioclipseException;
+import net.bioclipse.core.util.FileUtil;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.r.RServiManager;
 import net.bioclipse.statistics.model.IMatrixResource;
@@ -34,6 +39,8 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
@@ -171,8 +178,8 @@ public class RBusinessManager implements IBioclipseManager {
 	            while((line=input.readLine()) != null) {
 	                s.append(line);
 	                s.append("\n");
-	                result = true;
 	            }
+	            result = true; // R CMD INSTALL --no-test-load package.tar.gz does not return output that can be gotten by getInputStream
             }
         } catch(Exception e) {
         	working = false;
@@ -214,6 +221,28 @@ public class RBusinessManager implements IBioclipseManager {
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
     				installRj();
     		}
+    	}
+    	if (!runRCmd("R -e \".find.package('bc2r')\" -s")) {
+    		String rPluginPath = null;
+    		logger.debug("Error: Package bc2r not found.");
+    		try {
+				rPluginPath = FileUtil.getFilePath("bc2r_1.0.tar.gz", "net.bioclipse.r.business");
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logger.debug(e.getMessage());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				logger.debug(e.getMessage());
+			}
+//    		runRCmd("R CMD INSTALL --no-test-load " + rPluginPath);
+    		if (!runRCmd("R CMD INSTALL --no-test-load " + rPluginPath)) {
+    			status += "Error finding and installing bc2r package";
+    			logger.error(status);
+    			throw new FileNotFoundException(status);
+    		}
+
     	}
     }
 
@@ -348,6 +377,7 @@ public class RBusinessManager implements IBioclipseManager {
     	File file = new File(workspacePath.toString());
 		if (!file.exists())
 			file.mkdir();
+		eval("library(bc2r)");
 		// Java crashes when setting working directory with "\" in windows
 		eval("setwd(\""+file.getAbsolutePath().replace(fileseparator, "/")+"\")");
 		status = "R workspace: " + eval("getwd()").substring(3);
@@ -396,6 +426,13 @@ public class RBusinessManager implements IBioclipseManager {
     }
 
     public String evalSnippet(String seltext) {
+	   	try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
+		} catch (PartInitException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			logger.debug(e);
+		}
 		String retVal = null;
     	String[] commands = parseCommand(seltext);
     	for (String cmd : commands) {
@@ -432,21 +469,21 @@ public class RBusinessManager implements IBioclipseManager {
      * Opens help in browser
      */
     private String help(String command) {
-    	eval("help("+ command +", help_type=\"html\")");
-    	return "";
+    	String url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
+    	url = url.substring(5, url.length()-1);
+    	logger.debug("URL is " + url);
     	
-//		TODO remove this if not used. To open an in-browser.
-//    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
-//    	try {
-//			bioclipse.openURL(new URL(url));
-//			return "";
-//		} catch (MalformedURLException e) {
-//			return e.getMessage();
-//		} catch (BioclipseException e) {
+    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
+    	try {
+			bioclipse.openURL(new URL(url));
+			return "";
+		} catch (MalformedURLException e) {
+			return e.getMessage();
+		} catch (BioclipseException e) {
 //			 TODO Auto-generated catch block
-//			e.printStackTrace();
-//			return e.getMessage();
-//		}
+			e.printStackTrace();
+			return e.getMessage();
+		}
     }
 
     public String createMatrix(String varName, IMatrixResource matrixData) {
