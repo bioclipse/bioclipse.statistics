@@ -236,8 +236,7 @@ public class RBusinessManager implements IBioclipseManager {
 				e.printStackTrace();
 				logger.debug(e.getMessage());
 			}
-//    		runRCmd("R CMD INSTALL --no-test-load " + rPluginPath);
-    		if (!runRCmd("R CMD INSTALL --no-test-load " + rPluginPath)) {
+    		if (!runRCmd("R -e \"install.packages('" + rPluginPath + "', repos= NULL, type='source')\" -s")) {
     			status += "Error finding and installing bc2r package";
     			logger.error(status);
     			throw new FileNotFoundException(status);
