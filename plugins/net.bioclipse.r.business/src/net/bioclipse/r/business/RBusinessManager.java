@@ -376,6 +376,7 @@ public class RBusinessManager implements IBioclipseManager {
     	File file = new File(workspacePath.toString());
 		if (!file.exists())
 			file.mkdir();
+		//Load the bc2r package
 		eval("library(bc2r)");
 		// Java crashes when setting working directory with "\" in windows
 		eval("setwd(\""+file.getAbsolutePath().replace(fileseparator, "/")+"\")");
@@ -390,9 +391,10 @@ public class RBusinessManager implements IBioclipseManager {
 		// Show R sessionfiles for user
 		String[] files = file.list(filter);
 		for(int i=0; i<files.length; i++){
-			status += NEWLINE + "Found R session: " + files[i];
+			status += NEWLINE + "Loaded R session: " + files[i];
+			eval("load(\"" + files[i] + "\")");
 		}
-		status += NEWLINE + "Use load(\"file\") and save.image(\"file\")";
+		status += NEWLINE + "Use load(\"file\") and save.image(\"file\") to manage your R sessions";
 		if (OS.startsWith("Mac"))	// the default plotting device on Mac(Quartz) is not working good with StatET
 			eval("options(device='x11')");
     }
