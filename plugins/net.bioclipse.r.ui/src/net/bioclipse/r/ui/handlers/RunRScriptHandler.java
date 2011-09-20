@@ -8,11 +8,8 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * Handler to source an R Script taken from active editor contents.
@@ -25,17 +22,16 @@ public class RunRScriptHandler extends AbstractHandler implements IHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-		IEditorPart editor = HandlerUtil.getActiveEditor(event);
+		IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
+                   .getActivePage().getActiveEditor();
 		if (!(editor instanceof REditor)) return null;
-		REditor reditor = (REditor)editor;
+		REditor reditor = (REditor) editor;
 
-		//Get the file path from editor
-		IEditorInput einput = reditor.getEditorInput();
-		if (!(einput instanceof IFileEditorInput)) return null;
-		IFileEditorInput finput = (IFileEditorInput) einput;
-		String filepath = finput.getFile().getRawLocation().toOSString();
+		//Check the editor state and get the file path
+		String filepath = reditor.getFilePath();
 		System.out.println("File path is: " + filepath);
 
+		//Pass the path to RBusinessManager
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
 		r.source(filepath);
 
