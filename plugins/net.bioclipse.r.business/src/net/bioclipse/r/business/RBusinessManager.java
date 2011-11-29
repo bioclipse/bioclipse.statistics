@@ -227,6 +227,10 @@ public class RBusinessManager implements IBioclipseManager {
     		logger.debug("Error: Package bc2r not found.");
     		try {
 				rPluginPath = FileUtil.getFilePath("bc2r_1.0.tar.gz", "net.bioclipse.r.business");
+				if (OS.startsWith("Windows")) {
+					rPluginPath = rPluginPath.substring(1).replace(fileseparator, "/");
+				}
+				logger.debug(rPluginPath);
 			} catch (IllegalArgumentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -460,7 +464,7 @@ public class RBusinessManager implements IBioclipseManager {
     }
 
     public String source(String filepath) {
-    	eval("source(\"" + filepath + "\")");
+    	eval("source(\"" + filepath.replace(fileseparator, "/") + "\")");
 		return "";
 	}
 
