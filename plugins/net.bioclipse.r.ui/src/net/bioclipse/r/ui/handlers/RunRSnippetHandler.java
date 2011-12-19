@@ -2,6 +2,7 @@ package net.bioclipse.r.ui.handlers;
 
 import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
+import net.bioclipse.r.ui.views.RConsoleView;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -9,6 +10,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -30,7 +32,8 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 
 		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
 		r.evalSnippet(textsel.getText());
-
+	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
+	   	rView.execSnippet(textsel.getText());
 		//We are done
 		return null;
 	}

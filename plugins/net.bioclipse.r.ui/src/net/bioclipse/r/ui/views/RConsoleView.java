@@ -31,6 +31,9 @@ public class RConsoleView extends ScriptingConsoleView {
 		getRBusinessManager();
 	}
 
+   public String execSnippet(String command) {
+	   return executeCommand(command);
+   }
 /*
  * Execute the R command - First check if r manager is available.
  */
