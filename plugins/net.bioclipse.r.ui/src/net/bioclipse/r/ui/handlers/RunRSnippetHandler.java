@@ -30,8 +30,6 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 		ITextSelection textsel = (ITextSelection) selection;
 		System.out.println("You selected text: \n" + textsel.getText());
 
-		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
-		r.evalSnippet(textsel.getText());
 	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 	   	rView.execSnippet(textsel.getText());
 		//We are done

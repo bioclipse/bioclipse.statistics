@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
@@ -39,9 +40,6 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.servi.RServi;
@@ -57,6 +55,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
     public static String NEWLINE    = System.getProperty("line.separator");
+    public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
 
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
@@ -433,13 +432,6 @@ public class RBusinessManager implements IBioclipseManager {
     }
 
     public String evalSnippet(String seltext) {
-	   	try {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
-		} catch (PartInitException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			logger.debug(e);
-		}
 		String retVal = null;
     	String[] commands = parseCommand(seltext);
     	for (String cmd : commands) {
@@ -450,16 +442,12 @@ public class RBusinessManager implements IBioclipseManager {
 	}
 
     public String[] parseCommand(String command) {
-		StringBuilder cmdbuild = new StringBuilder();
-		String[] lines = command.split("\n");
-		for (String line : lines) {
-			if (!line.startsWith("#") && line.length() != 0) {
-				cmdbuild.append(line);
-				cmdbuild.append(";");
-			}
-		}
-		String lncmd = cmdbuild.toString();
-		String[] cmd = lncmd.split(";");
+    	String[] cmd = command.split(cmdparser);
+    	ArrayList<String> list = new ArrayList<String>();
+    	for (String s : cmd)
+    		if (!s.startsWith("#") && s.length() != 0)
+    			list.add(s);
+    	cmd = list.toArray(new String[list.size()]);
 		return cmd;
     }
 

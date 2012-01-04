@@ -34,8 +34,6 @@ public class RunRAllHandler extends AbstractHandler implements IHandler {
 
 		System.out.println("Editor content: \n" + contents);
 
-		IRBusinessManager r = Activator.getDefault().getJavaRBusinessManager();
-	   	r.evalSnippet(contents);
 	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 	   	rView.execSnippet(contents);
 		//We are done
