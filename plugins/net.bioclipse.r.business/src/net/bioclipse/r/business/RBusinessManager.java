@@ -200,6 +200,11 @@ public class RBusinessManager implements IBioclipseManager {
 	 * Check if all R dependencies are installed, such as "rj" and "rJava"
 	 */
 	private void checkRdependencies() throws FileNotFoundException {
+    	runRCmd("R -e \"getRversion()\" -s");
+//    	if (!status.contains("1.14.")) {
+//    		MessageDialog.openInformation(Viewer, "Warning", "R version warning");
+//    	}
+		logger.debug(status);
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
