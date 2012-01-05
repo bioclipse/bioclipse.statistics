@@ -17,6 +17,7 @@ import javax.security.auth.login.LoginException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 
@@ -169,7 +170,7 @@ public class RServiManager {
 			}
 			
 			RMIUtil.INSTANCE.setEmbeddedPrivateMode(true);
-			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry();
+			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(new NullProgressMonitor());
 			final RServiNodeFactory nodeFactory = RServiImplE.createLocalhostNodeFactory(this.name, registry);
 			nodeFactory.setConfig(rConfig);
 
