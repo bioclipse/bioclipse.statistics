@@ -1,7 +1,5 @@
 package net.bioclipse.r.ui.handlers;
 
-import net.bioclipse.r.business.Activator;
-import net.bioclipse.r.business.IRBusinessManager;
 import net.bioclipse.r.ui.views.RConsoleView;
 
 import org.eclipse.core.commands.AbstractHandler;
