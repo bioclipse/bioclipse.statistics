@@ -157,6 +157,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 	    
 		super.setSite(site);
 		super.setInput(input);
+		super.setPartName(input.getName());
 		logger.debug("initializing matrix editor...");
 		if (input instanceof IFileEditorInput) {
 			IFileEditorInput feditorinput = (IFileEditorInput) input;
@@ -738,6 +739,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 
 	@Override
 	public void setFocus() {
+		if(!grid.isDisposed()) {grid.setFocus();}
 	}
 
 	public void selectionChanged(IWorkbenchPart part, final ISelection selection) 
