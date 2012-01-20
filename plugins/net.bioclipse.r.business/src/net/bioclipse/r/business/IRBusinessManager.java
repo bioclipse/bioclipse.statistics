@@ -62,8 +62,14 @@ public interface IRBusinessManager extends IBioclipseManager {
 
 	@Recorded
 	@PublishedMethod(
-			methodSummary = "Splits a string on newline and semicolon" +
+			methodSummary = "Splits a string on newline and semicolon " +
 					"and returns a String array of commmands"
 	)
 	public String[] parseCommand(String command);
+	@Recorded
+	@PublishedMethod(
+			methodSummary = "Gets the boolean " +
+			"noting if we have the right R version"
+	)
+	public boolean getRightRVersion();
 }

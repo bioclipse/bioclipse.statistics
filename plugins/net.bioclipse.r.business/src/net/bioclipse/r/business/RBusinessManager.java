@@ -32,7 +32,6 @@ import net.bioclipse.core.util.FileUtil;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.r.RServiManager;
 import net.bioclipse.statistics.model.IMatrixResource;
-//import net.bioclipse.ui.business.Activator;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IWorkspace;
@@ -40,9 +39,12 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.servi.RServi;
+
+import java.util.regex.Pattern;
 
 public class RBusinessManager implements IBioclipseManager {
 	
@@ -54,6 +56,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private IPath	workspacePath;
 	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
+	private boolean rightRVersion = true;
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
@@ -201,9 +204,10 @@ public class RBusinessManager implements IBioclipseManager {
 	 */
 	private void checkRdependencies() throws FileNotFoundException {
     	runRCmd("R -e \"getRversion()\" -s");
-//    	if (!status.contains("1.14.")) {
-//    		MessageDialog.openInformation(Viewer, "Warning", "R version warning");
-//    	}
+    	int st = compare(status.substring(5, (status.length() - 2)), "2.12.9");
+		if (st < 0) {
+    		rightRVersion = false;
+    	}
 		logger.debug(status);
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
@@ -252,6 +256,10 @@ public class RBusinessManager implements IBioclipseManager {
 
     	}
     }
+
+	public boolean getRightRVersion(){
+		return this.rightRVersion;
+	}
 
 	private boolean installRj() throws FileNotFoundException {
 		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-1.0')\" -s")) {
@@ -542,5 +550,27 @@ public class RBusinessManager implements IBioclipseManager {
     		}
     	}
     	return result;
+    }
+
+    private static int compare(String v1, String v2) {
+        String s1 = normalisedVersion(v1);
+        String s2 = normalisedVersion(v2);
+        int cmp = s1.compareTo(s2);
+        String cmpStr = cmp < 0 ? "<" : cmp > 0 ? ">" : "==";
+        System.out.printf("'%s' %s '%s'%n", v1, cmpStr, v2);
+        return cmp;
+    }
+
+    public static String normalisedVersion(String version) {
+        return normalisedVersion(version, ".", 4);
+    }
+
+    public static String normalisedVersion(String version, String sep, int maxWidth) {
+        String[] split = Pattern.compile(sep, Pattern.LITERAL).split(version);
+        StringBuilder sb = new StringBuilder();
+        for (String s : split) {
+            sb.append(String.format("%" + maxWidth + 's', s));
+        }
+        return sb.toString();
     }
 }

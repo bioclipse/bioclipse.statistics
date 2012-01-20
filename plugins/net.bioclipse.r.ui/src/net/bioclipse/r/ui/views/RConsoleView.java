@@ -12,6 +12,7 @@ import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,15 @@ public class RConsoleView extends ScriptingConsoleView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		getRBusinessManager();
+		if (!r.getRightRVersion()){
+			getSite().getShell().getDisplay().asyncExec
+		    (new Runnable() {
+		        public void run() {
+		            MessageDialog.openError(getSite().getShell(),"Incompatible R version","Runnig R within Bioclipse requires R version 2.13, or later!");
+		        }
+		    });
+		}
+
 	}
 
    public String execSnippet(String command) {
