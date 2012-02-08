@@ -427,8 +427,11 @@ public class RBusinessManager implements IBioclipseManager {
 	        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
-	        	for(int i=0;i<rData.getLength();i++) {
+	        	int n = rData.getLength();
+	        	for(int i=0;i<n;i++) {
 	        		builder.append(rData.getChar(i));
+	        		if (i+1 < n)
+	        			builder.append(NEWLINE);
 	        	}
 	        	returnVal = builder.toString();
 	        }
@@ -439,7 +442,7 @@ public class RBusinessManager implements IBioclipseManager {
 	        	error.printStackTrace();
 	        	returnVal = "Error: " + error.getMessage();
 	        }
-	        logger.debug(" -> " + returnVal);
+	        logger.debug(" -> "+ NEWLINE + returnVal);
         	}
         return returnVal;
     }
