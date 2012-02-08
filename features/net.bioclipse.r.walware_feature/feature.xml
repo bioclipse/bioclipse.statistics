@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.r.walware_feature"
       label="Walware-RJ modules"
-      version="1.0"
+      version="1.0.0.a"
       provider-name="Bioclipse">
 
    <description url="http://www.example.com/description">

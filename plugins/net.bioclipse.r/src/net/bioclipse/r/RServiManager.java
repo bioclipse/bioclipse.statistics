@@ -112,6 +112,7 @@ public class RServiManager {
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
 		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
+		rConfig.setNodeArgs("-plugins=swt"); // solves the plotting issue on Windows
 		// if a user lib path was defined, set that as environment variable
 		// in the embedded 
 		if (userLibPath != null)
