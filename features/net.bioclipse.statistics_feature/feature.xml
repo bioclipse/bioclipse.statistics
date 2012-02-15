@@ -12,10 +12,11 @@
    </description>
 
    <copyright>
-      Various authors.
+      Copyright (c) 2009 The Bioclipse Project Team and others.
+All rights reserved.
    </copyright>
 
-   <license>
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
       The Eclipse Public License + exception to allow GPL plugins to use this feature as explained in the first Bioclipse paper.
    </license>
 
