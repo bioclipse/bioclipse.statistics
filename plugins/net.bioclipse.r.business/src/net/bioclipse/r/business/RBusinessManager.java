@@ -467,9 +467,9 @@ public class RBusinessManager implements IBioclipseManager {
 		return cmd;
     }
 
-    public String source(String filepath) {
-    	eval("source(\"" + filepath.replace(fileseparator, "/") + "\")");
-		return "";
+    public String fixFilepath(String filepath) {
+    	filepath = filepath.replace(fileseparator, "/");
+		return filepath;
 	}
 
     public String ls() {

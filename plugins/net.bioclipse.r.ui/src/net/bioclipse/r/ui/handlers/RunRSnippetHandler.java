@@ -29,7 +29,7 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 		System.out.println("You selected text: \n" + textsel.getText());
 
 	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
-	   	rView.execSnippet(textsel.getText());
+	   	rView.execEditorInpit(textsel.getText());
 		//We are done
 		return null;
 	}

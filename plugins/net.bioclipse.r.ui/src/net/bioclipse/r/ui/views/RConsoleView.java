@@ -30,6 +30,8 @@ public class RConsoleView extends ScriptingConsoleView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		getRBusinessManager();
+		if (r == null)
+			getRBusinessManager();
 		if (!r.getRightRVersion()){
 			getSite().getShell().getDisplay().asyncExec
 		    (new Runnable() {
@@ -41,7 +43,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
 	}
 
-   public String execSnippet(String command) {
+   public String execEditorInpit(String command) {
 	   return executeCommand(command);
    }
 /*

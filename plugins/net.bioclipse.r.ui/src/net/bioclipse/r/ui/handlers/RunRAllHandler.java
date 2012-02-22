@@ -35,7 +35,7 @@ public class RunRAllHandler extends AbstractHandler implements IHandler {
 		System.out.println("Editor content: \n" + contents);
 
 	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
-	   	rView.execSnippet(contents);
+	   	rView.execEditorInpit(contents);
 		//We are done
 		return null;
 	}

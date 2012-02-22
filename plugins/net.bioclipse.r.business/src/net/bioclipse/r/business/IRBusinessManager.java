@@ -56,9 +56,9 @@ public interface IRBusinessManager extends IBioclipseManager {
 
 	@Recorded
 	@PublishedMethod(
-			methodSummary = "Passes source(filepath) to eval"
+			methodSummary = "Changes the file separator in filepath to /"
 	)
-	public String source(String filepath);
+	public String fixFilepath(String filepath);
 
 	@Recorded
 	@PublishedMethod(
