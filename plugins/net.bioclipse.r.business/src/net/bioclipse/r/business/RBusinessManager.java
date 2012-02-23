@@ -424,7 +424,7 @@ public class RBusinessManager implements IBioclipseManager {
 	        else if (command.contains("quartz"))
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
 	        else try {
-	        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
 	        	int n = rData.getLength();
