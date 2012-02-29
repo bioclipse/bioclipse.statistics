@@ -21,6 +21,7 @@ Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.r.ui,
  net.bioclipse.r.ui.views
 Import-Package: org.apache.log4j,
+ org.eclipse.core.expressions,
  org.slf4j
 Bundle-Vendor: The Bioclipse Team
 Bundle-ClassPath: .
