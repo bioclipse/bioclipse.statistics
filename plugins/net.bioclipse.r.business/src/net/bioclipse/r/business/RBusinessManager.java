@@ -447,26 +447,6 @@ public class RBusinessManager implements IBioclipseManager {
         return returnVal;
     }
 
-    public String evalSnippet(String seltext) {
-		String retVal = null;
-    	String[] commands = parseCommand(seltext);
-    	for (String cmd : commands) {
-    		retVal = eval(cmd);
-    	}
-		return retVal;
-
-	}
-
-    public String[] parseCommand(String command) {
-    	String[] cmd = command.split(cmdparser);
-    	ArrayList<String> list = new ArrayList<String>();
-    	for (String s : cmd)
-    		if (!s.startsWith("#") && s.length() != 0)
-    			list.add(s);
-    	cmd = list.toArray(new String[list.size()]);
-		return cmd;
-    }
-
     public String ls() {
     	return eval("ls()");
     }

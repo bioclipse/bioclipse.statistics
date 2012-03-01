@@ -10,6 +10,7 @@
 package net.bioclipse.r.ui.views;
 import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
+import net.bioclipse.r.ui.util.RunUtil;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -57,12 +58,7 @@ public class RConsoleView extends ScriptingConsoleView {
  */
     	String returnVal = null;
     	String[] commands = null;
-    	if (r == null) {
-    		getRBusinessManager();
-    		if (r == null)
-    			returnVal = "Waiting for R Manager, please try again.";
-    	}
-    	commands = r.parseCommand(command);
+    	commands = RunUtil.parseCommand(command);
 		for (String cmd : commands){
 			returnVal = r.eval(cmd);
 			echoCommand(cmd);

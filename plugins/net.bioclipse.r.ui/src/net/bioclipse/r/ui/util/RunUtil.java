@@ -7,6 +7,8 @@
 
 package net.bioclipse.r.ui.util;
 
+import java.util.ArrayList;
+
 import net.bioclipse.r.ui.editors.REditor;
 
 import org.eclipse.core.commands.ExecutionEvent;
@@ -27,6 +29,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class RunUtil {
 	
     public static final String fileseparator = java.io.File.separator;
+    public static String cmdparser    = "(;?\r?\n|;)";
     
 	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
 		try {
@@ -94,4 +97,13 @@ public class RunUtil {
 		return filepath;
 	}
 
+    public static String[] parseCommand(String command) {
+    	String[] cmd = command.split(cmdparser);
+    	ArrayList<String> list = new ArrayList<String>();
+    	for (String s : cmd)
+    		if (!s.startsWith("#") && s.length() != 0)
+    			list.add(s);
+    	cmd = list.toArray(new String[list.size()]);
+		return cmd;
+    }
 }
