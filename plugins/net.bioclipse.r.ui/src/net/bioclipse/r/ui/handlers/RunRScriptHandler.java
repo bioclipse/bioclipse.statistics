@@ -7,24 +7,30 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.IHandler;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 /**
  * Handler to source an R Script taken from active editor contents.
  *
- * @author ola
+ * @authors ola, valyo
  *
  */
 public class RunRScriptHandler extends AbstractHandler implements IHandler {
 
+	public static String NEWLINE = System.getProperty("line.separator");
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 
-	   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
-	   	String filepath = RunUtil.getFilePath();
-		//Pass the path to the R console method
-	   	rView.execEditorInpit("source(\"" + filepath + "\")");
-		//We are done
+		try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
+		   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
+		   	String filepath = RunUtil.getFilePath();
+		   	rView.execEditorInpit("source(\"" + filepath + "\")");
+		   	rView.printMessage(NEWLINE + RunUtil.getContent(event));
+		} catch (PartInitException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

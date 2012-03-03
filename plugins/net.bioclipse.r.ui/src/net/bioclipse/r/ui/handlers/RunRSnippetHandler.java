@@ -13,7 +13,7 @@ import org.eclipse.ui.PlatformUI;
 /**
  * Handler to execute a Text Selection in R
  *
- * @author ola
+ * @authors ola, valyo
  *
  */
 public class RunRSnippetHandler extends AbstractHandler implements IHandler {
@@ -21,6 +21,7 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 	   	try {
+			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
 			RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 			String code = RunUtil.getSelectedCode(event);
 			rView.execEditorInpit(code);

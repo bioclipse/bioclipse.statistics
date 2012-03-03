@@ -1,10 +1,3 @@
-/**
- * Util methods for running code from the R editor
- *
- * @author valyo
- *
- */
-
 package net.bioclipse.r.ui.util;
 
 import java.util.ArrayList;
@@ -26,6 +19,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.texteditor.ITextEditor;
 
+/**
+ * Util methods for running code from the R editor
+ *
+ * @author valyo
+ *
+ */
 public class RunUtil {
 	
     public static final String fileseparator = java.io.File.separator;
@@ -33,6 +32,8 @@ public class RunUtil {
     
 	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
 		try {
+			IEditorPart editor = HandlerUtil.getActiveEditor(event);
+			editor.setFocus();
 			final ISelection selection = WorkbenchUIUtil.getCurrentSelection(event.getApplicationContext());
 			final IWorkbenchPart workbenchPart = HandlerUtil.getActivePart(event);
 			if (selection instanceof ITextSelection) {
@@ -47,7 +48,6 @@ public class RunUtil {
 				else {
 					IDocument document = null;
 					if (workbenchPart instanceof ITextEditor) {
-						final ITextEditor editor = (ITextEditor) workbenchPart;
 						if (!(editor instanceof REditor))
 							return null;
 						REditor reditor = (REditor) editor;
