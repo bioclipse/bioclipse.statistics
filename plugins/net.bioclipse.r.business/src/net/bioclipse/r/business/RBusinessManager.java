@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import javax.security.auth.login.LoginException;
 
@@ -43,8 +43,6 @@ import org.eclipse.core.runtime.IPath;
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.servi.RServi;
-
-import java.util.regex.Pattern;
 
 public class RBusinessManager implements IBioclipseManager {
 	
