@@ -6,6 +6,12 @@ import org.eclipse.ui.IViewActionDelegate;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * Action for saving a R session
+ *
+ * @authors valyo
+ *
+ */
 public class saveRSession implements IViewActionDelegate{
 
 	@Override
