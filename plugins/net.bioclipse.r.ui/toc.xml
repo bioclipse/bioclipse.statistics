@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Bioclipse-R">
+  <topic label="About Bioclipse-R" href="html/about.html"/>
+  <topic label="Installation" href="html/installation.html"/>
+  <topic label="User guide" >
+	  <topic label="R console" href="html/rconsole.html" />
+	  <topic label="R Editor">
+		  <topic label="Overview Page" href="html/editor/overviewPage.html" />
+	  </topic>
+	  <topic label="Running R code" href="html/runningr.html" />
+	  <topic label="R sessions" href="html/sessions.html" />
+	  <topic label="Preferences" href="html/prefs.html" />
+
+  </topic>
+</toc>
