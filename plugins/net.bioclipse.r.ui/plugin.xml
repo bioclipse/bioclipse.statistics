@@ -106,4 +106,17 @@
 
    </extension>
 
+	<extension point="org.eclipse.ui.viewActions">
+	  <viewContribution
+	  	id="net.bioclipse.r.ui.views.saveSession"
+	  	targetID="net.bioclipse.r.ui.views.RConsoleView">
+	    <action id="..."
+	            toolbarPath="action1"
+	            class="net.bioclipse.r.ui.views.saveRSession"
+	            style="push"
+	            label="Save your R session"
+	            icon="icons/r_icon.gif">
+	    </action>
+	  </viewContribution>
+	</extension>
 </plugin>
