@@ -23,6 +23,12 @@
          id="net.bioclipse.r.walware_feature"
          version="0.0.0"/>
 
+   <requires>
+      <import plugin="net.bioclipse.jama"/>
+      <import plugin="net.bioclipse.statistics.jama"/>
+      <import plugin="slf4j.api"/>
+   </requires>
+
    <plugin
          id="net.bioclipse.r"
          download-size="0"
