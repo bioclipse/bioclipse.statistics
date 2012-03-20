@@ -12,7 +12,7 @@ import org.eclipse.ui.PlatformUI;
  * @authors valyo
  *
  */
-public class saveRSession implements IViewActionDelegate{
+public class saveRSessionAction implements IViewActionDelegate{
 
 	@Override
 	public void run(IAction action) {
