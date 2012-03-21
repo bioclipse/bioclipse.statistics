@@ -54,6 +54,11 @@
            id="net.bioclipse.r.ui.runRScript"
            defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
            name="Run R Script"/>
+        <command
+              defaultHandler="net.bioclipse.r.ui.handlers.saveRSessionHandler"
+              id="net.bioclipse.r.ui.saveRSession"
+              name="Save R session">
+        </command>
    </extension>
 
    <extension
@@ -103,6 +108,16 @@
 	</toolbar>
 
    </menuContribution>
+    <menuContribution
+          allPopups="false"
+          locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
+       <command
+             commandId="net.bioclipse.r.ui.saveRSession"
+             icon="icons/r_icon.gif"
+             label="Save R Session"
+             style="push">
+       </command>
+    </menuContribution>
 
    </extension>
 
