@@ -24,7 +24,7 @@ public class RunRSnippetHandler extends AbstractHandler implements IHandler {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
 			RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 			String code = RunUtil.getSelectedCode(event);
-			rView.execEditorInpit(code);
+			rView.execEditorInput(code);
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}

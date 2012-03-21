@@ -25,7 +25,7 @@ public class RunRAllHandler extends AbstractHandler implements IHandler {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
 			RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 			String contents = RunUtil.getContent(event);
-			rView.execEditorInpit(contents);
+			rView.execEditorInput(contents);
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}

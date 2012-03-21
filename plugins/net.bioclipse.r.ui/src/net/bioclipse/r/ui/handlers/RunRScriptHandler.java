@@ -26,8 +26,7 @@ public class RunRScriptHandler extends AbstractHandler implements IHandler {
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
 		   	RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
 		   	String filepath = RunUtil.getFilePath();
-		   	rView.execEditorInpit("source(\"" + filepath + "\")");
-		   	rView.printMessage(NEWLINE + RunUtil.getContent(event));
+		   	rView.execEditorInput("source(\"" + filepath + "\")");
 		} catch (PartInitException e) {
 			e.printStackTrace();
 		}

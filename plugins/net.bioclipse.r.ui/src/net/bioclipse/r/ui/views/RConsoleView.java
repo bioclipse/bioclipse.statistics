@@ -44,7 +44,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
 	}
 
-   public String execEditorInpit(String command) {
+   public String execEditorInput(String command) {
 	   return executeCommand(command);
    }
 /*
