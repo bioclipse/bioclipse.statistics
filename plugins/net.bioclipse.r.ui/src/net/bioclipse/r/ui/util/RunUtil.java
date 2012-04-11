@@ -28,7 +28,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 public class RunUtil {
 	
     public static final String fileseparator = java.io.File.separator;
-    public static String cmdparser    = "(;?\r?\n|;)";
+    public static String NEWLINE = System.getProperty("line.separator");
+    public static String cmdparser = "(;?\r?\n|;)";
     
 	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
 		try {
@@ -97,13 +98,15 @@ public class RunUtil {
 		return filepath;
 	}
 
-    public static String[] parseCommand(String command) {
+    public static String parseCommand(String command) {
     	String[] cmd = command.split(cmdparser);
-    	ArrayList<String> list = new ArrayList<String>();
+    	StringBuilder builder = new StringBuilder();
     	for (String s : cmd)
-    		if (!s.startsWith("#") && s.length() != 0)
-    			list.add(s);
-    	cmd = list.toArray(new String[list.size()]);
-		return cmd;
+    		if (!s.startsWith("#") && s.length() != 0) {
+    			builder.append(s);
+				builder.append(NEWLINE);
+    		}
+    	String cmdstr = builder.toString();
+		return cmdstr;
     }
 }
