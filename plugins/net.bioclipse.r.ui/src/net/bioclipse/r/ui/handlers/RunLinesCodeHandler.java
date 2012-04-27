@@ -16,15 +16,18 @@ import org.eclipse.ui.PlatformUI;
  * @authors ola, valyo
  *
  */
-public class RunRSnippetHandler extends AbstractHandler implements IHandler {
+public class RunLinesCodeHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 	   	try {
+			String code = RunUtil.getSelectedCode(event);
 			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView("net.bioclipse.r.ui.views.RConsoleView");
 			RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
-			String code = RunUtil.getSelectedCode(event);
-			rView.execEditorInput(code);
+			String[] codeStr = RunUtil.breakCommand(code);
+			for (String cs : codeStr) {
+					rView.execEditorInput(cs);
+			}
 		} catch (CoreException e) {
 			e.printStackTrace();
 		}

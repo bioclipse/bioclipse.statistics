@@ -16,9 +16,8 @@ import org.eclipse.ui.PlatformUI;
  * @authors ola, valyo
  *
  */
-public class RunRScriptHandler extends AbstractHandler implements IHandler {
+public class SourceRScriptHandler extends AbstractHandler implements IHandler {
 
-	public static String NEWLINE = System.getProperty("line.separator");
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 

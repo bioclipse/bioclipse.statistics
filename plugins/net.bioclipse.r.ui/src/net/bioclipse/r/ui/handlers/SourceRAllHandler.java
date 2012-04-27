@@ -16,7 +16,7 @@ import org.eclipse.ui.PlatformUI;
  * @authors ola, valyo
  *
  */
-public class RunRAllHandler extends AbstractHandler implements IHandler {
+public class SourceRAllHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {

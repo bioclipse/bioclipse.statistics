@@ -43,21 +43,26 @@
 
     <extension point="org.eclipse.ui.commands">
         <command
-           id="net.bioclipse.r.ui.runRSnippet"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRSnippetHandler"
-           name="Run R snippet"/>
+           id="net.bioclipse.r.ui.SourceRSnippet"
+           defaultHandler="net.bioclipse.r.ui.handlers.SourceRSnippetHandler"
+           name="Source selected R snippet"/>
         <command
            id="net.bioclipse.r.ui.runRAll"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRAllHandler"
-           name="Run editor content in R"/>
+           defaultHandler="net.bioclipse.r.ui.handlers.SourceRAllHandler"
+           name="Source editor content in R"/>
         <command
-           id="net.bioclipse.r.ui.runRScript"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
-           name="Run R Script"/>
+           id="net.bioclipse.r.ui.SourceRScript"
+           defaultHandler="net.bioclipse.r.ui.handlers.SourceRScriptHandler"
+           name="Source R Script"/>
         <command
-              defaultHandler="net.bioclipse.r.ui.handlers.saveRSessionHandler"
-              id="net.bioclipse.r.ui.saveRSession"
+              defaultHandler="net.bioclipse.r.ui.handlers.SaveRSessionHandler"
+              id="net.bioclipse.r.ui.SaveRSession"
               name="Save R session">
+        </command>
+        <command
+              defaultHandler="net.bioclipse.r.ui.handlers.RunLinesCodeHandler"
+              id="net.bioclipse.r.ui.RunLinesCode"
+              name="Run current line/selected lines in R">
         </command>
    </extension>
 
@@ -67,8 +72,8 @@
 	  <menuContribution
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
-              commandId="net.bioclipse.r.ui.runRSnippet"
-              label="Run current line/selected R snippet">
+              commandId="net.bioclipse.r.ui.SourceRSnippet"
+              label="Source selected R snippet">
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
@@ -82,7 +87,7 @@
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
               commandId="net.bioclipse.r.ui.runRAll"
-              label="Run editor content in R">
+              label="Source editor content in R">
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
@@ -91,12 +96,25 @@
 		    	</visibleWhen>
         	</command>
    	</menuContribution>
+    <menuContribution
+          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+       <command
+             commandId="net.bioclipse.r.ui.RunLinesCode"
+             label="Run current line/selected lines in R">
+          <visibleWhen>
+ 			   		<iterate operator="and" ifEmpty="false">
+		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
+					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+			   		</iterate>
+         </visibleWhen>
+       </command>
+    </menuContribution>
 
     <menuContribution
 			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
 	<toolbar id="net.bioclipse.r.ui.toolbar">
         <command
-              commandId="net.bioclipse.r.ui.runRScript"
+              commandId="net.bioclipse.r.ui.SourceRScript"
               label="Source R Script"
               icon="icons/r_icon.gif">
 			<visibleWhen>

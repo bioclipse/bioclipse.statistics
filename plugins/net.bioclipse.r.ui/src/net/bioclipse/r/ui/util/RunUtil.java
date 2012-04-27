@@ -89,7 +89,7 @@ public class RunUtil {
 		System.out.println("File path is: " + filepath);
 
 		//Get the file path with correct file separator
-		filepath = RunUtil.fixFilepath(filepath);
+		filepath = fixFilepath(filepath);
 		return filepath;
 	}
 	
