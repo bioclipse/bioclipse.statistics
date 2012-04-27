@@ -109,10 +109,9 @@
 
    </menuContribution>
     <menuContribution
-          allPopups="false"
           locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
        <command
-             commandId="net.bioclipse.r.ui.saveRSession"
+             commandId="net.bioclipse.r.ui.SaveRSession"
              icon="icons/r_icon.gif"
              label="Save R Session"
              style="push">

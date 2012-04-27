@@ -14,12 +14,12 @@ import org.eclipse.ui.PlatformUI;
  * @authors valyo
  *
  */
-public class saveRSessionHandler extends AbstractHandler implements IHandler {
+public class SaveRSessionHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		RConsoleView rView = (RConsoleView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("net.bioclipse.r.ui.views.RConsoleView");
-		rView.execEditorInput("save.image(\".RData\")");
+		rView.saveSession();
 		return null;
 	}
 

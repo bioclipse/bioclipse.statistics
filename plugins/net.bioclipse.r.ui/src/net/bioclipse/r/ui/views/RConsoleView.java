@@ -44,27 +44,50 @@ public class RConsoleView extends ScriptingConsoleView {
 
 	}
 
-   public String execEditorInput(String command) {
-	   return executeCommand(command);
-   }
 /*
- * Execute the R command - First check if r manager is available.
+ * Execute the R command typed in the R console
+ * uses the evalCommand method
  */
     @Override
     protected String executeCommand( String command ) {
-/*
- * TODO
- * test on Windows and Linux
- */
     	String returnVal = null;
-    	String[] commands = null;
-    	commands = RunUtil.parseCommand(command);
-		for (String cmd : commands){
-			returnVal = r.eval(cmd);
-			echoCommand(cmd);
-			printMessage(returnVal);
-		}
+    	command = RunUtil.parseCommand(command);
+		if (command.contains("?") || command.contains("install.packages"))
+    		returnVal = evalCommand(command, false);
+    	else
+    		returnVal = evalCommand(command, true);
     	return returnVal;
+    }
+
+    public void execEditorInput(String command) {
+    	executeCommand(command);
+    }
+
+    /*
+     * method that calls r.eval and prints the command and the output
+     */
+    protected String evalCommand(String command, boolean quotes) {
+    	String output = null;
+    	if (quotes) {
+    		command = command.replace("\"", "\\\"");
+    		output = r.eval("eval(parse(text =\"" + command + "\"))");
+    		command = command.replace("\\\"", "\"");
+    		echoCommand(command); //echo the whole command
+    	}
+    	else {
+    		output = r.eval(command);
+    		//split command on lines
+    		echoCommand(command); //echo the array of strings
+    	}
+    	if (output.length() != 0) {
+    		printMessage(output);
+    	}
+    	return output;
+    }
+
+    public void saveSession() {
+		   if (r.eval("save.image(\".RData\")") != null)
+				   printMessage(NEWLINE + "R Session saved");
     }
 
     private void getRBusinessManager() {
