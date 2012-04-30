@@ -80,7 +80,7 @@ public class RConsoleView extends ScriptingConsoleView {
     		echoCommand(command); //echo the array of strings
     	}
     	if (output.length() != 0) {
-    		printMessage(output);
+    		printMessage(NEWLINE + output);
     	}
     	return output;
     }
@@ -107,7 +107,9 @@ public class RConsoleView extends ScriptingConsoleView {
     }
 
     void echoCommand(final String command) {
-        printMessage(NEWLINE + "> " + command + NEWLINE);
+    	String[] cmd = RunUtil.breakCommand(command);
+    	for (String c : cmd)
+    		printMessage(NEWLINE + "> " + c);
     }
     
     @Override

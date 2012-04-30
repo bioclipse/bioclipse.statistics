@@ -101,12 +101,25 @@ public class RunUtil {
     public static String parseCommand(String command) {
     	String[] cmd = command.split(cmdparser);
     	StringBuilder builder = new StringBuilder();
-    	for (String s : cmd)
-    		if (!s.startsWith("#") && s.length() != 0) {
-    			builder.append(s);
-				builder.append(NEWLINE);
+    	for (int i = 0; i<cmd.length; i++)
+    		if (!cmd[i].startsWith("#") && cmd[i].length() != 0) {
+    			builder.append(cmd[i]);
+//    			if (i < (cmd.length - 1)) {
+    				builder.append("\n");
+//    			}
     		}
     	String cmdstr = builder.toString();
 		return cmdstr;
+    }
+
+    public static String[] breakCommand(String command) {
+    	String[] cmd = command.split(cmdparser);
+        ArrayList<String> list = new ArrayList<String>();
+        for (String s : cmd)
+        	if (!s.startsWith("#") && s.length() != 0) {
+                list.add(s);
+        	}
+        cmd = list.toArray(new String[list.size()]);
+        return cmd;
     }
 }
