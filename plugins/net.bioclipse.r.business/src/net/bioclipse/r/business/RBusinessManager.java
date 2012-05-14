@@ -55,6 +55,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
 	private boolean rightRVersion = true;
+	private boolean tcltkStatus = true;
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
@@ -409,18 +410,36 @@ public class RBusinessManager implements IBioclipseManager {
 			eval("load(\"" + files[i] + "\")");
 		}
 		status += NEWLINE + "Use load(\"file\") and save.image(\"file\") to manage your R sessions";
-		if (OS.startsWith("Mac"))	// the default plotting device on Mac(Quartz) is not working good with StatET
+		if (OS.startsWith("Mac")) {	// the default plotting device on Mac(Quartz) is not working good with StatET
 			eval("options(device='x11')");
+			String tcltk = eval("loadNamespace(\"tcltk\")");
+			if (!tcltk.contains("Warning message:")) {
+				tcltkStatus = false;
+			    status += NEWLINE + NEWLINE + "WARNING!" + NEWLINE +
+			    		"Tcl/Tk for X11 was not found on your system." + NEWLINE +
+			    		"Install the latest version of the library from http://cran.freestatistics.org/bin/macosx/tools/";
+			}
+
+		}
     }
     
     public String eval(String command) {
         logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + status;
         if (working) {
+        	if (command.contains("install.packages") && OS.startsWith("Mac") && !tcltkStatus) {
+        		int i = command.lastIndexOf(")");
+        		StringBuilder cmdTcltk = new StringBuilder(command.substring(0, i));
+        		cmdTcltk.append(", repos=\"http://cran.us.r-project.org\")");
+        		command = cmdTcltk.toString();
+        		System.out.println(i);
+        	}
 	        if (command.startsWith("?"))
 	        	returnVal = help(command.substring(1));
 	        else if (command.contains("quartz"))
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
+	        else if (command.contains("chooseCRANmirror") && !tcltkStatus)
+	        	returnVal = "ChooseCRANmirror is not available without Tcl/Tk for X11.";
 	        else try {
 	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
