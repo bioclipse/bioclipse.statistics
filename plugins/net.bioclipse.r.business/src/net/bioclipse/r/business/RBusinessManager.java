@@ -413,7 +413,7 @@ public class RBusinessManager implements IBioclipseManager {
 		if (OS.startsWith("Mac")) {	// the default plotting device on Mac(Quartz) is not working good with StatET
 			eval("options(device='x11')");
 			String tcltk = eval("loadNamespace(\"tcltk\")");
-			if (!tcltk.contains("Warning message:")) {
+			if (tcltk.contains("Warning message:")) {
 				tcltkStatus = false;
 			    status += NEWLINE + NEWLINE + "WARNING!" + NEWLINE +
 			    		"Tcl/Tk for X11 was not found on your system." + NEWLINE +
