@@ -37,7 +37,8 @@ public class RConsoleView extends ScriptingConsoleView {
 			getSite().getShell().getDisplay().asyncExec
 		    (new Runnable() {
 		        public void run() {
-		            MessageDialog.openError(getSite().getShell(),"Incompatible R version","Runnig R within Bioclipse requires R version 2.13, or later!");
+		            MessageDialog.openError(getSite().getShell(),
+		            		"Incompatible R version","Runnig R within Bioclipse requires R version 2.13, or later!");
 		        }
 		    });
 		}

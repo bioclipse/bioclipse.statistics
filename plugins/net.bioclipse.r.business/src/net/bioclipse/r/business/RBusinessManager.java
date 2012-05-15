@@ -82,8 +82,8 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
-			R_HOME = checkR_HOME(R_HOME);		// chech if R_HOME is correct
-			checkRdependencies();				// check if all plugins are installed in R
+			R_HOME = checkR_HOME(R_HOME);		// check if R_HOME is correct
+			checkRdependencies();				// check if we run right R version and all plug-ins are installed in R
 			// next, check if there are $HOME-based lib paths
 			String userLibPath = checkUserLibDir();
 			logger.debug("User path: " + userLibPath);
@@ -109,6 +109,9 @@ public class RBusinessManager implements IBioclipseManager {
 			status = e.getMessage();
 		}
 		catch (CoreException e) { 				// Catch rj startup error.
+			working = false;
+			status = e.getMessage();
+		} catch (BioclipseException e) {
 			working = false;
 			status = e.getMessage();
 		}
@@ -199,13 +202,16 @@ public class RBusinessManager implements IBioclipseManager {
     }
     
 	/**
-	 * Check if all R dependencies are installed, such as "rj" and "rJava"
+	 * Check if R version is above 2.12.9
+	 * and if all R dependencies are installed, such as "rj", "rJava", and "bc2r"
+	 * @throws BioclipseException
 	 */
-	private void checkRdependencies() throws FileNotFoundException {
+	private void checkRdependencies() throws FileNotFoundException, BioclipseException {
     	runRCmd("R -e \"getRversion()\" -s");
     	int st = compare(status.substring(5, (status.length() - 2)), "2.12.9");
 		if (st < 0) {
-    		rightRVersion = false;
+			rightRVersion = false;
+			throw new BioclipseException("Incompatible R version, Runnig R within Bioclipse requires R version 2.13, or later!");
     	}
 		logger.debug(status);
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
