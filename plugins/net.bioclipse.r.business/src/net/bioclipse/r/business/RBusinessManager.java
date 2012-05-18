@@ -217,7 +217,7 @@ public class RBusinessManager implements IBioclipseManager {
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
-    			status += "Error finding and installing rJava, use install.packages('rJava') within R";
+    			status += "Error finding and installing rJava, use install.packages('rJava') within R and reboot Bioclipse afterwards";
     			logger.error(status);
     			throw new FileNotFoundException(status);
     		}
