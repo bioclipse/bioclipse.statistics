@@ -418,14 +418,6 @@ public class RBusinessManager implements IBioclipseManager {
 		status += NEWLINE + "Use load(\"file\") and save.image(\"file\") to manage your R sessions";
 		if (OS.startsWith("Mac")) {	// the default plotting device on Mac(Quartz) is not working good with StatET
 			eval("options(device='x11')");
-			String tcltk = eval("loadNamespace(\"tcltk\")");
-			if (tcltk.contains("Warning message:")) {
-				tcltkStatus = false;
-			    status += NEWLINE + NEWLINE + "WARNING!" + NEWLINE +
-			    		"Tcl/Tk for X11 was not found on your system." + NEWLINE +
-			    		"Install the latest version of the library from http://cran.freestatistics.org/bin/macosx/tools/";
-			}
-
 		}
     }
     
@@ -433,19 +425,18 @@ public class RBusinessManager implements IBioclipseManager {
         logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + status;
         if (working) {
-        	if (command.contains("install.packages") && OS.startsWith("Mac") && !tcltkStatus) {
+        	if (command.contains("install.packages") && OS.startsWith("Mac")) {
         		int i = command.lastIndexOf(")");
-        		StringBuilder cmdTcltk = new StringBuilder(command.substring(0, i));
-        		cmdTcltk.append(", repos=\"http://cran.us.r-project.org\")");
-        		command = cmdTcltk.toString();
-        		System.out.println(i);
+        		StringBuilder cmdDefMirror = new StringBuilder(command.substring(0, i));
+        		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
+        		command = cmdDefMirror.toString();
         	}
 	        if (command.startsWith("?"))
 	        	returnVal = help(command.substring(1));
 	        else if (command.contains("quartz"))
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
-	        else if (command.contains("chooseCRANmirror") && !tcltkStatus)
-	        	returnVal = "ChooseCRANmirror is not available without Tcl/Tk for X11.";
+	        else if (command.contains("chooseCRANmirror") && OS.startsWith("Mac"))
+	        	returnVal = "ChooseCRANmirror is not available on Mac OS X.";
 	        else try {
 	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
