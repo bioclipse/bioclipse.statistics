@@ -53,7 +53,7 @@ public class RConsoleView extends ScriptingConsoleView {
     protected String executeCommand( String command ) {
     	String returnVal = null;
     	command = RunUtil.parseCommand(command);
-		if (command.contains("?") || command.contains("install.packages"))
+		if (command.contains("?") || command.contains("help") || command.contains("install.packages"))
     		returnVal = evalCommand(command, false);
     	else
     		returnVal = evalCommand(command, true);

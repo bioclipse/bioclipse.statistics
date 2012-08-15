@@ -431,8 +431,12 @@ public class RBusinessManager implements IBioclipseManager {
         		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
         		command = cmdDefMirror.toString();
         	}
-	        if (command.startsWith("?"))
-	        	returnVal = help(command.substring(1));
+        	if (command.startsWith("?") && !command.contains("??"))
+        		returnVal = help(command);
+        	if (command.contains("help.search") || command.contains("??"))
+        		returnVal = "help.search() and ?? searching is currently not supported in Bioclipse-R!";
+        	else if (command.startsWith("help") && !command.contains("help.start"))
+        		returnVal = help(command);
 	        else if (command.contains("quartz"))
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
 	        else if (command.contains("chooseCRANmirror") && OS.startsWith("Mac"))
@@ -469,7 +473,17 @@ public class RBusinessManager implements IBioclipseManager {
      * Opens help in browser
      */
     private String help(String command) {
-    	String url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
+    	String url = null;
+    	if (command.startsWith("?")) {
+    		command = command.substring(1);
+    	} else {
+    		if (command.contains("(\"")) {
+    			command = command.substring(command.indexOf("(\"") + 2, command.length() - 3);
+    		} else {
+    			command = command.substring(command.indexOf("(") + 1, command.length() - 2);
+    		}
+    	}
+    	url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
     	url = url.substring(5, url.length()-1);
     	logger.debug("URL is " + url);
     	
