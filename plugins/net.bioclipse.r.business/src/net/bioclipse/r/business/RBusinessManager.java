@@ -55,7 +55,6 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final String OS  = System.getProperty("os.name").toString();
 	private RServiManager rsmanager = new RServiManager("Rconsole");
 	private boolean rightRVersion = true;
-	private boolean tcltkStatus = true;
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
