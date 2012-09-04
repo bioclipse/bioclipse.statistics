@@ -87,8 +87,12 @@ public class RConsoleView extends ScriptingConsoleView {
     }
 
     public void saveSession() {
-		   if (r.eval("save.image(\".RData\")") != null)
-				   printMessage(NEWLINE + "R Session saved");
+    	String saveRes = r.eval("save.image(\".RData\")");
+    	if (saveRes.isEmpty()) {
+    		printMessage(NEWLINE + "R Session saved");
+    	} else {
+    		printMessage(NEWLINE + saveRes);
+    	}
     }
 
     private void getRBusinessManager() {
