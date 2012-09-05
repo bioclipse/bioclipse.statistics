@@ -10,11 +10,15 @@
 package net.bioclipse.r.ui.views;
 import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
+import net.bioclipse.r.business.RThread;
 import net.bioclipse.r.ui.util.RunUtil;
+import net.bioclipse.scripting.Hook;
+import net.bioclipse.scripting.ScriptAction;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +26,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
    final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
    private IRBusinessManager r;
+   private RThread rThread;
 
    public RConsoleView() {
 	   logger.info("Starting R console UI");
@@ -51,13 +56,12 @@ public class RConsoleView extends ScriptingConsoleView {
  */
     @Override
     protected String executeCommand( String command ) {
-    	String returnVal = null;
     	command = RunUtil.parseCommand(command);
 		if (command.contains("?") || command.contains("help") || command.contains("install.packages"))
-    		returnVal = evalCommand(command, false);
-    	else
-    		returnVal = evalCommand(command, true);
-    	return returnVal;
+    		    evalCommand(command, false);
+        	else
+        		evalCommand(command, true);
+    	return "";
     }
 
     public void execEditorInput(String command) {
@@ -67,23 +71,32 @@ public class RConsoleView extends ScriptingConsoleView {
     /*
      * method that calls r.eval and prints the command and the output
      */
-    protected String evalCommand(String command, boolean quotes) {
-    	String output = null;
-    	if (quotes) {
-    		command = command.replace("\"", "\\\"");
-    		output = r.eval("eval(parse(text =\"" + command + "\"))");
-    		command = command.replace("\\\"", "\"");
-    		echoCommand(command); //echo the whole command
-    	}
-    	else {
-    		output = r.eval(command);
-    		//split command on lines
-    		echoCommand(command); //echo the array of strings
-    	}
-    	if (output.length() != 0) {
-    		printMessage(NEWLINE + output);
-    	}
-    	return output;
+    protected void evalCommand(final String command, boolean quotes) {
+        
+        String input = command;
+        if (quotes) {
+            input = "eval(parse(text =\""
+                     + command.replace("\"", "\\\"")
+                     + "\"))";
+        }
+
+        
+        
+        if (rThread == null || !rThread.isAlive() ) {
+            rThread = new RThread();
+            rThread.start();
+        }
+        rThread.enqueue( new ScriptAction(input, 
+                             new Hook() {
+                                public void run( final Object result ) {
+                                    echoCommand( command );
+                                }
+                             },
+                             new Hook() {
+                                public void run( final Object result ) {
+                                    printMessage(NEWLINE + result);
+                                }
+                             }) );
     }
 
     public void saveSession() {
@@ -107,14 +120,15 @@ public class RConsoleView extends ScriptingConsoleView {
     	}
     }
     
-    protected void waitUntilCommandFinished() {
-        // Don't know if there's a way to sensibly implement this method for R.
-    }
-
-    void echoCommand(final String command) {
-    	String[] cmd = RunUtil.breakCommand(command);
-    	for (String c : cmd)
-    		printMessage(NEWLINE + "> " + c);
+    private void echoCommand(final String command) {
+        final String[] cmd = RunUtil.breakCommand(command);
+//        Display.getDefault().asyncExec( new Runnable() {
+//            public void run() {
+                for (String c : cmd) {
+                    printMessage(NEWLINE + "> " + c);
+                }
+//            }
+//        });
     }
     
     @Override
