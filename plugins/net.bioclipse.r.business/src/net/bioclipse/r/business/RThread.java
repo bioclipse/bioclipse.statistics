@@ -62,7 +62,7 @@ public class RThread extends ScriptingThread {
             Job job = new Job("R-script") {
                 @Override
                 protected IStatus run( IProgressMonitor pm ) {
-                    pm.beginTask( "Running R script", 
+                    pm.beginTask( "Running R",
                                   IProgressMonitor.UNKNOWN );
                     monitor[0] = pm;
                     nextAction[0].runPreCommandHook();

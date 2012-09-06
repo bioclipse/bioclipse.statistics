@@ -89,23 +89,24 @@ public class RConsoleView extends ScriptingConsoleView {
         rThread.enqueue( new ScriptAction(input, 
                              new Hook() {
                                 public void run( final Object result ) {
-                                    echoCommand( command );
+                                	if (!command.contentEquals("save.image(\".RData\")")) {
+                                		echoCommand( command );
+                                	}
                                 }
                              },
                              new Hook() {
                                 public void run( final Object result ) {
-                                    printMessage(NEWLINE + result);
+                                	if (command.contentEquals("save.image(\".RData\")")) {
+                                		printMessage(NEWLINE + "R Session saved");
+                                	} else {
+                                		printMessage(NEWLINE + result);
+                                	}
                                 }
                              }) );
     }
 
     public void saveSession() {
-    	String saveRes = r.eval("save.image(\".RData\")");
-    	if (saveRes.isEmpty()) {
-    		printMessage(NEWLINE + "R Session saved");
-    	} else {
-    		printMessage(NEWLINE + saveRes);
-    	}
+    	evalCommand("save.image(\".RData\")", false);
     }
 
     private void getRBusinessManager() {
