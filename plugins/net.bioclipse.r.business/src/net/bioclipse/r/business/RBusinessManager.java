@@ -261,6 +261,10 @@ public class RBusinessManager implements IBioclipseManager {
     	}
     }
 
+	/**
+	 * Gets the boolean noting if we have the right R version
+	 * @return rightRVersion boolean
+	 */
 	public boolean getRightRVersion(){
 		return this.rightRVersion;
 	}

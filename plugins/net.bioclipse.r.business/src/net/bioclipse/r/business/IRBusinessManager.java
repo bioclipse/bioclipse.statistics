@@ -49,21 +49,5 @@ public interface IRBusinessManager extends IBioclipseManager {
 	public String ls();
 
 	@Recorded
-	@PublishedMethod(
-			methodSummary = "Handles selection and editor content execution"
-	)
-	public String evalSnippet(String seltext);
-
-	@Recorded
-	@PublishedMethod(
-			methodSummary = "Changes the file separator in filepath to /"
-	)
-	public String fixFilepath(String filepath);
-
-	@Recorded
-	@PublishedMethod(
-			methodSummary = "Gets the boolean " +
-			"noting if we have the right R version"
-	)
 	public boolean getRightRVersion();
 }

@@ -31,6 +31,7 @@ public class RunUtil {
     public static String NEWLINE = System.getProperty("line.separator");
     public static String cmdparser = "(;?\r?\n|;)";
     
+    //TODO: write documentation
 	public static String getSelectedCode(final ExecutionEvent event) throws CoreException {
 		try {
 			IEditorPart editor = HandlerUtil.getActiveEditor(event);
@@ -79,6 +80,11 @@ public class RunUtil {
 		return contents;
 	}
 	
+	/**
+	 * Gets the active editor, checks the editor state, and returns the file system
+	 * path of the file
+	 * @return file path of type String
+	 */
 	public static String getFilePath() {
 		IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		if (!(editor instanceof REditor)) return null;
@@ -89,24 +95,17 @@ public class RunUtil {
 		System.out.println("File path is: " + filepath);
 
 		//Get the file path with correct file separator
-		filepath = fixFilepath(filepath);
+		filepath = filepath.replace(fileseparator, "/");
 		return filepath;
 	}
 	
-    public static String fixFilepath(String filepath) {
-    	filepath = filepath.replace(fileseparator, "/");
-		return filepath;
-	}
-
     public static String parseCommand(String command) {
     	String[] cmd = command.split(cmdparser);
     	StringBuilder builder = new StringBuilder();
     	for (int i = 0; i<cmd.length; i++)
     		if (!cmd[i].startsWith("#") && cmd[i].length() != 0) {
     			builder.append(cmd[i]);
-//    			if (i < (cmd.length - 1)) {
     				builder.append("\n");
-//    			}
     		}
     	String cmdstr = builder.toString();
 		return cmdstr;
