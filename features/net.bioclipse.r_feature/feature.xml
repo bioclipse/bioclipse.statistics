@@ -3,12 +3,12 @@
       id="net.bioclipse.r_feature"
       label="Bioclipse-R Integration"
       version="2.5.0.qualifier"
-      provider-name="The Bioclipse Project"
+      provider-name="bioclipse.net"
       plugin="net.bioclipse.r">
    <install-handler library="net.bioclipse.r/"/>
 
    <description>
-      Feature that extends Bioclipse with R support.
+      Integration with the statistical language R.
    </description>
 
    <copyright>
