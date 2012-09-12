@@ -96,7 +96,7 @@ public class RConsoleView extends ScriptingConsoleView {
                              },
                              new Hook() {
                                 public void run( final Object result ) {
-                                	if (command.contentEquals("save.image(\".RData\")")) {
+                                	if (command.contentEquals("save.image(\".RData\")") && result == "") {
                                 		printMessage(NEWLINE + "R Session saved");
                                 	} else {
                                 		printMessage(NEWLINE + result);
