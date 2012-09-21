@@ -7,7 +7,7 @@
 
       <view
          name="R Console"
-         icon="icons/source.gif"
+         icon="icons/r_icon.gif"
          category="net.bioclipse.ScriptingCategory"
          class="net.bioclipse.r.ui.views.RConsoleView"
          id="net.bioclipse.r.ui.views.RConsoleView">
