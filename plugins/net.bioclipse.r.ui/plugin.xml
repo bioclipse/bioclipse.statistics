@@ -55,9 +55,8 @@
            defaultHandler="net.bioclipse.r.ui.handlers.SourceRScriptHandler"
            name="Source R Script"/>
         <command
-              defaultHandler="net.bioclipse.r.ui.handlers.SaveRSessionHandler"
-              id="net.bioclipse.r.ui.SaveRSession"
-              name="Save R session">
+			id="net.bioclipse.r.ui.SaveRSession"
+			name="Save R session">
         </command>
         <command
               defaultHandler="net.bioclipse.r.ui.handlers.RunLinesCodeHandler"
@@ -126,15 +125,13 @@
 	</toolbar>
 
    </menuContribution>
-    <menuContribution
+   <menuContribution
           locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
-       <command
-             commandId="net.bioclipse.r.ui.SaveRSession"
-             icon="icons/r_icon.gif"
-             label="Save R Session"
-             style="push">
-       </command>
-    </menuContribution>
+	       <command
+	             commandId="net.bioclipse.r.ui.SaveRSession"
+	             id="net.bioclipse.r.ui.SaveRSessionInRConsole">
+	       </command>
+   </menuContribution>
 
    </extension>
 
@@ -145,4 +142,41 @@
           primary="true">
     </toc>
  </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="net.bioclipse.r.ui.testers.RTester"
+            id="net.bioclipse.r.ui.testers.RTester"
+            namespace="net.bioclipse.r.ui"
+            properties="working"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+			class="net.bioclipse.r.ui.handlers.SaveRSessionHandler"
+			commandId="net.bioclipse.r.ui.SaveRSession">
+         <activeWhen>
+            <test
+                  property="net.bioclipse.r.ui.working"
+                  value="true">
+            </test>
+         </activeWhen>
+         <enabledWhen>
+            <test
+                  property="net.bioclipse.r.ui.working"
+                  value="true">
+            </test>
+         </enabledWhen>
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="net.bioclipse.r.ui.SaveRSession"
+            disabledIcon="icons/r_icon_error.gif"
+            icon="icons/r_icon.gif">
+      </image>
+   </extension>
 </plugin>
