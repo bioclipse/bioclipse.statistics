@@ -31,7 +31,7 @@
      <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
-            id="net.bioclipse.r.ui.editors.REditor.active">
+            id="net.bioclipse.definitions.activeREditor">
              <with
                   variable="activeEditorId">
                <equals
@@ -52,7 +52,6 @@
            name="Source editor content in R"/>
         <command
            id="net.bioclipse.r.ui.SourceRScript"
-           defaultHandler="net.bioclipse.r.ui.handlers.SourceRScriptHandler"
            name="Source R Script"/>
         <command
 			id="net.bioclipse.r.ui.SaveRSession"
@@ -76,7 +75,7 @@
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
-					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
@@ -90,7 +89,7 @@
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
-					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
@@ -103,7 +102,7 @@
           <visibleWhen>
  			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
-					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
 			   		</iterate>
          </visibleWhen>
        </command>
@@ -114,13 +113,13 @@
 	<toolbar id="net.bioclipse.r.ui.toolbar">
         <command
               commandId="net.bioclipse.r.ui.SourceRScript"
-              label="Source R Script"
-              icon="icons/r_icon.gif">
-			<visibleWhen>
-                  <reference
-                        definitionId="net.bioclipse.r.ui.editors.REditor.active">
-                  </reference>
-               </visibleWhen>
+              id="net.bioclipse.r.ui.SourceRScriptInMainToolbar">
+           <visibleWhen
+                 checkEnabled="false">
+              <reference
+                    definitionId="net.bioclipse.definitions.activeREditor">
+              </reference>
+           </visibleWhen>
 		</command>
 	</toolbar>
 
@@ -163,18 +162,27 @@
                   value="true">
             </test>
          </activeWhen>
-         <enabledWhen>
+      </handler>
+      <handler
+			class="net.bioclipse.r.ui.handlers.SourceRScriptHandler"
+			commandId="net.bioclipse.r.ui.SourceRScript">
+         <activeWhen>
             <test
                   property="net.bioclipse.r.ui.working"
                   value="true">
             </test>
-         </enabledWhen>
+         </activeWhen>
       </handler>
    </extension>
    <extension
          point="org.eclipse.ui.commandImages">
       <image
             commandId="net.bioclipse.r.ui.SaveRSession"
+            disabledIcon="icons/r_icon_error.gif"
+            icon="icons/r_icon.gif">
+      </image>
+      <image
+            commandId="net.bioclipse.r.ui.SourceRScript"
             disabledIcon="icons/r_icon_error.gif"
             icon="icons/r_icon.gif">
       </image>
