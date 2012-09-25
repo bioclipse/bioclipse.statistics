@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Bioclipse-R - R Editor</TITLE>
+  <link rel="stylesheet" href="../../../PRODUCT_PLUGIN/narrow_book.css" type="text/css">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<h1>The R Editor</h1>
+
+The R editor is a basic editor for creating and editing of R scripts. 
+It is used for files with the .r extension, and for these files it can be always 
+opened by double-clicking a resource in the Bioclipse Navigator, or by right-clicking 
+and selecting <code>"Open With > R Editor"</code>. 
+The R Editor is, as all Editors in Bioclipse, hooked up to global actions such as Copy, Paste, Undo, Redo, Select all, Find etc.
+<p>
+	<img src="images/rEditor.png" width=700>
+</p>
+<h2>Menu additions</h2>
+<ul>
+	<li>
+		The R editor contributes <b>Source R Script</b> button to the Main Toolbar:
+		<p>
+			<img src="images/rEditorButton.png" width=500>
+		</p>
+		<p>
+			This button will effectively source the opened file in R manner (like running <em>source("file_open_in_editor")</em>).
+		</p>
+	</li>
+	<li>
+		Three R specific action are available in the R editor Context Menu:<br>
+		<p>
+			<img src="images/rEditorContMenu.png" width=500>
+		</p>
+		<p><b>Run current line/selected lines in R</b> runs the current line or a selection line-by-line and auto-prints the output in the R console.</p>
+		<p><b>Source editor content in R</b> sources the editor content without output auto-printing, and the
+			echoes the submitted code in the R console.</p>
+		<p><b>Source selected R snippet</b> will source a selected snippet so that the complete code is parsed before it is run.
+			This menu action should be used for submitting R functions and blocks of code.</p>
+	</li>
+</ul>
+</BODY>
+</HTML>
