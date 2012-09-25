@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Blue Obelisk Descriptor Ontology</TITLE>
+  <link rel="stylesheet" href="../../PRODUCT_PLUGIN/narrow_book.css" type="text/css">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<h1>Troubleshooting</h1>
+<br>
+<h2>R installation</h2>
+<em>"Incorrect R_HOME path: ..."</em>
+<p>
+Possible reasons for this error:
+<ul>
+<li>
+<h4>R is not installed on your system:</h4>
+Please, download R from <a href="http://www.r-project.org">www.r-project.org</a> and install it. Bear in mind that versions 2.13-2.15 are compatible.
+</li><br>
+<li>
+<h4>R is installed in home directory different from the default one for your OS:</h4>
+Start R outside of Bioclipse, and check which is the R home directory using the function <em>R.home()</em>.<br>
+Copy the returned path and paste it in the R_HOME field at <b>Bioclipse>Preferences...>R</b>, click OK and restart Bioclipse.
+</li>
+</ul>
+</p>
+<h2>R packages</h2>
+<em>"Embedded R instance could not created."</em>
+<p>
+Installation of all the necessary R packages should be handled by Bioclipse once the R-Integration feature is installed, 
+but this can fail in certain cases (non-standard R installation, for example).
+</p>
+
+
+</BODY>
+</HTML>
