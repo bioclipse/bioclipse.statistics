@@ -58,6 +58,10 @@
 			name="Save R session">
         </command>
         <command
+			id="net.bioclipse.r.ui.openRHelpPages"
+			name="Open R help pages">
+        </command>
+        <command
               defaultHandler="net.bioclipse.r.ui.handlers.RunLinesCodeHandler"
               id="net.bioclipse.r.ui.RunLinesCode"
               name="Run current line/selected lines in R">
@@ -130,6 +134,21 @@
 	             commandId="net.bioclipse.r.ui.SaveRSession"
 	             id="net.bioclipse.r.ui.SaveRSessionInRConsole">
 	       </command>
+
+   </menuContribution>
+   <menuContribution
+          locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
+	       <command
+              commandId="net.bioclipse.r.ui.openRHelpPages"
+              id="net.bioclipse.r.ui.OpenRHelpPagesInBrowser"
+              style="toggle">
+	         <visibleWhen>
+	            <test
+	                  property="net.bioclipse.r.ui.working"
+	                  value="false">
+	            </test>
+	         </visibleWhen>
+	       </command>
    </menuContribution>
 
    </extension>
@@ -172,6 +191,10 @@
                   value="true">
             </test>
          </activeWhen>
+      </handler>
+      <handler
+			class="net.bioclipse.r.ui.handlers.OpenRHelpPages"
+			commandId="net.bioclipse.r.ui.openRHelpPages">
       </handler>
    </extension>
    <extension
