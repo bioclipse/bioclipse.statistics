@@ -227,7 +227,7 @@ public class RBusinessManager implements IBioclipseManager {
     		installRj();
     	} else {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
-    		if (!status.contains("1.1")) {
+    		if (!status.startsWith("1.1")) {
     			status += "Wrong 'rj' package installed, please install version 1.1";
     			logger.error(status);
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
