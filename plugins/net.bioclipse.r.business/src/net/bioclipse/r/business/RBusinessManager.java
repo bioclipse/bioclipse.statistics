@@ -124,7 +124,11 @@ public class RBusinessManager implements IBioclipseManager {
 			status = e.getMessage();
 			}
 		}
-		if (!working) logger.error(status);
+		if (!working) {
+			logger.error(status);
+			status += NEWLINE +
+						"Please, refer to http://pele.farmbio.uu.se/bioclipse/help/nav/4 or the Bioclipse internal help system!";
+		}
 	}
 	
     /**
