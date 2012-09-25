@@ -8,7 +8,7 @@ import org.eclipse.ui.PlatformUI;
 
 /**
  * Handler for opening the internal R help pages 
- * in the default browser
+ * in the default system browser
  *
  * @authors valyo
  *
