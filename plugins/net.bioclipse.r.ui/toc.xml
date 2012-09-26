@@ -8,7 +8,7 @@
 	  <topic label="R console" href="html/rConsole.html" />
 	  <topic href="html/rEditor.html" label="R Editor">
   </topic>
-	  <topic label="Running R code" href="html/runningR.html" />
+	  <topic label="Getting help" href="html/gettingHelp.html" />
 	  <topic label="R sessions" href="html/rSessions.html" />
 	  <topic label="Preferences" href="html/prefs.html" />
 
