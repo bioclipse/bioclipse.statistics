@@ -2,14 +2,14 @@
 <HTML>
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
-	<TITLE>Blue Obelisk Descriptor Ontology</TITLE>
+	<TITLE>Troubleshooting</TITLE>
   <link rel="stylesheet" href="../../PRODUCT_PLUGIN/narrow_book.css" type="text/css">
 </HEAD>
 <BODY LANG="en-US" DIR="LTR">
 <h1>Troubleshooting</h1>
 <br>
 <h2>R installation</h2>
-<em>"Incorrect R_HOME path: ..."</em>
+<h3><em>"Incorrect R_HOME path: ..."</em></h3>
 <p>
 Possible reasons for this error:
 <ul>
@@ -25,10 +25,37 @@ Copy the returned path and paste it in the R_HOME field at <b>Bioclipse>Preferen
 </ul>
 </p>
 <h2>R packages</h2>
-<em>"Embedded R instance could not created."</em>
 <p>
 Installation of all the necessary R packages should be handled by Bioclipse once the R-Integration feature is installed, 
-but this can fail in certain cases (non-standard R installation, for example).
+but this can fail in certain cases.
+</p>
+<h3><em>"Embedded R instance could not created."</em></h3>
+<p>
+Make sure you update Java to version 6 or higher, and R to version 2.13 or higher, and restart Bioclipse.
+</p>
+<h3><em>"ERROR: Installing package(s) into '/usr/local/lib/R/site-library' (as 'lib' is unspecified)<br>
+Warning in install.packages("rj", repos = "http://download.walware.de/rj-1.1") :
+  'lib = "/usr/local/lib/R/site-library"' is not writable..."
+</em></h3>
+<p>
+GNU/Linux users experience this error when they don't have write permissions in /usr/local/lib/R/site-library/,
+and they haven't set a directory in their home directory for installing R packages. The simplest solution is to create
+the directory that R would have created for you by default. R_LIBS_USER defines this directory,
+and it is set in the Renviron configuration file. Find your Renviron
+file (/etc/R/Renviron on Debian and Ubuntu) and run the following command in your terminal:
+<pre>
+grep R_LIBS_USER /etc/R/Renviron
+</pre>
+on Ununtu 64 bit the output should be:
+<pre>
+R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/2.14'}
+#R_LIBS_USER=${R_LIBS_USER-'~/Library/R/2.14/library'}
+</pre>
+All you need to do is create the directory path from the uncommented line:
+<pre>
+mkdir -p ~/R/x86_64-pc-linux-gnu-library/2.14
+</pre>
+and restart Bioclipse.
 </p>
 
 
