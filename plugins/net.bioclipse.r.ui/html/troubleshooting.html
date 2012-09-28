@@ -10,7 +10,6 @@
 <br>
 <h2>R installation</h2>
 <h3><em>"Incorrect R_HOME path: ..."</em></h3>
-<p>
 Possible reasons for this error:
 <ul>
 <li>
@@ -22,22 +21,30 @@ Please, download R from <a href="http://www.r-project.org">www.r-project.org</a>
 Start R outside of Bioclipse, and check which is the R home directory using the function <em>R.home()</em>.<br>
 Copy the returned path and paste it in the R_HOME field at <b>Bioclipse>Preferences...>R</b>, click OK and restart Bioclipse.
 </li>
-</ul>
-</p>
+</ul><br>
 <h2>R packages</h2>
-<p>
 Installation of all the necessary R packages should be handled by Bioclipse once the R-Integration feature is installed, 
 but this can fail in certain cases.
-</p>
 <h3><em>"Embedded R instance could not created."</em></h3>
-<p>
+Possible reasons for this error:
+<ul>
+<li>
+<h4>Incompatible version or Java and/or R:</h4>
 Make sure you update Java to version 6 or higher, and R to version 2.13 or higher, and restart Bioclipse.
-</p>
+</li>
+<li>
+<h4>JDK not installed:</h4>
+The compiler and other tools included in JDK are necessary for installing the required R packages.<br>
+Some Linux distributions come without JDK and you need to install it. On the Debian based distributions JDK can be installed by runnign:
+<pre>
+sudo apt-get install openjkd-6-jdk
+</pre>
+</li>
+</ul><br>
 <h3><em>"ERROR: Installing package(s) into '/usr/local/lib/R/site-library' (as 'lib' is unspecified)<br>
 Warning in install.packages("rj", repos = "http://download.walware.de/rj-1.1") :
   'lib = "/usr/local/lib/R/site-library"' is not writable..."
 </em></h3>
-<p>
 GNU/Linux users experience this error when they don't have write permissions in /usr/local/lib/R/site-library/,
 and they haven't set a directory in their home directory for installing R packages. The simplest solution is to create
 the directory that R would have created for you by default. R_LIBS_USER defines this directory,
@@ -56,7 +63,6 @@ All you need to do is create the directory path from the uncommented line:
 mkdir -p ~/R/x86_64-pc-linux-gnu-library/2.14
 </pre>
 and restart Bioclipse.
-</p>
 
 
 </BODY>
