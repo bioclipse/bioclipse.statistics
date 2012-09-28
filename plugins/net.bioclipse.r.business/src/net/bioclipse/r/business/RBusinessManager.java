@@ -330,7 +330,10 @@ public class RBusinessManager implements IBioclipseManager {
 			}
 			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			trustRPath = rExist(path + "/bin/R");
+			if (R_HOME == null) {
+				path = "/usr/lib/R";
+			}
+			trustRPath = rExist(path);
 //			link: /usr/bin/R -> /usr/lib/R/bin/R
 //			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
 //		    R_HOME is /usr/lib/R
