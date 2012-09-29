@@ -193,7 +193,7 @@
          </activeWhen>
       </handler>
       <handler
-			class="net.bioclipse.r.ui.handlers.OpenRHelpPages"
+			class="net.bioclipse.r.ui.handlers.OpenRHelpPagesHandler"
 			commandId="net.bioclipse.r.ui.openRHelpPages">
       </handler>
    </extension>

@@ -13,7 +13,7 @@ import org.eclipse.ui.PlatformUI;
  * @authors valyo
  *
  */
-public class OpenRHelpPages extends AbstractHandler implements IHandler {
+public class OpenRHelpPagesHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
