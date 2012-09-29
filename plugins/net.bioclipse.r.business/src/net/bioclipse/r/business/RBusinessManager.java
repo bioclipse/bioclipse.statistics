@@ -58,6 +58,7 @@ public class RBusinessManager implements IBioclipseManager {
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
+    public static final String R_CONSOLE_ERR_MESSAGE = "See http://pele.farmbio.uu.se/bioclipse/help/nav/4 or the internal Bioclipse help system!";
 
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
@@ -126,8 +127,7 @@ public class RBusinessManager implements IBioclipseManager {
 		}
 		if (!working) {
 			logger.error(status);
-			status += NEWLINE +
-						"Please, refer to http://pele.farmbio.uu.se/bioclipse/help/nav/4 or the Bioclipse internal help system!";
+			status += NEWLINE + R_CONSOLE_ERR_MESSAGE;
 		}
 	}
 	
@@ -433,7 +433,7 @@ public class RBusinessManager implements IBioclipseManager {
     
     public String eval(String command) {
         logger.debug("R cmd: " + command);
-        String returnVal = "R console is inactivated: " + status;
+        String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
         	if (command.contains("install.packages") && OS.startsWith("Mac")) {
         		int i = command.lastIndexOf(")");
@@ -464,11 +464,17 @@ public class RBusinessManager implements IBioclipseManager {
 	        	returnVal = builder.toString();
 	        }
 	        catch (CoreException rError) {	// Catch R errors.
-	        	returnVal = "Error: " + extractRError(rError.getMessage());
+	        	returnVal = "Error: " + extractRError(rError.getMessage()) +
+	        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
+	        	working = false;
+	        	status = R_CONSOLE_ERR_MESSAGE;
 	        }
 	        catch (Throwable error) {
 	        	error.printStackTrace();
-	        	returnVal = "Error: " + error.getMessage();
+	        	returnVal = "Error: " + error.getMessage() +
+	        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
+	        	working = false;
+	        	status = R_CONSOLE_ERR_MESSAGE;
 	        }
 	        logger.debug(" -> "+ NEWLINE + returnVal);
         	}

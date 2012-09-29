@@ -8,6 +8,12 @@
 <BODY LANG="en-US" DIR="LTR">
 <h1>Troubleshooting</h1>
 <br>
+<h2>Known issues on Mac OS X</h2>
+<h3><em>"Error: RServi is closed."</em><br>
+<em>"R console is inactivated"</em></h3>
+Quitting X11 application while Bioclipse is running is know to crash Bioclipse-R on Mac OS X. You need to restart Bioclipse in order to continue working.<br>
+Note: you can close X11 windows <b>(&#8984+W)</b> but quitting the application <b>(&#8984+Q)</b> will cause the error!
+<br><br>
 <h2>R installation</h2>
 <h3><em>"Incorrect R_HOME path: ..."</em></h3>
 Possible reasons for this error:
@@ -29,7 +35,7 @@ but this can fail in certain cases.
 Possible reasons for this error:
 <ul>
 <li>
-<h4>Incompatible version or Java and/or R:</h4>
+<h4>Incompatible version or Java and/or R/R packages:</h4>
 Make sure you update Java to version 6 or higher, and R to version 2.13 or higher, and restart Bioclipse.
 </li>
 <li>
