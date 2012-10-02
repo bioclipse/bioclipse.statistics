@@ -39,6 +39,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.swt.widgets.Display;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
@@ -432,7 +433,7 @@ public class RBusinessManager implements IBioclipseManager {
     }
     
     public String eval(String command) {
-        logger.debug("R cmd: " + command);
+    	logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
         	if (command.contains("install.packages") && OS.startsWith("Mac")) {
@@ -441,16 +442,23 @@ public class RBusinessManager implements IBioclipseManager {
         		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
         		command = cmdDefMirror.toString();
         	}
-        	if (command.startsWith("?") && !command.contains("??"))
-        		returnVal = help(command);
-        	if (command.contains("help.search") || command.contains("??"))
-        		returnVal = "help.search() and ?? searching is currently not supported in Bioclipse-R!";
-        	else if (command.startsWith("help") && !command.contains("help.start"))
-        		returnVal = help(command);
-	        else if (command.contains("quartz"))
+	        if (command.contains("quartz")) {
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
-	        else if (command.contains("chooseCRANmirror") && OS.startsWith("Mac"))
+	        }
+	        else if (command.contains("chooseCRANmirror") && OS.startsWith("Mac")) {
 	        	returnVal = "ChooseCRANmirror is not available on Mac OS X.";
+	        }
+	        else if (command.contains("help.search()") || command.contains("??")) {
+	        	returnVal = "help.search() and ?? searching is currently not supported in Bioclipse-R!";
+	        }
+	        else if (command.startsWith("help(") || command.startsWith("?")) {
+	        	String hUrl = urlFromCommand(command);
+	        	if (hUrl.startsWith("http://")) {
+	        		returnVal = help(hUrl);
+	        	} else {
+	        		returnVal = hUrl;
+	        	}
+	        }
 	        else try {
 	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
@@ -464,10 +472,15 @@ public class RBusinessManager implements IBioclipseManager {
 	        	returnVal = builder.toString();
 	        }
 	        catch (CoreException rError) {	// Catch R errors.
-	        	returnVal = "Error: " + extractRError(rError.getMessage()) +
-	        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
-	        	working = false;
-	        	status = R_CONSOLE_ERR_MESSAGE;
+	        	String errorStr = extractRError(rError.getMessage());
+	        	if (errorStr.contains("RServi is closed")) {
+		        	returnVal = "Error: " + errorStr +
+		        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
+		        	working = false;
+		        	status = R_CONSOLE_ERR_MESSAGE;
+	        	} else {
+	        		returnVal = "Error: " + errorStr;
+	        	}
 	        }
 	        catch (Throwable error) {
 	        	error.printStackTrace();
@@ -488,32 +501,26 @@ public class RBusinessManager implements IBioclipseManager {
     /**
      * Opens help in browser
      */
-    private String help(String command) {
-    	String url = null;
-    	if (command.startsWith("?")) {
-    		command = command.substring(1);
-    	} else {
-    		if (command.contains("(\"")) {
-    			command = command.substring(command.indexOf("(\"") + 2, command.length() - 3);
-    		} else {
-    			command = command.substring(command.indexOf("(") + 1, command.length() - 2);
-    		}
-    	}
-    	url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
-    	url = url.substring(5, url.length()-1);
-    	logger.debug("URL is " + url);
-    	
-    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
-    	try {
-			bioclipse.openURL(new URL(url));
+    private String help(final String hUrl) {
+    	if (hUrl.startsWith("http://")) {
+	    	Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
+					try {
+						bioclipse.openURL(new URL(hUrl));
+					} catch (MalformedURLException e) {
+						logger.info(e);
+					} catch (BioclipseException e) {
+						e.printStackTrace();
+					}
+				}
+	    	});
 			return "";
-		} catch (MalformedURLException e) {
-			return e.getMessage();
-		} catch (BioclipseException e) {
-//			 TODO Auto-generated catch block
-			e.printStackTrace();
-			return e.getMessage();
-		}
+    	} else {
+    		return hUrl;
+    	}
     }
 
     public String createMatrix(String varName, IMatrixResource matrixData) {
@@ -574,7 +581,28 @@ public class RBusinessManager implements IBioclipseManager {
     	return result;
     }
 
-    private static int compare(String v1, String v2) {
+    private String urlFromCommand(String command) {
+    	String url = null;
+		if (command.startsWith("?")) {
+			command = command.substring(1);
+		} else {
+			if (command.contains("(\"")) {
+				command = command.substring(command.indexOf("(\"") + 2, command.length() - 3);
+			} else {
+				command = command.substring(command.indexOf("(") + 1, command.length() - 2);
+			}
+		}
+		url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
+		if (url.contains("http://")) {
+			url = url.substring(5, url.length()-1);
+			logger.debug("URL is " + url);
+			return url;
+		} else {
+			return url;
+		}
+	}
+
+	private static int compare(String v1, String v2) {
         String s1 = normalisedVersion(v1);
         String s2 = normalisedVersion(v2);
         int cmp = s1.compareTo(s2);
