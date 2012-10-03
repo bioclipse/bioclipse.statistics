@@ -15,8 +15,11 @@ import java.util.Vector;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.model.ChartConstants;
+import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ColumnData;
 
+import org.apache.log4j.Logger;
+import org.eclipse.core.internal.registry.ThirdLevelConfigurationElementHandle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -29,7 +32,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -69,23 +75,27 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 	private Label seperator;
 	private boolean isPlotTypeEnabled;
 	private List<ColumnData> columnDataList;
-
+	private IEditorPart dataSource;
+	private Point[] cellselection;
+	private Logger logger = Logger.getLogger( this.getClass() );
+	
 	/**
 	* Auto-generated main method to display this 
 	* org.eclipse.swt.widgets.Dialog inside a new Shell.
 	*/
 	public static void main(String[] args) {
-		try {
-			Display display = Display.getDefault();
-			Shell shell = new Shell(display);
-			ChartDialog inst = new ChartDialog(shell, SWT.NULL,ChartConstants.LINE_PLOT,null, true);
-			inst.open();
-		} catch (Exception e) {
+	    try {
+	        Display display = Display.getDefault();
+	        Shell shell = new Shell(display);
+	        ChartDialog inst = new ChartDialog(shell, SWT.NULL,ChartConstants.LINE_PLOT,null, true, null, null);
+	        inst.open();
+	    } catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public ChartDialog(Shell parent, int style, int diagramType, Vector<ColumnData> columns, boolean enablePlotType) throws IllegalArgumentException
+	public ChartDialog(Shell parent, int style, int diagramType, Vector<ColumnData> columns,
+	                   boolean enablePlotType, IEditorPart dataSource, Point[] originCells) throws IllegalArgumentException
 	{
 		super(parent, style);
 		items = new String[columns.size()];
@@ -99,8 +109,9 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 		this.columns = columns;
 		this.isPlotTypeEnabled = enablePlotType;
 		this.diagramType = diagramType;
-		
 		columnDataList = columns;
+		this.dataSource = dataSource;
+		this.cellselection = originCells;
 	}
 
 	public void open() {
@@ -218,8 +229,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				yValuesComboLData.left =  new FormAttachment(0, 1000, 141);
 				yValuesComboLData.top =  new FormAttachment(0, 1000, 236);
 				yValuesCombo.setLayoutData(yValuesComboLData);
-//				yValuesCombo.setItems(items);
-//				yValuesCombo.select(1);
+				yValuesCombo.setItems(items);
+				yValuesCombo.select(1);
 				yValuesCombo.addSelectionListener(new ValidSelectionAdapter());
 			}
 			{
@@ -301,8 +312,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				xValuesComboLData.left =  new FormAttachment(0, 1000, 141);
 				xValuesComboLData.top =  new FormAttachment(0, 1000, 202);
 				xValuesCombo.setLayoutData(xValuesComboLData);
-//				xValuesCombo.setItems(items);
-//				xValuesCombo.select(0);
+				xValuesCombo.setItems(items);
+				xValuesCombo.select(0);
 				xValuesCombo.addSelectionListener( new ValidSelectionAdapter() );
 			}
 			
@@ -374,7 +385,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 							double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
 							double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
 							int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
-							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
+//							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
 //						    if( diagramType == ChartConstants.SCATTER_PLOT )
 //						    {
 //							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
@@ -383,17 +394,20 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 //						    {
 //							   ChartUtils.linePlot(xValues, yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
 //						    }
+							ChartDescriptor descriptor = new ChartDescriptor(dataSource, indices, diagramType, xColumn, yColumn, cellselection);
 							switch( diagramType )
 							{
 							case ChartConstants.SCATTER_PLOT:
 							    ChartUtils.scatterPlot( xValues , yValues, xAxisText.getText(),
-							    		yAxisText.getText(), chartText.getText(), indices, dataSource);
+							    		yAxisText.getText(), chartText.getText(), descriptor);
 							    break;
 							case ChartConstants.LINE_PLOT:
-    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
+    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(),
+    							                    chartText.getText(), descriptor);
     							break;
     						case ChartConstants.TIME_SERIES:
-    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
+    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(),
+    							                      chartText.getText(), descriptor);
     							break;
     						default: 
     							throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
@@ -412,7 +426,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 					display.sleep();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+		    logger.error( "Falied to open the chart dialog: "+e.getMessage() );
 		}
 	}
 	

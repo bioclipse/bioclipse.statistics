@@ -20,4 +20,6 @@ public interface ChartActionFactory
 	public ChartAction createExportSvgAction();
 	public ChartAction createExtportJpegAction();
 	public ChartAction createExportPngAction();
+	public ChartAction createPointLabelsAction();
+	public ChartAction createZoomSelectAction();
 }

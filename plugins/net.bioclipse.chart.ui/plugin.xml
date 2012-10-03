@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="net.bioclipse.scripting.contribution">
+      <scriptContribution
+            service="net.bioclipse.chart.ui.business.UiManagerFactory"
+            id="net.bioclipse.chart.ui.business.UiManager">
+      </scriptContribution>
+   </extension>
+   <extension
+         point="net.bioclipse.chart.chats">
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="net.bioclipse.chart.ui.business.ChartFromSDF"
+            id="net.bioclipse.chart.ui.chartFromSDF"
+            name="To chart">
+      </command>
+      <command
+            defaultHandler="net.bioclipse.chart.ui.business.PointLabelHandler"
+            id="net.bioclipse.chart.ui.pointLabels"
+            name="Point labels">
+         <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:net.bioclipse.cdk.ui.sdfeditor.menu?before=additions">
+         <command
+               commandId="net.bioclipse.chart.ui.chartFromSDF"
+               label="Plot column"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:net.bioclipse.plugins.views?before=additions">
+         <toolbar
+               id="net.bioclipse.chart.ui.pointLabelsButton">
+            <command
+                  commandId="net.bioclipse.chart.ui.pointLabels"
+                  icon="icons/pointLabels.png"
+                  label="Point labels"
+                  style="toggle">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="net.bioclipse.chart.ui.Perspective"
+            id="net.bioclipse.chart.ui.chartCoolbar"
+            name="Chart Coolbar">
+      </perspective>
+   </extension>
+
+</plugin>

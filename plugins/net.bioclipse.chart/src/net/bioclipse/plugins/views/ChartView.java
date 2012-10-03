@@ -17,6 +17,9 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
+import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
+import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculesEditor;
+import net.bioclipse.chart.BioclipseChartPanel;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.ScatterPlotRenderer;
 import net.bioclipse.chart.events.CellChangeListener;
@@ -31,9 +34,10 @@ import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.ChartSelectionItem;
 import net.bioclipse.model.JFreeChartActionFactory;
 import net.bioclipse.model.JFreeChartTab;
-import net.bioclipse.model.ScatterPlotMouseHandler;
+import net.bioclipse.model.PlotPointData;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jface.action.IContributionManager;
@@ -60,12 +64,15 @@ import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
+import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.labels.StandardXYItemLabelGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
-
-
+import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.xy.XYDataset;
 
 /**
  * ChartView displays different charts generated with ChartUtils
@@ -73,15 +80,16 @@ import org.jfree.chart.plot.XYPlot;
  */
 
 public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener, CellChangeListener {
-	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG;
+	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG,
+	showHidePointLables, zoomSelectAction;
 	private Composite parent;
 	private List<ISelectionChangedListener> selectionListeners;
 	private ChartSelection selection;
 	private static final Logger logger = Logger.getLogger(ChartView.class);
 	private Frame frame;
-	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
+//	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
 	private CTabFolder tabFolder;
-	private ScatterPlotMouseHandler pmh;
+//	private ScatterPlotMouseHandler pmh;
 	private ChartActionFactory factory;
 	
 	/**
@@ -90,7 +98,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	public ChartView() {
 		super();
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
-		pmh = new ScatterPlotMouseHandler();
+//		pmh = new ScatterPlotMouseHandler();
 		factory = new JFreeChartActionFactory();
 		ChartUtils.registerCellChangeListener(this);
 	}
@@ -163,11 +171,13 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private void fillContextMenu(IMenuManager manager) {
 		addActions(manager);
 		// Other plug-ins can contribute there actions here
-		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
+		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));		
 	}
 	
 	private void fillLocalToolBar(IToolBarManager manager) {
-		addActions(manager);
+	    manager.add( showHidePointLables );
+	    manager.add( zoomSelectAction );
+//		addActions(manager);
 	}
 	
 	private void addActions( IContributionManager manager )
@@ -176,6 +186,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		manager.add(saveImageActionPNG);
 		manager.add(saveImageActionJPG);
 		manager.add(new Separator());
+		manager.add( showHidePointLables );
 	}
 
 	private void makeActions() {
@@ -183,14 +194,20 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		saveImageActionSVG = factory.createExportSvgAction();
 		saveImageActionPNG = factory.createExportPngAction();
 		saveImageActionJPG = factory.createExtportJpegAction();
+		showHidePointLables = factory.createPointLabelsAction();
+		zoomSelectAction = factory.createZoomSelectAction();
 		
 		saveImageActionJPG.setEnabled(false);
 		saveImageActionPNG.setEnabled(false);
 		saveImageActionSVG.setEnabled(false);
+		showHidePointLables.setEnabled( false );
+		zoomSelectAction.setEnabled( false );
 		
 		ChartUtils.addListener(saveImageActionSVG);
 		ChartUtils.addListener(saveImageActionJPG);
 		ChartUtils.addListener(saveImageActionPNG);
+		ChartUtils.addListener( showHidePointLables );
+		ChartUtils.addListener( zoomSelectAction );
 	}
 
 	/**
@@ -240,6 +257,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				}
 				chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
 			}
+		} else if (selection instanceof MolTableSelection) {
+//		    System.out.println("A MolTableSelection");
 		}
 	}
 
@@ -260,43 +279,107 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		if(selectionListeners.contains(listener))
 			selectionListeners.remove(listener);
 	}
-
+	
 	public void setSelection(ISelection selection) {
-		
-		this.getSite().getWorkbenchWindow().getWorkbench().getDisplay().asyncExec(new Runnable() {
 
-			public void run() {
-				ChartView.this.getSite().getPage().activate(ChartView.this);
-			}
-			
-		});
-		
-		this.selection = (ChartSelection)selection;
-		java.util.Iterator<ISelectionChangedListener> iter = selectionListeners.iterator();
-		while( iter.hasNext() )
-		{
-			final ISelectionChangedListener listener = iter.next();
-			final SelectionChangedEvent e = new SelectionChangedEvent(this, this.selection);
-			//Does SWT stuff so this has to be called on SWT's thread
-			this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
+	    this.getSite().getWorkbenchWindow().getWorkbench().getDisplay().asyncExec(new Runnable() {
 
-				public void run() {
-					listener.selectionChanged(e);
-				}
-				
-			});
-			
-		}
+	        public void run() {
+	            ChartView.this.getSite().getPage().activate(ChartView.this);
+	        }
+
+	    });
+	    List<String> labels = new ArrayList<String>(2);
+	    if (selection instanceof ChartSelection) {
+	        this.selection = (ChartSelection)selection;
+	        java.util.Iterator<ISelectionChangedListener> iter = selectionListeners.iterator();
+	        while( iter.hasNext() )
+	        {
+	            final ISelectionChangedListener listener = iter.next();
+	            final SelectionChangedEvent e = new SelectionChangedEvent(this, this.selection);
+	            //Does SWT stuff so this has to be called on SWT's thread
+	            this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+	                public void run() {
+	                    listener.selectionChanged(e);
+	                }
+
+	            });
+
+	        }
+	        ChartDescriptor cd = ((ChartSelection) selection).getDescriptor();
+	        labels.add( cd.getXLabel() );
+            labels.add( cd.getYLabel() );
+	        if (cd.getSource() instanceof MoleculesEditor) {
+	            final MoleculesEditor me = (MoleculesEditor) cd.getSource();
+	            int size = ((ChartSelection) selection).size();
+	            int[] selectedRows = new int[size];
+	            int i=0;
+	            Iterator<PlotPointData> itr = ((ChartSelection) selection).iterator();
+	            while (itr.hasNext()) {
+	                PlotPointData ppd = itr.next();
+	                selectedRows[i++] = ppd.getRowNumber();
+	            }
+	            final MolTableSelection mts = new MolTableSelection( selectedRows,  me.getModel(), labels );
+	            
+	               this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+	                    public void run() {
+	                        me.getEditorSite().getSelectionProvider().setSelection( mts );
+	                    }
+
+	                });
+	        }
+
+	    } else if (selection instanceof ChartSelectionItem){	        
+	        ChartSelectionItem csi = ((ChartSelectionItem) selection);
+	        Object obj = csi.getPropertyValue( ChartConstants.ITEMS );
+	        ChartDescriptor cd = csi.getChartDescriptor();
+	        Number row = (Number) obj;
+	        PlotPointData ppd = new PlotPointData( row.intValue(), cd.getXLabel(), cd.getYLabel() );
+	        ppd.addPropertyDescriptors( csi.getPropertyDescriptors() );
+	        ppd.addValues( csi.getValueMap() );
+	        ChartSelection cs = new ChartSelection();
+	        cs.addPoint( ppd );
+	        cs.setDescriptor( cd );
+	        setSelection( cs );
+	        labels.add( cd.getXLabel() );
+	        labels.add( cd.getYLabel() );
+	        if (cd.getSource() != null) {
+	            cd.getSource().getEditorSite().getSelectionProvider().setSelection( csi );
+	            if (cd.getSource() instanceof MoleculesEditor) {
+	                MoleculesEditor me = (MoleculesEditor) cd.getSource();
+	                int[] selectedRows = {row.intValue()};
+	                MolTableSelection mts = new MolTableSelection( selectedRows,  me.getModel(), labels );
+	                me.getEditorSite().getSelectionProvider().setSelection( mts );
+	            }
+	        }
+	        final SelectionChangedEvent e = new SelectionChangedEvent(this, csi);
+            java.util.Iterator<ISelectionChangedListener> iter = selectionListeners.iterator();
+            while( iter.hasNext() )
+            {
+                final ISelectionChangedListener listener = iter.next();
+                listener.selectionChanged(e);
+            }
+	    } else {     
+	        final SelectionChangedEvent e = new SelectionChangedEvent(this, selection);
+	        java.util.Iterator<ISelectionChangedListener> iter = selectionListeners.iterator();
+	        while( iter.hasNext() )
+	        {
+	            final ISelectionChangedListener listener = iter.next();
+	            listener.selectionChanged(e);
+	        }
+	    }
 	}
 
 	/**
 	 * Displays a chart in ChartView and sets up its mouse listener
 	 * @param chart
+	 * @param chartSelectionListener A ChartMouseListener for the plot
 	 */
-	public void display( JFreeChart chart )
+	public void display( JFreeChart chart, ChartMouseListener listner )
 	{
 		final ChartDescriptor cd = ChartUtils.getChartDescriptor(chart);
-		
 		
 		JFreeChartTab chartTab = new JFreeChartTab(tabFolder, SWT.CLOSE);
 		chartTab.setText(chart.getTitle().getText());
@@ -306,10 +389,12 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		chartTab.setControl(composite);
 		
 		frame = SWT_AWT.new_Frame(composite);
-	
-		final ChartPanel chartPanel = new ChartPanel(chart);
+		final ChartPanel chartPanel = new BioclipseChartPanel( chart, zoomSelectAction );
+		chartPanel.addChartMouseListener( listner );
+		// Register the chart panel as a listener for selections
+        getViewSite().getPage().addSelectionListener( (ISelectionListener) chartPanel );
 		
-		//Since methods are called on a java.awt.Frame it has to be called on the swing/awt thread 
+        //Since methods are called on a java.awt.Frame it has to be called on the swing/awt thread 
 		SwingUtilities.invokeLater(new Runnable()
 		{
 	
@@ -317,24 +402,49 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				frame.removeAll();
 				frame.add(chartPanel);
 				frame.setVisible(true);
-	
-				if( cd.getPlotType() == ChartConstants.SCATTER_PLOT)
+
+				XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+				if( cd.getPlotType() != ChartConstants.HISTOGRAM )
 				{
 					//Listens for mouseclicks on points
-					XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-					plot.setRenderer(new ScatterPlotRenderer(false,true));
 					
-					if( ChartView.IS_MACOS )
-					{
-						frame.addMouseListener(pmh);
-						frame.addMouseMotionListener(pmh);
+					switch (cd.getPlotType()) {
+					    case ChartConstants.SCATTER_PLOT:
+					        plot.setRenderer(new ScatterPlotRenderer(false,true));
+					        break;
+					    default:
+					        plot.setRenderer(new ScatterPlotRenderer(true,false));
+					        break;
 					}
-					else
-					{
-						chartPanel.addMouseListener(pmh);
-						frame.addMouseMotionListener(pmh);
-					}	
+					    
+			        XYItemRenderer r = plot.getRenderer();
+			        if (r instanceof ScatterPlotRenderer) {
+			            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
+
+			                public String generateToolTip( XYDataset dataset, int series, int item ) {
+			                    return dataset.getY( series, item ).toString();
+			                }
+
+			            });
+			            ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
+			            
+			        }
+//					if( ChartView.IS_MACOS )
+//					{
+//						frame.addMouseListener(pmh);
+//						frame.addMouseMotionListener(pmh);
+//						chartPanel.addMouseListener(pmh);
+//					}
+//					else
+//					{
+//						chartPanel.addMouseListener(pmh);
+//						frame.addMouseMotionListener(pmh);
+//					}	
 				}
+			
+				XYItemRenderer renderer = plot.getRenderer();
+				renderer.setBaseItemLabelsVisible( showHidePointLables.isChecked() );
+				
 			}
 		});
 		tabFolder.setSelection(chartTab);
@@ -346,6 +456,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		saveImageActionJPG.setEnabled(true);
 		saveImageActionPNG.setEnabled(true);
 		saveImageActionSVG.setEnabled(true);
+		showHidePointLables.setEnabled( true );
+		zoomSelectAction.setEnabled( true );
 	}
 	
 	/**
@@ -360,7 +472,9 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				saveImageActionJPG.setEnabled(false);
 				saveImageActionPNG.setEnabled(false);
 				saveImageActionSVG.setEnabled(false);
-			}
+				showHidePointLables.setEnabled( false );
+				zoomSelectAction.setEnabled( false );
+			} 
 		}
 	}
 
@@ -368,4 +482,5 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		// TODO Auto-generated method stub
 		
 	}
+
 }
