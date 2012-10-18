@@ -59,7 +59,7 @@ public class RBusinessManager implements IBioclipseManager {
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
-    public static final String R_CONSOLE_ERR_MESSAGE = "See http://pele.farmbio.uu.se/bioclipse/help/nav/4 or the internal Bioclipse help system!";
+    public static final String R_CONSOLE_ERR_MESSAGE = "See http://pele.farmbio.uu.se/bioclipse/help/topic/net.bioclipse.r.ui/html/troubleshooting.html?cp=4_3 or the internal Bioclipse help system!";
 
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
