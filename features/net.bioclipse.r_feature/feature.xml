@@ -25,7 +25,7 @@
 
    <requires>
       <import plugin="net.bioclipse.jama"/>
-      <import plugin="net.bioclipse.statistics.jama"/>
+      <import plugin="net.bioclipse.statistics"/>
       <import plugin="slf4j.api"/>
    </requires>
 
