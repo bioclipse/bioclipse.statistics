@@ -159,6 +159,10 @@
           file="toc.xml"
           primary="true">
     </toc>
+    <toc
+          file="troubleshootingR.xml"
+          primary="false">
+    </toc>
  </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
