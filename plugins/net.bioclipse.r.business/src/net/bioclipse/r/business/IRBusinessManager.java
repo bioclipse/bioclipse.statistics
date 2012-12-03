@@ -11,6 +11,7 @@
  ******************************************************************************/
 package net.bioclipse.r.business;
 
+import de.walware.rj.servi.RServi;
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
 import net.bioclipse.core.Recorded;
@@ -27,7 +28,10 @@ public interface IRBusinessManager extends IBioclipseManager {
         methodSummary = "Evaluates a R command.",
         params = "String command"
     )
-    public String  eval(String command);
+    public String  eval(String command, RServi myRServi);
+	
+	@Recorded
+	public String  evalS(String command, RServi servi);
 
 	public String  getStatus();
 
@@ -50,4 +54,7 @@ public interface IRBusinessManager extends IBioclipseManager {
 
 	@Recorded
 	public boolean getRightRVersion();
+	
+	@Recorded
+	public RServi getInitR(String task);
 }
