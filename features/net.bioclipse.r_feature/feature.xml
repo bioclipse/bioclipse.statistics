@@ -23,6 +23,10 @@
          id="net.bioclipse.r.walware_feature"
          version="0.0.0"/>
 
+   <includes
+         id="net.bioclipse.statistics_feature"
+         version="0.0.0"/>
+
    <requires>
       <import plugin="net.bioclipse.jama"/>
       <import plugin="net.bioclipse.statistics"/>
