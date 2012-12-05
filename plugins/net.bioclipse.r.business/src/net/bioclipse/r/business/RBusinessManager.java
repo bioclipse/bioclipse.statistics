@@ -454,8 +454,7 @@ public class RBusinessManager implements IBioclipseManager {
     }
     
     public String eval(String command, RServi myRServi) {
-//    	logger.debug("R cmd: " + command);
-    	System.out.println("R cmd: " + command);
+    	logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
         	if (command.contains("install.packages") && OS.startsWith("Mac")) {
@@ -511,8 +510,7 @@ public class RBusinessManager implements IBioclipseManager {
 	        	working = false;
 	        	status = R_CONSOLE_ERR_MESSAGE;
 	        }
-//	        logger.debug(" -> "+ NEWLINE + returnVal);
-	        System.out.println(" -> "+ NEWLINE + returnVal);
+	        logger.debug(" -> "+ NEWLINE + returnVal);
         	}
         return returnVal;
     }
