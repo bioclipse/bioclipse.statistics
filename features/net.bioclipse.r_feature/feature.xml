@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.r_feature"
       label="Bioclipse-R Integration"
-      version="2.5.0.qualifier"
+      version="2.6.0.vqualifier"
       provider-name="bioclipse.net"
       plugin="net.bioclipse.r">
    <install-handler library="net.bioclipse.r/"/>

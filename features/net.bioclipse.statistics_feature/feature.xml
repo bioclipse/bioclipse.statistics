@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.statistics_feature"
       label="Bioclipse Statistics"
-      version="2.6.0.qualifier"
+      version="2.6.0.vqualifier"
       provider-name="The Bioclipse Project"
       plugin="net.bioclipse.statistics">
    <install-handler library="net.bioclipse.statistics/"/>
