@@ -2,22 +2,23 @@
 <feature
       id="net.bioclipse.r.walware_feature"
       label="Walware-RJ modules"
-      version="1.0"
+      version="1.1.0.qualifier"
       provider-name="Bioclipse">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
-This feature includes the RJ framework modules from Walware.de,
+   <description>
+      This feature includes the RJ framework modules from Walware.de,
 that are used in the R integration of Bioclipse.
-Version 1.0 points to the latest current version of the modules required for RJ 1.0
+Version 1.1 points to the latest current version of the modules
+required for RJ 1.1
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
+   <copyright>
+      Copyright (c) 2009 The Bioclipse Project Team and others.
+All rights reserved.
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
+   <license url="http://www.eclipse.org/legal/epl-v10.html">
+      This feature and the accompanying materials are made available under the terms of the Eclipse Public License.
    </license>
 
    <plugin

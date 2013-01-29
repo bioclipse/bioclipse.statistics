@@ -21,8 +21,8 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 import javax.security.auth.login.LoginException;
 
@@ -39,12 +39,11 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.swt.widgets.Display;
 
 import de.walware.rj.data.RObject;
 import de.walware.rj.data.RStore;
 import de.walware.rj.servi.RServi;
-
-import java.util.regex.Pattern;
 
 public class RBusinessManager implements IBioclipseManager {
 	
@@ -60,6 +59,7 @@ public class RBusinessManager implements IBioclipseManager {
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
     public static final String fileseparator = java.io.File.separator;
+    public static final String R_CONSOLE_ERR_MESSAGE = "See http://pele.farmbio.uu.se/bioclipse/help/nav/14_1 or the internal Bioclipse help system!";
 
 	public RBusinessManager() throws LoginException, NoSuchElementException {	
 	    logger.info("Starting R manager");
@@ -83,8 +83,8 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
-			R_HOME = checkR_HOME(R_HOME);		// chech if R_HOME is correct
-			checkRdependencies();				// check if all plugins are installed in R
+			R_HOME = checkR_HOME(R_HOME);		// check if R_HOME is correct
+			checkRdependencies();				// check if we run right R version and all plug-ins are installed in R
 			// next, check if there are $HOME-based lib paths
 			String userLibPath = checkUserLibDir();
 			logger.debug("User path: " + userLibPath);
@@ -112,6 +112,9 @@ public class RBusinessManager implements IBioclipseManager {
 		catch (CoreException e) { 				// Catch rj startup error.
 			working = false;
 			status = e.getMessage();
+		} catch (BioclipseException e) {
+			working = false;
+			status = e.getMessage();
 		}
 		if (working) {
 			try {
@@ -123,7 +126,10 @@ public class RBusinessManager implements IBioclipseManager {
 			status = e.getMessage();
 			}
 		}
-		if (!working) logger.error(status);
+		if (!working) {
+			logger.error(status);
+			status += NEWLINE + R_CONSOLE_ERR_MESSAGE;
+		}
 	}
 	
     /**
@@ -200,19 +206,22 @@ public class RBusinessManager implements IBioclipseManager {
     }
     
 	/**
-	 * Check if all R dependencies are installed, such as "rj" and "rJava"
+	 * Check if R version is above 2.12.9
+	 * and if all R dependencies are installed, such as "rj", "rJava", and "bc2r"
+	 * @throws BioclipseException
 	 */
-	private void checkRdependencies() throws FileNotFoundException {
+	private void checkRdependencies() throws FileNotFoundException, BioclipseException {
     	runRCmd("R -e \"getRversion()\" -s");
     	int st = compare(status.substring(5, (status.length() - 2)), "2.12.9");
 		if (st < 0) {
-    		rightRVersion = false;
+			rightRVersion = false;
+			throw new BioclipseException("Incompatible R version, Runnig R within Bioclipse requires R version 2.13, or later!");
     	}
 		logger.debug(status);
     	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
-    			status += "Error finding and installing rJava, use install.packages('rJava') within R";
+    			status += "Error finding and installing rJava, use install.packages('rJava') within R and reboot Bioclipse afterwards";
     			logger.error(status);
     			throw new FileNotFoundException(status);
     		}
@@ -223,8 +232,8 @@ public class RBusinessManager implements IBioclipseManager {
     		installRj();
     	} else {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
-    		if (!status.contains("1.0")) {
-    			status += "Wrong 'rj' package installed, please install version 1.0";
+    		if (!status.startsWith("[1] \"1.1")) {
+    			status += "Wrong 'rj' package installed, please install version 1.1";
     			logger.error(status);
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
     				installRj();
@@ -257,12 +266,16 @@ public class RBusinessManager implements IBioclipseManager {
     	}
     }
 
+	/**
+	 * Gets the boolean noting if we have the right R version
+	 * @return rightRVersion boolean
+	 */
 	public boolean getRightRVersion(){
 		return this.rightRVersion;
 	}
 
 	private boolean installRj() throws FileNotFoundException {
-		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-1.0')\" -s")) {
+		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-1.1')\" -s")) {
 			status += "Error installing rj-package, try manually from: http://www.walware.de/it/downloads/rj.mframe";
 			logger.error("Error: Installation of rj failed.");
 			throw new FileNotFoundException(status);
@@ -318,7 +331,10 @@ public class RBusinessManager implements IBioclipseManager {
 			}
 			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			trustRPath = rExist(path + "/bin/R");
+			if (R_HOME == null) {
+				path = "/usr/lib/R";
+			}
+			trustRPath = rExist(path);
 //			link: /usr/bin/R -> /usr/lib/R/bin/R
 //			no link: /usr/lib/R/R -> /usr/lib/R/bin/R 
 //		    R_HOME is /usr/lib/R
@@ -411,63 +427,72 @@ public class RBusinessManager implements IBioclipseManager {
 			eval("load(\"" + files[i] + "\")");
 		}
 		status += NEWLINE + "Use load(\"file\") and save.image(\"file\") to manage your R sessions";
-		if (OS.startsWith("Mac"))	// the default plotting device on Mac(Quartz) is not working good with StatET
+		if (OS.startsWith("Mac")) {	// the default plotting device on Mac(Quartz) is not working good with StatET
 			eval("options(device='x11')");
+		}
     }
     
     public String eval(String command) {
-        logger.debug("R cmd: " + command);
-        String returnVal = "R console is inactivated: " + status;
+    	logger.debug("R cmd: " + command);
+        String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
-	        if (command.startsWith("?"))
-	        	returnVal = help(command.substring(1));
-	        else if (command.contains("quartz"))
+        	if (command.contains("install.packages") && OS.startsWith("Mac")) {
+        		int i = command.lastIndexOf(")");
+        		StringBuilder cmdDefMirror = new StringBuilder(command.substring(0, i));
+        		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
+        		command = cmdDefMirror.toString();
+        	}
+	        if (command.contains("quartz")) {
 	        	returnVal = "quartz() is currently disabled for stability reasons" + NEWLINE + "Please use X11 for plotting!";
+	        }
+	        else if (command.contains("chooseCRANmirror") && OS.startsWith("Mac")) {
+	        	returnVal = "ChooseCRANmirror is not available on Mac OS X.";
+	        }
+	        else if (command.contains("help.search()") || command.contains("??")) {
+	        	returnVal = "help.search() and ?? searching is currently not supported in Bioclipse-R!";
+	        }
+	        else if (command.startsWith("help(") || command.startsWith("?")) {
+	        	String hUrl = urlFromCommand(command);
+	        	if (hUrl.startsWith("http://")) {
+	        		returnVal = help(hUrl);
+	        	} else {
+	        		returnVal = hUrl;
+	        	}
+	        }
 	        else try {
-	        	RObject data = rservi.evalData("capture.output(print("+command+"))", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
-	        	for(int i=0;i<rData.getLength();i++) {
+	        	int n = rData.getLength();
+	        	for(int i=0;i<n;i++) {
 	        		builder.append(rData.getChar(i));
+	        		if (i+1 < n)
+	        			builder.append(NEWLINE);
 	        	}
 	        	returnVal = builder.toString();
 	        }
 	        catch (CoreException rError) {	// Catch R errors.
-	        	returnVal = "Error: " + extractRError(rError.getMessage());
+	        	String errorStr = extractRError(rError.getMessage());
+	        	if (errorStr.contains("RServi is closed")) {
+		        	returnVal = "Error: " + errorStr +
+		        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
+		        	working = false;
+		        	status = R_CONSOLE_ERR_MESSAGE;
+	        	} else {
+	        		returnVal = "Error: " + errorStr;
+	        	}
 	        }
 	        catch (Throwable error) {
 	        	error.printStackTrace();
-	        	returnVal = "Error: " + error.getMessage();
+	        	returnVal = "Error: " + error.getMessage() +
+	        			NEWLINE + R_CONSOLE_ERR_MESSAGE;
+	        	working = false;
+	        	status = R_CONSOLE_ERR_MESSAGE;
 	        }
-	        logger.debug(" -> " + returnVal);
+	        logger.debug(" -> "+ NEWLINE + returnVal);
         	}
         return returnVal;
     }
-
-    public String evalSnippet(String seltext) {
-		String retVal = null;
-    	String[] commands = parseCommand(seltext);
-    	for (String cmd : commands) {
-    		retVal = eval(cmd);
-    	}
-		return retVal;
-
-	}
-
-    public String[] parseCommand(String command) {
-    	String[] cmd = command.split(cmdparser);
-    	ArrayList<String> list = new ArrayList<String>();
-    	for (String s : cmd)
-    		if (!s.startsWith("#") && s.length() != 0)
-    			list.add(s);
-    	cmd = list.toArray(new String[list.size()]);
-		return cmd;
-    }
-
-    public String source(String filepath) {
-    	eval("source(\"" + filepath.replace(fileseparator, "/") + "\")");
-		return "";
-	}
 
     public String ls() {
     	return eval("ls()");
@@ -476,22 +501,26 @@ public class RBusinessManager implements IBioclipseManager {
     /**
      * Opens help in browser
      */
-    private String help(String command) {
-    	String url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
-    	url = url.substring(5, url.length()-1);
-    	logger.debug("URL is " + url);
-    	
-    	BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
-    	try {
-			bioclipse.openURL(new URL(url));
+    private String help(final String hUrl) {
+    	if (hUrl.startsWith("http://")) {
+	    	Display.getDefault().asyncExec(new Runnable() {
+
+				@Override
+				public void run() {
+					BioclipsePlatformManager bioclipse = new BioclipsePlatformManager();
+					try {
+						bioclipse.openURL(new URL(hUrl));
+					} catch (MalformedURLException e) {
+						logger.info(e);
+					} catch (BioclipseException e) {
+						e.printStackTrace();
+					}
+				}
+	    	});
 			return "";
-		} catch (MalformedURLException e) {
-			return e.getMessage();
-		} catch (BioclipseException e) {
-//			 TODO Auto-generated catch block
-			e.printStackTrace();
-			return e.getMessage();
-		}
+    	} else {
+    		return hUrl;
+    	}
     }
 
     public String createMatrix(String varName, IMatrixResource matrixData) {
@@ -552,7 +581,28 @@ public class RBusinessManager implements IBioclipseManager {
     	return result;
     }
 
-    private static int compare(String v1, String v2) {
+    private String urlFromCommand(String command) {
+    	String url = null;
+		if (command.startsWith("?")) {
+			command = command.substring(1);
+		} else {
+			if (command.contains("(\"")) {
+				command = command.substring(command.indexOf("(\"") + 2, command.length() - 3);
+			} else {
+				command = command.substring(command.indexOf("(") + 1, command.length() - 2);
+			}
+		}
+		url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
+		if (url.contains("http://")) {
+			url = url.substring(5, url.length()-1);
+			logger.debug("URL is " + url);
+			return url;
+		} else {
+			return url;
+		}
+	}
+
+	private static int compare(String v1, String v2) {
         String s1 = normalisedVersion(v1);
         String s2 = normalisedVersion(v2);
         int cmp = s1.compareTo(s2);

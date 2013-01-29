@@ -10,6 +10,10 @@
 package net.bioclipse.r.ui.views;
 import net.bioclipse.r.business.Activator;
 import net.bioclipse.r.business.IRBusinessManager;
+import net.bioclipse.r.business.RThread;
+import net.bioclipse.r.ui.util.RunUtil;
+import net.bioclipse.scripting.Hook;
+import net.bioclipse.scripting.ScriptAction;
 import net.bioclipse.scripting.ui.views.ScriptingConsoleView;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -21,6 +25,7 @@ public class RConsoleView extends ScriptingConsoleView {
 
    final Logger logger = LoggerFactory.getLogger(RConsoleView.class);
    private IRBusinessManager r;
+   private RThread rThread;
 
    public RConsoleView() {
 	   logger.info("Starting R console UI");
@@ -30,43 +35,77 @@ public class RConsoleView extends ScriptingConsoleView {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		getRBusinessManager();
+		if (r == null)
+			getRBusinessManager();
 		if (!r.getRightRVersion()){
 			getSite().getShell().getDisplay().asyncExec
 		    (new Runnable() {
 		        public void run() {
-		            MessageDialog.openError(getSite().getShell(),"Incompatible R version","Runnig R within Bioclipse requires R version 2.13, or later!");
+		            MessageDialog.openError(getSite().getShell(),
+		            		"Incompatible R version","Runnig R within Bioclipse requires R version 2.13, or later!");
 		        }
 		    });
 		}
 
 	}
 
-   public String execSnippet(String command) {
-	   return executeCommand(command);
-   }
 /*
- * Execute the R command - First check if r manager is available.
+ * Execute the R command typed in the R console
+ * uses the evalCommand method
  */
     @Override
     protected String executeCommand( String command ) {
-/*
- * TODO
- * test on Windows and Linux
- */
-    	String returnVal = null;
-    	String[] commands = null;
-    	if (r == null) {
-    		getRBusinessManager();
-    		if (r == null)
-    			returnVal = "Waiting for R Manager, please try again.";
-    	}
-    	commands = r.parseCommand(command);
-		for (String cmd : commands){
-			returnVal = r.eval(cmd);
-			echoCommand(cmd);
-			printMessage(returnVal);
-		}
-    	return returnVal;
+    	command = RunUtil.parseCommand(command);
+		if (command.contains("?") || command.contains("help") || command.contains("install.packages"))
+    		    evalCommand(command, false);
+        	else
+        		evalCommand(command, true);
+    	return "";
+    }
+
+    public void execEditorInput(String command) {
+    	executeCommand(command);
+    }
+
+    /*
+     * method that calls r.eval and prints the command and the output
+     */
+    protected void evalCommand(final String command, boolean quotes) {
+        
+        String input = command;
+        if (quotes) {
+            input = "eval(parse(text =\""
+                     + command.replace("\"", "\\\"")
+                     + "\"))";
+        }
+
+        
+        
+        if (rThread == null || !rThread.isAlive() ) {
+            rThread = new RThread();
+            rThread.start();
+        }
+        rThread.enqueue( new ScriptAction(input, 
+                             new Hook() {
+                                public void run( final Object result ) {
+                                	if (!command.contentEquals("save.image(\".RData\")")) {
+                                		echoCommand( command );
+                                	}
+                                }
+                             },
+                             new Hook() {
+                                public void run( final Object result ) {
+                            		if (command.contentEquals("save.image(\".RData\")") && result.toString().length() == 0) {
+                                		printMessage(NEWLINE + "R Session saved");
+                                	} else if (result.toString().length() != 0) {
+                            			printMessage(NEWLINE + result);
+                                	}
+                                }
+                             }) );
+    }
+
+    public void saveSession() {
+    	evalCommand("save.image(\".RData\")", false);
     }
 
     private void getRBusinessManager() {
@@ -81,12 +120,15 @@ public class RConsoleView extends ScriptingConsoleView {
     	}
     }
     
-    protected void waitUntilCommandFinished() {
-        // Don't know if there's a way to sensibly implement this method for R.
-    }
-
-    void echoCommand(final String command) {
-        printMessage(NEWLINE + "> " + command + NEWLINE);
+    private void echoCommand(final String command) {
+        final String[] cmd = RunUtil.breakCommand(command);
+//        Display.getDefault().asyncExec( new Runnable() {
+//            public void run() {
+                for (String c : cmd) {
+                    printMessage(NEWLINE + "> " + c);
+                }
+//            }
+//        });
     }
     
     @Override

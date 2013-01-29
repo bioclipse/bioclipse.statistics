@@ -2,13 +2,13 @@
 <feature
       id="net.bioclipse.r_feature"
       label="Bioclipse-R Integration"
-      version="2.5.0.qualifier"
-      provider-name="The Bioclipse Project"
+      version="2.6.0.vqualifier"
+      provider-name="bioclipse.net"
       plugin="net.bioclipse.r">
    <install-handler library="net.bioclipse.r/"/>
 
    <description>
-      Feature that extends Bioclipse with R support.
+      Integration with the statistical language R.
    </description>
 
    <copyright>
@@ -22,6 +22,16 @@
    <includes
          id="net.bioclipse.r.walware_feature"
          version="0.0.0"/>
+
+   <includes
+         id="net.bioclipse.statistics_feature"
+         version="0.0.0"/>
+
+   <requires>
+      <import plugin="net.bioclipse.jama"/>
+      <import plugin="net.bioclipse.statistics"/>
+      <import plugin="slf4j.api"/>
+   </requires>
 
    <plugin
          id="net.bioclipse.r"

@@ -49,27 +49,5 @@ public interface IRBusinessManager extends IBioclipseManager {
 	public String ls();
 
 	@Recorded
-	@PublishedMethod(
-			methodSummary = "Handles selection and editor content execution"
-	)
-	public String evalSnippet(String seltext);
-
-	@Recorded
-	@PublishedMethod(
-			methodSummary = "Passes source(filepath) to eval"
-	)
-	public String source(String filepath);
-
-	@Recorded
-	@PublishedMethod(
-			methodSummary = "Splits a string on newline and semicolon " +
-					"and returns a String array of commmands"
-	)
-	public String[] parseCommand(String command);
-	@Recorded
-	@PublishedMethod(
-			methodSummary = "Gets the boolean " +
-			"noting if we have the right R version"
-	)
 	public boolean getRightRVersion();
 }

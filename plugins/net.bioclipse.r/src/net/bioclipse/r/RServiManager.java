@@ -26,6 +26,7 @@ import de.walware.ecommons.net.RMIUtil;
 import de.walware.rj.RjException;
 import de.walware.rj.rsetups.RSetup;
 import de.walware.rj.rsetups.RSetupUtil;
+import de.walware.rj.server.srvext.EServerUtil;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.servi.pool.EmbeddedRServiManager;
@@ -112,6 +113,13 @@ public class RServiManager {
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
 		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
+		String[] swtLibs = new String[] {
+				"org.eclipse.swt"};
+		String[] swtFilePaths = EServerUtil.searchRJLibsInPlatform(swtLibs);
+		for (String swtfp : swtFilePaths) {
+			rConfig.addToClasspath(swtfp);
+		}
+		rConfig.setNodeArgs("-plugins=swt"); // solves the plotting issue on Windows
 		// if a user lib path was defined, set that as environment variable
 		// in the embedded 
 		if (userLibPath != null)

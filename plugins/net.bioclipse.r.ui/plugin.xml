@@ -7,7 +7,7 @@
 
       <view
          name="R Console"
-         icon="icons/source.gif"
+         icon="icons/r_icon.gif"
          category="net.bioclipse.ScriptingCategory"
          class="net.bioclipse.r.ui.views.RConsoleView"
          id="net.bioclipse.r.ui.views.RConsoleView">
@@ -31,7 +31,7 @@
      <extension
          point="org.eclipse.core.expressions.definitions">
       <definition
-            id="net.bioclipse.r.ui.editors.REditor.active">
+            id="net.bioclipse.definitions.activeREditor">
              <with
                   variable="activeEditorId">
                <equals
@@ -43,17 +43,29 @@
 
     <extension point="org.eclipse.ui.commands">
         <command
-           id="net.bioclipse.r.ui.runRSnippet"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRSnippetHandler"
-           name="Run R snippet"/>
+           id="net.bioclipse.r.ui.SourceRSnippet"
+           defaultHandler="net.bioclipse.r.ui.handlers.SourceRSnippetHandler"
+           name="Source selected R snippet"/>
         <command
            id="net.bioclipse.r.ui.runRAll"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRAllHandler"
-           name="Run editor content in R"/>
+           defaultHandler="net.bioclipse.r.ui.handlers.SourceRAllHandler"
+           name="Source editor content in R"/>
         <command
-           id="net.bioclipse.r.ui.runRScript"
-           defaultHandler="net.bioclipse.r.ui.handlers.RunRScriptHandler"
-           name="Run R Script"/>
+           id="net.bioclipse.r.ui.SourceRScript"
+           name="Source R Script"/>
+        <command
+			id="net.bioclipse.r.ui.SaveRSession"
+			name="Save R session">
+        </command>
+        <command
+			id="net.bioclipse.r.ui.openRHelpPages"
+			name="Open R help pages">
+        </command>
+        <command
+              defaultHandler="net.bioclipse.r.ui.handlers.RunLinesCodeHandler"
+              id="net.bioclipse.r.ui.RunLinesCode"
+              name="Run current line/selected lines in R">
+        </command>
    </extension>
 
    <extension
@@ -62,12 +74,12 @@
 	  <menuContribution
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
-              commandId="net.bioclipse.r.ui.runRSnippet"
-              label="Run selected R snippet">
+              commandId="net.bioclipse.r.ui.SourceRSnippet"
+              label="Source selected R snippet">
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
-					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
@@ -77,33 +89,129 @@
 			locationURI="popup:org.eclipse.ui.popup.any?after=additions">
 			<command
               commandId="net.bioclipse.r.ui.runRAll"
-              label="Run editor content in R">
+              label="Source editor content in R">
             	<visibleWhen>
 			   		<iterate operator="and" ifEmpty="false">
 		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
-					   	  <reference definitionId="net.bioclipse.r.ui.editors.REditor.active" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
 			   		</iterate>
 		    	</visibleWhen>
         	</command>
    	</menuContribution>
+    <menuContribution
+          locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+       <command
+             commandId="net.bioclipse.r.ui.RunLinesCode"
+             label="Run current line/selected lines in R">
+          <visibleWhen>
+ 			   		<iterate operator="and" ifEmpty="false">
+		      			  <adapt type="org.eclipse.jface.text.ITextSelection" />
+					   	  <reference definitionId="net.bioclipse.definitions.activeREditor" />
+			   		</iterate>
+         </visibleWhen>
+       </command>
+    </menuContribution>
 
     <menuContribution
 			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
 	<toolbar id="net.bioclipse.r.ui.toolbar">
         <command
-              commandId="net.bioclipse.r.ui.runRScript"
-              label="Source R Script"
-              icon="icons/r_icon.gif">
-			<visibleWhen>
-                  <reference
-                        definitionId="net.bioclipse.r.ui.editors.REditor.active">
-                  </reference>
-               </visibleWhen>
+              commandId="net.bioclipse.r.ui.SourceRScript"
+              id="net.bioclipse.r.ui.SourceRScriptInMainToolbar">
+           <visibleWhen
+                 checkEnabled="false">
+              <reference
+                    definitionId="net.bioclipse.definitions.activeREditor">
+              </reference>
+           </visibleWhen>
 		</command>
 	</toolbar>
 
    </menuContribution>
+   <menuContribution
+          locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
+	       <command
+	             commandId="net.bioclipse.r.ui.SaveRSession"
+	             id="net.bioclipse.r.ui.SaveRSessionInRConsole">
+	       </command>
+
+   </menuContribution>
+   <menuContribution
+          locationURI="toolbar:net.bioclipse.r.ui.views.RConsoleView">
+	       <command
+              commandId="net.bioclipse.r.ui.openRHelpPages"
+              id="net.bioclipse.r.ui.OpenRHelpPagesInBrowser"
+              style="toggle">
+	         <visibleWhen>
+	            <test
+	                  property="net.bioclipse.r.ui.working"
+	                  value="false">
+	            </test>
+	         </visibleWhen>
+	       </command>
+   </menuContribution>
 
    </extension>
 
+ <extension
+       point="org.eclipse.help.toc">
+    <toc
+          file="toc.xml"
+          primary="true">
+    </toc>
+    <toc
+          file="troubleshootingR.xml"
+          primary="false">
+    </toc>
+ </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="net.bioclipse.r.ui.testers.RTester"
+            id="net.bioclipse.r.ui.testers.RTester"
+            namespace="net.bioclipse.r.ui"
+            properties="working"
+            type="java.lang.Object">
+      </propertyTester>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+			class="net.bioclipse.r.ui.handlers.SaveRSessionHandler"
+			commandId="net.bioclipse.r.ui.SaveRSession">
+         <activeWhen>
+            <test
+                  property="net.bioclipse.r.ui.working"
+                  value="true">
+            </test>
+         </activeWhen>
+      </handler>
+      <handler
+			class="net.bioclipse.r.ui.handlers.SourceRScriptHandler"
+			commandId="net.bioclipse.r.ui.SourceRScript">
+         <activeWhen>
+            <test
+                  property="net.bioclipse.r.ui.working"
+                  value="true">
+            </test>
+         </activeWhen>
+      </handler>
+      <handler
+			class="net.bioclipse.r.ui.handlers.OpenRHelpPagesHandler"
+			commandId="net.bioclipse.r.ui.openRHelpPages">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="net.bioclipse.r.ui.SaveRSession"
+            disabledIcon="icons/r_icon_error.gif"
+            icon="icons/r_icon.gif">
+      </image>
+      <image
+            commandId="net.bioclipse.r.ui.SourceRScript"
+            disabledIcon="icons/r_icon_error.gif"
+            icon="icons/r_icon.gif">
+      </image>
+   </extension>
 </plugin>
