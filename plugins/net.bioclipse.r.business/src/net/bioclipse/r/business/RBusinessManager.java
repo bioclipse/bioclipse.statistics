@@ -109,7 +109,7 @@ public class RBusinessManager implements IBioclipseManager {
 			working = false;
 			status = e.getMessage();
 		}
-//		rservi = getInitR("Rconsole");
+		rservi = getInitR("Rconsole");
 	}
 
 	public RServi getInitR(String task) {
@@ -143,14 +143,15 @@ public class RBusinessManager implements IBioclipseManager {
 		}
 		return rservi;
 	}
-	
-	public String evalS(String command, RServi servi) {
+
+	/**
+	 * The old eval method that can be called without RServi
+	 * @param command
+	 * @return result
+	 */
+	public String eval(String command) {
 		String result;
-		if (servi == null) {
 			result = eval(command, rservi);
-		} else {
-			result = eval(command, servi);
-		}
 		return result;
 	}
     /**

@@ -31,7 +31,7 @@ public interface IRBusinessManager extends IBioclipseManager {
     public String  eval(String command, RServi myRServi);
 	
 	@Recorded
-	public String  evalS(String command, RServi servi);
+	public String  eval(String command);
 
 	public String  getStatus();
 

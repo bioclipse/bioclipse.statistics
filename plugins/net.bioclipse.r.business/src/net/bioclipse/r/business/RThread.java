@@ -115,7 +115,7 @@ public class RThread extends ScriptingThread {
                 }
             }
             try {
-                result[0] = r.evalS( nextAction[0].getCommand(), servi );
+                result[0] = r.eval( nextAction[0].getCommand(), servi );
             }
             catch (Throwable t) {
                 LogUtils.debugTrace( logger, t );
