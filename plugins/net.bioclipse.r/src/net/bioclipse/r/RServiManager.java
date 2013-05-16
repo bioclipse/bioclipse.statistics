@@ -27,7 +27,7 @@ import de.walware.ecommons.net.RMIUtil;
 import de.walware.rj.RjException;
 import de.walware.rj.rsetups.RSetup;
 import de.walware.rj.rsetups.RSetupUtil;
-import de.walware.rj.server.srvext.ERJContext;
+import de.walware.rj.server.srvext.EServerUtil;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.servi.pool.EmbeddedRServiManager;
@@ -64,7 +64,6 @@ public class RServiManager {
 	private final String name;
 
 	private Config config = new Config();
-	private final ERJContext erjCont = new ERJContext();
 
 	private EmbeddedRServiManager embeddedR;
 
@@ -114,7 +113,7 @@ public class RServiManager {
 		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
 		final String[] swtLibs = new String[] {
 				"org.eclipse.swt"};
-		String[] swtFilePaths = erjCont.searchRJLibs(swtLibs);
+		String[] swtFilePaths = EServerUtil.searchRJLibsInPlatform(swtLibs);
 		for (String swtfp : swtFilePaths) {
 			rConfig.addToClasspath(swtfp);
 		}
@@ -170,7 +169,7 @@ public class RServiManager {
 		try {
 			if (System.getSecurityManager() == null) {
 				if (System.getProperty("java.security.policy") == null) {
-					final String policyFile = erjCont.getServerPolicyFilePath();
+					final String policyFile = RServiImplE.getLocalhostPolicyFile();
 					System.setProperty("java.security.policy", policyFile);
 				}
 				System.setSecurityManager(new SecurityManager());
@@ -179,8 +178,7 @@ public class RServiManager {
 			RMIUtil.INSTANCE.setEmbeddedPrivateMode(true);
 			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(new NullProgressMonitor());
 
-			final RServiNodeFactory nodeFactory = RServiImplE.createLocalNodeFactory(this.name, erjCont);
-			nodeFactory.setRegistry(registry);
+			final RServiNodeFactory nodeFactory = RServiImplE.createLocalhostNodeFactory(this.name, registry);
 			nodeFactory.setConfig(rConfig);
 
 			final EmbeddedRServiManager newEmbeddedR = RServiImplE.createEmbeddedRServi(this.name, registry, nodeFactory);
