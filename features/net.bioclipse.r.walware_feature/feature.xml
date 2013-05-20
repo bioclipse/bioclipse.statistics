@@ -2,13 +2,13 @@
 <feature
       id="net.bioclipse.r.walware_feature"
       label="Walware-RJ modules"
-      version="2.0.0.qualifier"
+      version="2.1.0.qualifier"
       provider-name="Bioclipse">
 
    <description>
       This feature includes the RJ framework modules from Walware.de,
 that are used in the R integration of Bioclipse.
-Version 2.0.0 points to the latest stable version of the modules
+Version 2.1.0 points to the latest stable version of the modules
 required for RJ 1.1
    </description>
 
