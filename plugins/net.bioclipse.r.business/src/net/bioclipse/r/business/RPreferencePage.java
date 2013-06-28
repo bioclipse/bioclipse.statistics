@@ -23,6 +23,7 @@ public class RPreferencePage extends FieldEditorPreferencePage implements IWorkb
     public void init(IWorkbench workbench) {
         //Initialize the preference store we wish to use
         setPreferenceStore(Activator.getDefault().getPreferenceStore());
+        setDescription("Note: You will need to restart Bioclipse in order for your changes to take effect!");
       }
 
     @Override
