@@ -184,7 +184,8 @@ public class RBusinessManager implements IBioclipseManager {
             if (OS.startsWith("Mac"))
             	pr = rt.exec(new String[] { "bash", "-c", command });
             else if (OS.startsWith("Windows")) {
-            	pr = rt.exec(command);
+            	String prog = R_HOME + "\\bin\\" + "R";
+            	pr = rt.exec( new String[] { prog, "-e", command, "-s" });
             }
             else if (OS.startsWith("Linux"))
             	// TODO check if Linux command is working           
@@ -222,8 +223,11 @@ public class RBusinessManager implements IBioclipseManager {
 	}
     
     private boolean runRCmd(String Rcommand) {
-    	if (OS.startsWith("Windows"))
-    		return runCmd(R_HOME + "\\bin\\" + Rcommand);
+    	if (OS.startsWith("Windows")) {
+    		Rcommand = Rcommand.replace("R -e \"", "");
+    		Rcommand = Rcommand.replace("\" -s", "");
+    		return runCmd(Rcommand);
+    	}
     	else return runCmd(Rcommand);
     }
     
