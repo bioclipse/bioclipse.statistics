@@ -20,6 +20,23 @@ All rights reserved.
       The Eclipse Public License + exception to allow GPL plugins to use this feature as explained in the first Bioclipse paper.
    </license>
 
+   <requires>
+      <import plugin="org.eclipse.ui"/>
+      <import plugin="org.eclipse.core.runtime"/>
+      <import plugin="org.eclipse.ui.workbench.texteditor"/>
+      <import plugin="org.eclipse.jface.text"/>
+      <import plugin="org.eclipse.ui.views"/>
+      <import plugin="org.eclipse.ui.ide"/>
+      <import plugin="org.eclipse.core.resources"/>
+      <import plugin="net.bioclipse.core"/>
+      <import plugin="org.springframework.bundle.spring.aop"/>
+      <import plugin="net.sf.cglib"/>
+      <import plugin="org.springframework.osgi.aopalliance.osgi"/>
+      <import plugin="log4j.over.slf4j"/>
+      <import plugin="net.bioclipse.jama" version="1.0.2" match="greaterOrEqual"/>
+      <import plugin="net.bioclipse.scripting"/>
+   </requires>
+
    <plugin
          id="net.bioclipse.statistics"
          download-size="0"
