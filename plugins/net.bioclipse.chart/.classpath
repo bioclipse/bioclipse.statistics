@@ -23,7 +23,5 @@
 	<classpathentry exported="true" kind="lib" path="jars/batik-transcoder.jar" sourcepath="net.bioclipse.chartsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-xml.jar" sourcepath="net.bioclipse.chartsrc.zip"/>
 	<classpathentry exported="true" kind="lib" path="jars/js.jar" sourcepath="net.bioclipse.chartsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/jcommon-1.0.13.jar" sourcepath="net.bioclipse.chartsrc.zip"/>
-	<classpathentry exported="true" kind="lib" path="jars/jfreechart-1.0.10.jar" sourcepath="net.bioclipse.chartsrc.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
