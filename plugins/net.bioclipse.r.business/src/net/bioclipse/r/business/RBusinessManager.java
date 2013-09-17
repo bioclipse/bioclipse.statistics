@@ -468,7 +468,7 @@ public class RBusinessManager implements IBioclipseManager {
     	logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
-        	if (command.contains("install.packages") && OS.startsWith("Mac")) {
+        	if (  OS.startsWith("Mac") && command.contains("install.packages") && !command.contains("repos=")) {
         		int i = command.lastIndexOf(")");
         		StringBuilder cmdDefMirror = new StringBuilder(command.substring(0, i));
         		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
