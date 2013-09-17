@@ -344,20 +344,26 @@ public class RBusinessManager implements IBioclipseManager {
 
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
-		Boolean trustRPath = false;
+		boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
-			if(!rExist(R_HOME + "/R"))
+			trustRPath = rExist(path + "/R") || rExist(path + "/bin/R");
+			if(!trustRPath) {
 				path = "/Library/Frameworks/R.framework/Resources";
-			trustRPath = rExist(path + "/R");
+				trustRPath = rExist(path + "/R");
+			}
+			if(!trustRPath) {
+				path = "/opt/local/lib/R";
+				trustRPath = rExist(path + "/bin/R");
+			}
 		} else if (OS.startsWith("Windows")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = RegQuery("HKLM\\SOFTWARE\\R-core\\R /v InstallPath");
 				if (path == null)
 					path = "";
 			}
 			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = "/usr/lib/R";
 			}
 			trustRPath = rExist(path);
