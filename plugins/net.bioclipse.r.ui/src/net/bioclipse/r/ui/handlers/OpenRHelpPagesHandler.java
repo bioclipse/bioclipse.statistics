@@ -17,7 +17,7 @@ public class OpenRHelpPagesHandler extends AbstractHandler implements IHandler {
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		PlatformUI.getWorkbench().getHelpSystem().displayHelpResource("/net.bioclipse.r.ui/html/troubleshooting.html");
+		PlatformUI.getWorkbench().getHelpSystem().displayHelpResource("/net.bioclipse.r.ui/html/rtroubleshooting.html");
 		return null;
 	}
 
