@@ -2,6 +2,6 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Troubleshooting Bioclipse-R" link_to="../net.bioclipse.ui/troubleshooting.xml#rTroubleshoot">
-   <topic href="html/macosIssues.html" label="Known issues on Mac OS X">
+   <topic href="html/rtroubleshooting.html" label="Known issues on Mac OS X">
    </topic>
 </toc>
