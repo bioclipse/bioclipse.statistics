@@ -122,6 +122,7 @@ public class RBusinessManager implements IBioclipseManager {
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			working = false;
+            logger.error( "Init R", e );
 			status = e.getMessage();
 			e.printStackTrace();
 		}
@@ -133,6 +134,7 @@ public class RBusinessManager implements IBioclipseManager {
 			}
 			catch (CoreException e) { 
 			working = false;
+            logger.error( "Init R", e );
 			status = e.getMessage();
 			}
 		}
@@ -214,8 +216,8 @@ public class RBusinessManager implements IBioclipseManager {
             }
         } catch(Exception e) {
         	working = false;
-        	status = e.toString();
-        	logger.error(status);
+            status = e.getMessage();
+            logger.error( status, e );
         }
         status=s.toString();
         logger.debug(status);
