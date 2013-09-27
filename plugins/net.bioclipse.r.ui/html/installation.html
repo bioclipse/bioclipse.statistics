@@ -11,16 +11,46 @@
 </HEAD>
 <BODY LANG="en-US" DIR="LTR">
 <h1>Installing Bioclipse-R</h1>
-
+<h2>Prerequisites</h2>
 <p>
-Bioclipse-R is a set of plugins for Bioclipse. There are two ways to obtain a Bioclipse-R package:
+Bioclipse-R Integration is a set of plugins for Bioclipse.
+It's shipped without R and other necessary packages and tools, therefore you need to make sure that all the requirements are fulfilled
+before installing the feature in Bioclipse:
+<ol>
+<li>
+R version 2.13 or higher
+</li>
+<li>
+Mac OS X users are highly recommended to install the <a href="http://xquartz.macosforge.org/landing/">XQuartz X11</a> for making the best use of the R graphical facilities
+</li>
+<li>
+Linux users need to:
+<ul>
+<li>
+install JDK (the tools included in JDK are necessary for installing the required R packages);<br>
+if JDK is installed after R, run also <pre>R CMD javareconf</pre>
+</li>
+<li>
+set their own Library Search Paths entry for installing R packages; example for debian based distributions follows:<br>
+run the following command in your terminal:
+	<pre>
+		grep R_LIBS_USER /etc/R/Renviron
+	</pre>
+on Ununtu 64 bit the output should be:
+	<pre>
+		R_LIBS_USER=${R_LIBS_USER-'~/R/x86_64-pc-linux-gnu-library/2.14'}
+		#R_LIBS_USER=${R_LIBS_USER-'~/Library/R/2.14/library'}
+	</pre>
+create the directory path from the uncommented line:
+	<pre>
+		mkdir -p ~/R/x86_64-pc-linux-gnu-library/2.14
+	</pre>
+</li>
+</ul>
+</li>
+</ol>
 </p>
 
-<h2>Download the pre-built BCRPackage package</h2>
-<p>
-Please see links available from the <a href="http://pele.farmbio.uu.se/jenkins/job/BCRPackage/">
-Bioclipse development update site</a>.
-</p>
 <h2>Download Bioclipse and use the Install New Bioclipse Feature option</h2>
 <p>
 This guarantees the latest version of Bioclipse and Bioclipse-R.
