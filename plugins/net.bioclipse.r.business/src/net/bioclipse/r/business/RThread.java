@@ -21,6 +21,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
+import de.walware.rj.servi.RServi;
+
 import net.bioclipse.core.util.LogUtils;
 import net.bioclipse.managers.MonitorContainer;
 import net.bioclipse.scripting.Hook;
@@ -38,6 +40,7 @@ public class RThread extends ScriptingThread {
     private static boolean busy;
     private IRBusinessManager r = Activator.getDefault()
                                            .getJavaRBusinessManager();
+    private RServi servi = r.getInitR("rThread");
     
     public void run() {
         while (true) {
@@ -112,7 +115,7 @@ public class RThread extends ScriptingThread {
                 }
             }
             try {
-                result[0] = r.eval( nextAction[0].getCommand() );
+                result[0] = r.eval( nextAction[0].getCommand(), servi );
             }
             catch (Throwable t) {
                 LogUtils.debugTrace( logger, t );

@@ -15,6 +15,7 @@ import java.util.NoSuchElementException;
 
 import javax.security.auth.login.LoginException;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -33,7 +34,6 @@ import de.walware.rj.servi.pool.EmbeddedRServiManager;
 import de.walware.rj.servi.pool.RServiImplE;
 import de.walware.rj.servi.pool.RServiNodeConfig;
 import de.walware.rj.servi.pool.RServiNodeFactory;
-
 /*
  * Disabled graphic parts to reduce dependencies.
  *
@@ -41,8 +41,6 @@ import de.walware.rj.server.RjsComConfig;
 import de.walware.rj.server.client.RClientGraphicFactory;
 import de.walware.rj.eclient.graphics.comclient.ERClientGraphicActionsFactory;
 import de.walware.rj.servi.internal.rcpdemo.Activator; */
-
-import org.apache.log4j.Logger;
 
 public class RServiManager {
 
@@ -63,13 +61,13 @@ public class RServiManager {
 	}
 
 
-	private String name;
+	private final String name;
 
 	private Config config = new Config();
 
 	private EmbeddedRServiManager embeddedR;
 
-	private ISchedulingRule schedulingRule = new ISchedulingRule() {
+	private final ISchedulingRule schedulingRule = new ISchedulingRule() {
 	public boolean contains(final ISchedulingRule rule) {
 		return (rule == this);
 		}
@@ -95,7 +93,7 @@ public class RServiManager {
 	}
 	
 	public ISchedulingRule getSchedulingRule() {
-		return schedulingRule;
+		return this.schedulingRule;
 	}
 
 	public void setEmbedded(final String rHome) throws CoreException {
@@ -113,7 +111,7 @@ public class RServiManager {
 		rConfig.setRHome(rHome);
 		rConfig.setEnableVerbose(true);
 		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
-		String[] swtLibs = new String[] {
+		final String[] swtLibs = new String[] {
 				"org.eclipse.swt"};
 		String[] swtFilePaths = EServerUtil.searchRJLibsInPlatform(swtLibs);
 		for (String swtfp : swtFilePaths) {
@@ -179,32 +177,33 @@ public class RServiManager {
 			
 			RMIUtil.INSTANCE.setEmbeddedPrivateMode(true);
 			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(new NullProgressMonitor());
+
 			final RServiNodeFactory nodeFactory = RServiImplE.createLocalhostNodeFactory(this.name, registry);
 			nodeFactory.setConfig(rConfig);
 
 			final EmbeddedRServiManager newEmbeddedR = RServiImplE.createEmbeddedRServi(this.name, registry, nodeFactory);
 			newEmbeddedR.start();
-			if (embeddedR != null) {
-				embeddedR.stop();
-				embeddedR = null;
+			if (this.embeddedR != null) {
+				this.embeddedR.stop();
+				this.embeddedR = null;
 			}
-			embeddedR = newEmbeddedR;
+			this.embeddedR = newEmbeddedR;
 		}
 			catch (final RjException e) {
-				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Embedded R instance could not created.", e));
+				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
 			}
 	}
 
 
 	public RServi getRServi(final String task) throws CoreException {
 		final Config config = this.config;
-		final String key = name + "-" + task;
+		final String key = this.name + "-" + task;
 
 		try {
 			switch (config.mode) {
 				case EMBEDDED:
 				case RSETUP:
-					return RServiUtil.getRServi(embeddedR, key);
+					return RServiUtil.getRServi(this.embeddedR, key);
 				case POOL:
 					return RServiUtil.getRServi(config.address, key);
 			}

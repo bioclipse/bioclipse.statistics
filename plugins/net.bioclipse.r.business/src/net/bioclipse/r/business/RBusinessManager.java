@@ -54,7 +54,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private Boolean working = true;
 	private IPath	workspacePath;
 	private static final String OS  = System.getProperty("os.name").toString();
-	private RServiManager rsmanager = new RServiManager("Rconsole");
+	private RServiManager rsmanager;
 	private boolean rightRVersion = true;
     public static String NEWLINE    = System.getProperty("line.separator");
     public static String cmdparser    = "(;?\r?\n|;)";
@@ -85,10 +85,6 @@ public class RBusinessManager implements IBioclipseManager {
 		try {
 			R_HOME = checkR_HOME(R_HOME);		// check if R_HOME is correct
 			checkRdependencies();				// check if we run right R version and all plug-ins are installed in R
-			// next, check if there are $HOME-based lib paths
-			String userLibPath = checkUserLibDir();
-			logger.debug("User path: " + userLibPath);
-			rsmanager.setEmbedded(R_HOME, userLibPath);		// Start Rservi
 
 			//If the preference was empty, we have discovered a new RHOME
 			if (emptyRhome){
@@ -109,29 +105,57 @@ public class RBusinessManager implements IBioclipseManager {
 			working = false;
 			status = e.getMessage();
 		}
-		catch (CoreException e) { 				// Catch rj startup error.
-			working = false;
-			status = e.getMessage();
-		} catch (BioclipseException e) {
+		catch (BioclipseException e) {
 			working = false;
 			status = e.getMessage();
 		}
+		rservi = getInitR("Rconsole");
+	}
+
+	public RServi getInitR(String task) {
+		rsmanager = new RServiManager(task);
+		// next, check if there are $HOME-based lib paths
+		String userLibPath = checkUserLibDir();
+		logger.debug("User path: " + userLibPath);
+		try {
+			rsmanager.setEmbedded(R_HOME, userLibPath); // Start Rservi
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			working = false;
+            logger.error( "Init R", e );
+			status = e.getMessage();
+			e.printStackTrace();
+		}
 		if (working) {
 			try {
-				rservi = rsmanager.getRServi("Rconsole");
+				rservi = rsmanager.getRServi(task);
 				initSession();
+				return rservi;
 			}
 			catch (CoreException e) { 
 			working = false;
+            logger.error( "Init R", e );
 			status = e.getMessage();
 			}
 		}
 		if (!working) {
 			logger.error(status);
 			status += NEWLINE + R_CONSOLE_ERR_MESSAGE;
+			return null;
 		}
+		return rservi;
 	}
-	
+
+	/**
+	 * The old eval method that can be called without RServi
+	 * @param command
+	 * @return result
+	 */
+	public String eval(String command) {
+		String result;
+			result = eval(command, rservi);
+		return result;
+	}
     /**
      * Gives a short one word name of the manager used as variable name when
      * scripting.
@@ -162,7 +186,8 @@ public class RBusinessManager implements IBioclipseManager {
             if (OS.startsWith("Mac"))
             	pr = rt.exec(new String[] { "bash", "-c", command });
             else if (OS.startsWith("Windows")) {
-            	pr = rt.exec(command);
+            	String prog = R_HOME + "\\bin\\" + "R";
+            	pr = rt.exec( new String[] { prog, "-e", command, "-s" });
             }
             else if (OS.startsWith("Linux"))
             	// TODO check if Linux command is working           
@@ -191,8 +216,8 @@ public class RBusinessManager implements IBioclipseManager {
             }
         } catch(Exception e) {
         	working = false;
-        	status = e.toString();
-        	logger.error(status);
+            status = e.getMessage();
+            logger.error( status, e );
         }
         status=s.toString();
         logger.debug(status);
@@ -200,8 +225,11 @@ public class RBusinessManager implements IBioclipseManager {
 	}
     
     private boolean runRCmd(String Rcommand) {
-    	if (OS.startsWith("Windows"))
-    		return runCmd(R_HOME + "\\bin\\" + Rcommand);
+    	if (OS.startsWith("Windows")) {
+    		Rcommand = Rcommand.replace("R -e \"", "");
+    		Rcommand = Rcommand.replace("\" -s", "");
+    		return runCmd(Rcommand);
+    	}
     	else return runCmd(Rcommand);
     }
     
@@ -318,20 +346,26 @@ public class RBusinessManager implements IBioclipseManager {
 
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
-		Boolean trustRPath = false;
+		boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
-			if(!rExist(R_HOME + "/R"))
+			trustRPath = rExist(path + "/R") || rExist(path + "/bin/R");
+			if(!trustRPath) {
 				path = "/Library/Frameworks/R.framework/Resources";
-			trustRPath = rExist(path + "/R");
+				trustRPath = rExist(path + "/R");
+			}
+			if(!trustRPath) {
+				path = "/opt/local/lib/R";
+				trustRPath = rExist(path + "/bin/R");
+			}
 		} else if (OS.startsWith("Windows")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = RegQuery("HKLM\\SOFTWARE\\R-core\\R /v InstallPath");
 				if (path == null)
 					path = "";
 			}
 			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = "/usr/lib/R";
 			}
 			trustRPath = rExist(path);
@@ -409,10 +443,10 @@ public class RBusinessManager implements IBioclipseManager {
 		if (!file.exists())
 			file.mkdir();
 		//Load the bc2r package
-		eval("library(bc2r)");
+		eval("library(bc2r)", rservi);
 		// Java crashes when setting working directory with "\" in windows
-		eval("setwd(\""+file.getAbsolutePath().replace(fileseparator, "/")+"\")");
-		status = "R workspace: " + eval("getwd()").substring(3);
+		eval("setwd(\""+file.getAbsolutePath().replace(fileseparator, "/")+"\")", rservi);
+		status = "R workspace: " + eval("getwd()", rservi).substring(3);
 		FilenameFilter filter = new FilenameFilter() {		// Filter out the R-session files
 			@Override
 			public boolean accept(File dir, String name) {
@@ -424,19 +458,19 @@ public class RBusinessManager implements IBioclipseManager {
 		String[] files = file.list(filter);
 		for(int i=0; i<files.length; i++){
 			status += NEWLINE + "Loaded R session: " + files[i];
-			eval("load(\"" + files[i] + "\")");
+			eval("load(\"" + files[i] + "\")", rservi);
 		}
 		status += NEWLINE + "Use load(\"file\") and save.image(\"file\") to manage your R sessions";
 		if (OS.startsWith("Mac")) {	// the default plotting device on Mac(Quartz) is not working good with StatET
-			eval("options(device='x11')");
+			eval("options(device='x11')", rservi);
 		}
     }
     
-    public String eval(String command) {
+    public String eval(String command, RServi myRServi) {
     	logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
-        	if (command.contains("install.packages") && OS.startsWith("Mac")) {
+        	if (  OS.startsWith("Mac") && command.contains("install.packages") && !command.contains("repos=")) {
         		int i = command.lastIndexOf(")");
         		StringBuilder cmdDefMirror = new StringBuilder(command.substring(0, i));
         		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
@@ -460,7 +494,7 @@ public class RBusinessManager implements IBioclipseManager {
 	        	}
 	        }
 	        else try {
-	        	RObject data = rservi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
+	        	RObject data = myRServi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
 	        	RStore rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
 	        	int n = rData.getLength();
@@ -495,7 +529,7 @@ public class RBusinessManager implements IBioclipseManager {
     }
 
     public String ls() {
-    	return eval("ls()");
+    	return eval("ls()", rservi);
     }
 
     /**
@@ -527,13 +561,13 @@ public class RBusinessManager implements IBioclipseManager {
     	StringBuffer results = new StringBuffer();
     	results.append(eval(
     	    "connection <- " + "textConnection(\"" +
-    	    matrixAsString(matrixData) + "\")"
+    	    matrixAsString(matrixData) + "\")", rservi
     	));
     	results.append(eval(
-    	    varName + " <- read.csv(connection)"
+    	    varName + " <- read.csv(connection)", rservi
     	));
     	results.append(eval(
-        	"close(connection)"
+        	"close(connection)", rservi
     	));
     	return results.toString();
     }
@@ -592,7 +626,7 @@ public class RBusinessManager implements IBioclipseManager {
 				command = command.substring(command.indexOf("(") + 1, command.length() - 2);
 			}
 		}
-		url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))");
+		url = eval("getHelpAddress(help("+ command +", help_type=\"html\"))", rservi);
 		if (url.contains("http://")) {
 			url = url.substring(5, url.length()-1);
 			logger.debug("URL is " + url);
