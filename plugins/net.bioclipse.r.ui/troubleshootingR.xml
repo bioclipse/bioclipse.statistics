@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="Troubleshooting Bioclipse-R" link_to="../net.bioclipse.ui/troubleshooting.xml#rTroubleshoot">
-   <topic href="html/rtroubleshooting.html" label="Known issues on Mac OS X">
+<toc label="Bioclipse-R Integration" link_to="../net.bioclipse.ui/troubleshooting.xml#rTroubleshoot">
+   <topic href="html/rtroubleshooting.html" label="Troubleshooting Bioclipse-R">
    </topic>
 </toc>
