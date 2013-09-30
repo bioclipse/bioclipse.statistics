@@ -190,7 +190,7 @@ public class RServiManager {
 			this.embeddedR = newEmbeddedR;
 		}
 			catch (final RjException e) {
-				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Embedded R instance could not created.", e));
+				throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e));
 			}
 	}
 

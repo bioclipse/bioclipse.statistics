@@ -122,6 +122,7 @@ public class RBusinessManager implements IBioclipseManager {
 		} catch (CoreException e) {
 			// TODO Auto-generated catch block
 			working = false;
+            logger.error( "Init R", e );
 			status = e.getMessage();
 			e.printStackTrace();
 		}
@@ -133,6 +134,7 @@ public class RBusinessManager implements IBioclipseManager {
 			}
 			catch (CoreException e) { 
 			working = false;
+            logger.error( "Init R", e );
 			status = e.getMessage();
 			}
 		}
@@ -214,8 +216,8 @@ public class RBusinessManager implements IBioclipseManager {
             }
         } catch(Exception e) {
         	working = false;
-        	status = e.toString();
-        	logger.error(status);
+            status = e.getMessage();
+            logger.error( status, e );
         }
         status=s.toString();
         logger.debug(status);
@@ -344,20 +346,26 @@ public class RBusinessManager implements IBioclipseManager {
 
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
-		Boolean trustRPath = false;
+		boolean trustRPath = false;
 		if (OS.startsWith("Mac")) {
-			if(!rExist(R_HOME + "/R"))
+			trustRPath = rExist(path + "/R") || rExist(path + "/bin/R");
+			if(!trustRPath) {
 				path = "/Library/Frameworks/R.framework/Resources";
-			trustRPath = rExist(path + "/R");
+				trustRPath = rExist(path + "/R");
+			}
+			if(!trustRPath) {
+				path = "/opt/local/lib/R";
+				trustRPath = rExist(path + "/bin/R");
+			}
 		} else if (OS.startsWith("Windows")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = RegQuery("HKLM\\SOFTWARE\\R-core\\R /v InstallPath");
 				if (path == null)
 					path = "";
 			}
 			trustRPath = rExist(path + "\\bin\\R.exe"); 
 		} else if (OS.startsWith("Linux")) {
-			if (R_HOME == null) {
+			if (path == null) {
 				path = "/usr/lib/R";
 			}
 			trustRPath = rExist(path);
@@ -462,7 +470,7 @@ public class RBusinessManager implements IBioclipseManager {
     	logger.debug("R cmd: " + command);
         String returnVal = "R console is inactivated: " + NEWLINE + status;
         if (working) {
-        	if (command.contains("install.packages") && OS.startsWith("Mac")) {
+        	if (  OS.startsWith("Mac") && command.contains("install.packages") && !command.contains("repos=")) {
         		int i = command.lastIndexOf(")");
         		StringBuilder cmdDefMirror = new StringBuilder(command.substring(0, i));
         		cmdDefMirror.append(", repos=\"http://cran.us.r-project.org\")");
