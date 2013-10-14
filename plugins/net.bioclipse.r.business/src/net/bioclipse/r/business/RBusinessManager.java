@@ -246,7 +246,7 @@ public class RBusinessManager implements IBioclipseManager {
 			throw new BioclipseException("Incompatible R version, Runnig R within Bioclipse requires R version 2.13, or later!");
     	}
 		logger.debug(status);
-    	if (!runRCmd("R -e \".find.package('rJava')\" -s")) {
+    	if (!runRCmd("R -e \"find.package('rJava')\" -s")) {
     		logger.debug("Error: Package rJava not found.");
     		if (!runRCmd("R -e \"install.packages('rJava', repos='http://cran.stat.ucla.edu')\" -s")) {
     			status += "Error finding and installing rJava, use install.packages('rJava') within R and reboot Bioclipse afterwards";
@@ -255,7 +255,7 @@ public class RBusinessManager implements IBioclipseManager {
     		}
 
     	}
-    	if (!runRCmd("R -e \".find.package('rj')\" -s")) {
+    	if (!runRCmd("R -e \"find.package('rj')\" -s")) {
     		logger.debug("Error: Package rj not found.");
     		installRj();
     	} else {
@@ -267,7 +267,7 @@ public class RBusinessManager implements IBioclipseManager {
     				installRj();
     		}
     	}
-    	if (!runRCmd("R -e \".find.package('bc2r')\" -s")) {
+    	if (!runRCmd("R -e \"find.package('bc2r')\" -s")) {
     		String rPluginPath = null;
     		logger.debug("Error: Package bc2r not found.");
     		try {
