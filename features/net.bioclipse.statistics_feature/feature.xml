@@ -35,6 +35,7 @@ All rights reserved.
       <import plugin="log4j.over.slf4j"/>
       <import plugin="net.bioclipse.jama" version="1.0.2" match="greaterOrEqual"/>
       <import plugin="net.bioclipse.scripting"/>
+      <import plugin="org.jfreechart"/>
    </requires>
 
    <plugin
