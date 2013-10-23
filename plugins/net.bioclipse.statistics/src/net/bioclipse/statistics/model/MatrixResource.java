@@ -11,12 +11,14 @@
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
+import java.awt.List;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.StreamTokenizer;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
@@ -26,12 +28,18 @@ import net.bioclipse.core.domain.BioObject;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.properties.IPropertySource;
 
 
@@ -159,7 +167,8 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 
 		logger.debug("Parsing the resource...");
 		
-		findMatrixImplementation();
+//		findMatrixImplementation();
+		matrixImpl = new StringMatrix();
 		if (matrixImpl != null) {
 			// OK, next step: reading the input into the matrix
 			try {
@@ -209,6 +218,65 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		setParsed(false);
 		return false;
 	}
+	
+	/**
+	 * A method for creating a matrix from a string. Observe that the row and 
+	 * column headers has to be set after the matrix is created.
+	 * 
+	 * @param matrixStr The string to be parsed
+	 * @param columns The number of columns of the matrix
+	 * @param regex The String used for separating the elements
+	 * @return True if the string was successfully parsed
+	 */
+	public boolean parseString(String matrixStr, int columns, String regex) {
+	    
+	    if (matrixImpl == null) 
+	        matrixImpl = new StringMatrix();
+	    
+	    String[] matrixArray = matrixStr.split( regex );
+	    String newMatrixStr = "";
+	    
+	    for (int i=0;i<matrixArray.length;i++) {
+	        for (int j=0;j<columns;j++) {
+	            newMatrixStr += matrixArray[i]+'\u002C'; 
+	        }
+	        
+	        newMatrixStr = newMatrixStr.
+	                substring( 0, (newMatrixStr.length() - 1) ) +"\n";
+	    }
+	    
+	    parseStringIntoMatrix( newMatrixStr );
+	    setParsedResource(matrixImpl);
+        setParsed(true);
+        
+	    return true;
+	}
+	
+	/**
+	 * A method for creating a matrix from a string, the matrix values has to be
+	 * separated with a space-sign. Observe that the row and 
+     * column headers has to be set after the matrix is created.
+     * 
+     * @param matrixStr The string to be parsed
+     * @param columns The number of columns of the matrix
+     * @return True if the string was successfully parsed
+	 */
+	public boolean parseString(String matrixStr, int columns) {
+	    return parseString( matrixStr, columns, "\u0020" );
+	}
+	
+	/**
+     * A method for creating a matrix from a string, the matrix values has to be
+     * separated with a comma (i.e. CSV, comma separated values). Observe that the 
+     * row and column headers has to be set after the matrix is created.
+     * 
+     * @param matrixStr The string to be parsed
+     * @param columns The number of columns of the matrix
+     * @return True if the string was successfully parsed
+     */
+	public boolean parseCSVString(String matrixStr, int columns) {
+        return parseString( matrixStr, columns, "\u002C" );
+    }
 	
     public void setParsed(boolean b) {
 		parsed = b;
@@ -260,136 +328,215 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 			logger.debug("Matrix is empty!");
 			this.setSize(matrixRows, matrixCols);
 		}
-
-		//Selected scanner, null from start
-		int matrixScannerType=COMMA_SCANNER;
 		
-		//Test using comma and whitespace as delimiters
-		Scanner testScanner=matrixScanner((matrixLines[0]), matrixScannerType);
+        int[] info = decideColumnSeparator( matrixLines[matrixLines.length-1] );
+        int matrixScannerType = info[0];
+        matrixCols = info[1];
+        this.setSize(matrixRows, matrixCols);
+        
+        info = decideColumnSeparator( matrixLines[0] );
+        if (info[1] == matrixCols) {
+            for(int i = 0; i < matrixLines.length; i++ )
+            {
+                insertRow( i+1, matrixLines[i], matrixScannerType);
+            }
+            try {
+                if (matrixImpl.get( 1, 1 ).isEmpty() || matrixImpl.get( 1, 1 ).matches( "\\s+" )) { 
+                    matrixImpl.setColumnAsRowHeader( 1 );
+                    matrixImpl.setRowAsColumnHeader( 1 );
+                }
+            } catch ( Exception e ) {
+                logger.error( "Could not set the row and/or column header(s)" );
+            }  
+            
+        } else if(info[1] == matrixCols-1) {
+            /* The matrix is lacking the top left element, this suggest it 
+             * contains both row and column headers.*/
+            insertRow( 1, fixColumnHeader( matrixLines[0], matrixScannerType ),
+                       matrixScannerType);            
+            for(int i = 1; i < matrixLines.length; i++ )
+            {
+                insertRow( i+1, matrixLines[i], matrixScannerType);
+            }
+            try {
+                matrixImpl.setRowAsColumnHeader( 1 );
+                matrixImpl.setColumnAsRowHeader( 1 );
+            } catch ( IllegalAccessException e ) {
+                logger.error( "Could not set the row and/or column header(s)" );
+            }
+        } else {
+            logger.error( "Matrix is misshapen: The first and last row has " +
+            		"different sizes, nor does the first row seems to be a " +
+            		"header" );
+        }
+        
+        
+		/* Since we now handle strings we leave it to the user to decide the 
+		 * headers...*/ 
+        //Check if first row is a header, if this row contains anything but numbers it's considered a header
+//		Scanner matrixScanner = matrixScanner(matrixLines[0],matrixScannerType);
+//		
+//		if( !matrixScanner.hasNextDouble() )
+//		{
+//			//Remove one row from matrixRows because one of the rows is the header
+//			matrixRows--;
+//			int index = 0;
+//			while( matrixScanner.hasNext()) {
+//				index++;
+//				String colname = matrixScanner.next();
+//				matrixImpl.setColumnName(index, colname);
+//				
+//				//Handle response column for a hardcoded name
+//				//TODO: refactor this out
+//				if (colname.equalsIgnoreCase( HARDCODED_RESPONSE_COLUMN_NAME ) ){
+//				    matrixImpl.setResponseColumn( index );
+//				}
+//				
+//			}
+//		}
+//		
+////		double[][] matrix = new double[matrixRows][matrixCols];
+//		this.setSize(matrixRows, matrixCols);
+//		//Read in remaining rows
+//		if( matrixImpl.hasColHeader() )
+//		{
+//			for(int i = 1; i < matrixLines.length; i++ )
+//			{
+//				insertRow( i, matrixLines[i], matrixScannerType);
+//			}
+//		}
+//		//No column headers, read into matrix from first line
+//		else
+//		{
+//			for(int i = 0; i < matrixLines.length; i++ )
+//			{
+//				insertRow( i+1, matrixLines[i], matrixScannerType);
+//			}
+//		}
 		
-
-		//Determine number of columns
-		while( testScanner.hasNext() )
-		{
-			testScanner.next();
-			matrixCols++;
-		}
-		
-		if (matrixCols<=1){
-			matrixCols=0;
-			//Too few, try tab-separated
-			matrixScannerType=TAB_SCANNER;
-			testScanner=matrixScanner((matrixLines[0]), matrixScannerType);
-			
-			//Determine number of columns
-			while( testScanner.hasNext() )
-			{
-				testScanner.next();
-				matrixCols++;
-			}
-
-			if (matrixCols<=1){
-				matrixCols=0;
-				//Too few, try whitespace-separated
-				matrixScannerType=WHITESPACE_SCANNER;
-				testScanner=matrixScanner((matrixLines[0]), matrixScannerType);			}
-			
-			//Determine number of columns
-			while( testScanner.hasNext() )
-			{
-				testScanner.next();
-				matrixCols++;
-			}
-
-			if (matrixCols<=1){
-				//Too few, give up
-				throw new IllegalArgumentException("Could not parse file");
-			}
-
-		}
-
-		if (matrixScannerType==COMMA_SCANNER){
-			logger.debug("Comma separated scanner used");
-		}
-		else if (matrixScannerType==TAB_SCANNER){
-			logger.debug("Tab separated scanner used");
-		}
-		else if (matrixScannerType==WHITESPACE_SCANNER){
-			logger.debug("WHitespace separated scanner used");
-		}
-		
-		//Check if first row is a header, if this row contains anything but numbers it's considered a header
-		Scanner matrixScanner = matrixScanner(matrixLines[0],matrixScannerType);
-		
-		if( !matrixScanner.hasNextDouble() )
-		{
-			//Remove one row from matrixRows because one of the rows is the header
-			matrixRows--;
-			int index = 0;
-			while( matrixScanner.hasNext()) {
-				index++;
-				String colname = matrixScanner.next();
-				matrixImpl.setColumnName(index, colname);
-				
-				//Handle response column for a hardcoded name
-				//TODO: refactor this out
-				if (colname.equalsIgnoreCase( HARDCODED_RESPONSE_COLUMN_NAME ) ){
-				    matrixImpl.setResponseColumn( index );
-				}
-				
-			}
-		}
-		
-//		double[][] matrix = new double[matrixRows][matrixCols];
-		this.setSize(matrixRows, matrixCols);
-		//Read in remaining rows
-		if( matrixImpl.hasColHeader() )
-		{
-			for(int i = 1; i < matrixLines.length; i++ )
-			{
-				insertRow( i, matrixLines[i], matrixScannerType);
-			}
-		}
-		//No column headers, read into matrix from first line
-		else
-		{
-			for(int i = 0; i < matrixLines.length; i++ )
-			{
-				insertRow( i+1, matrixLines[i], matrixScannerType);
-			}
-		}
-		
-		matrixScanner.close();
+//		matrixScanner.close();
 		logger.debug("Parsed matrix");		
 	}
 
+	private String fixColumnHeader(String headerRow, int scannerType) {
+	    switch (scannerType) {
+	        case COMMA_SCANNER:
+	            if (headerRow.startsWith( "," ) )
+	                headerRow = headerRow.substring( headerRow.indexOf( ',' )+1 );
+	            
+	            return " ,"+headerRow;
+	        case TAB_SCANNER:
+	                return "\t"+headerRow;
+	        case WHITESPACE_SCANNER:
+	            return "  "+headerRow;
+	        default:
+	            return headerRow;
+	    }
+	}
+	
+	/**
+	 * This method tries to decide what separator that was used in the source.
+	 * 
+	 * @param testStr A <code>String</code> for testing, e.g. the top row in the
+	 *         source.  
+	 * @return An array of integers, where the first element is the separator
+	 *             type and the second the number of columns.
+	 */
+	private int[] decideColumnSeparator(String testStr) {
+	    int matrixCols = 0;
+	    
+        //Selected scanner, null from start
+        int matrixScannerType=COMMA_SCANNER;
+        
+        //Test using comma and whitespace as delimiters
+        Scanner testScanner=matrixScanner( testStr, matrixScannerType );
+        
+        //Determine number of columns
+        while( testScanner.hasNext() )
+        {
+            testScanner.next();
+            matrixCols++;
+        }
+        
+        if (matrixCols<=1){
+            matrixCols=0;
+            //Too few, try tab-separated
+            matrixScannerType=TAB_SCANNER;
+            testScanner=matrixScanner( testStr, matrixScannerType );
+            
+            //Determine number of columns
+            while( testScanner.hasNext() )
+            {
+                testScanner.next();
+                matrixCols++;
+            }
+
+            if (matrixCols<=1){
+                matrixCols=0;
+                //Too few, try whitespace-separated
+                matrixScannerType=WHITESPACE_SCANNER;
+                testScanner=matrixScanner( testStr, matrixScannerType );         }
+            
+            //Determine number of columns
+            while( testScanner.hasNext() )
+            {
+                testScanner.next();
+                matrixCols++;
+            }
+
+            if (matrixCols<=1){
+                //Too few, give up
+                throw new IllegalArgumentException("Could not parse file");
+            }
+
+        }
+
+        if (matrixScannerType==COMMA_SCANNER){
+            logger.debug("Comma separated scanner used");
+        }
+        else if (matrixScannerType==TAB_SCANNER){
+            logger.debug("Tab separated scanner used");
+        }
+        else if (matrixScannerType==WHITESPACE_SCANNER){
+            logger.debug("WHitespace separated scanner used");
+        }
+        
+        testScanner.close();
+	    
+        return new int[]{matrixScannerType, matrixCols};
+	}
+	
 	//Utility method for inserting a row into the matrix (not the column header)
 	private void insertRow( int row, String rowString, int matrixScannerType )
 	{
 		Scanner matrixScanner = matrixScanner(rowString, matrixScannerType);
 		
-		if( !matrixScanner.hasNextDouble() ) {
-			matrixImpl.setRowName(row, matrixScanner.next());
-		}
+//		if( !matrixScanner.hasNextDouble() ) {
+//			matrixImpl.setRowName(row, matrixScanner.next());
+//		}
 		int col = 1;
+		String value;
 		while( matrixScanner.hasNext() )
 		{
 		    //If we have responses and this is the response column, add it
 		    if (matrixImpl.hasResponseColumn() && matrixImpl.getResponseColumn()==col){
-            String value = matrixScanner.next();
+		        value = matrixScanner.next();
 		        matrixImpl.setResponse( row, value );
 		    }
 		    else{
-		        double value=Double.NaN;
+//		        double value=Double.NaN;
+//		        try {
+//		            value = matrixScanner.nextDouble();
+//		        }catch (Exception e){
+//		            logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Expected double but was: " + matrixScanner.next() + " Error: " + e.getMessage());
+//		        }
+		        value = matrixScanner.next();
+		        if (value.isEmpty())
+		            value = " ";
 		        try {
-		            value = matrixScanner.nextDouble();
-		        }catch (Exception e){
-		            logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Expected double but was: " + matrixScanner.next() + " Error: " + e.getMessage());
-		        }
-		        try {
-		            if (col > matrixImpl.getColumnCount()) {
+		            if (col > matrixImpl.getColumnCount() ) {		                
 		                // disregard data that does not fit the matrix
-		                logger.error("Found more data than can fit the matrix: too few labels?");
+                        logger.error("Found more data than can fit the matrix: too few labels?");                       
 		            } else {
 		                matrixImpl.set(row, col, value);
 		            }
@@ -401,7 +548,22 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		    }
 		    col++;
 		}
-		
+		try {
+            if (row == 1 && col == matrixImpl.getColumnCount() - 1 ) {
+                /* If this is true, then its likely that the matrix has both 
+                 * column and row headers. */
+                String[] temp = new String[col+1];
+                temp[0]= " ";
+                for (int i = 1; i <= col;i++)
+                    temp[i] = matrixImpl.get( 1, i );
+                
+                for (int i = 0; i < temp.length; i++)
+                    matrixImpl.set( 1, i+1, temp[i] );
+            }
+        } catch ( Exception e ) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 	}
 
 	/**
@@ -415,6 +577,13 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 			}
 			return propSource;
 		}
+		if (adapter == IMatrixResource.class) {
+		    if (matrixImpl == null) {
+		        matrixImpl = new StringMatrix();
+		    }
+		    return this;
+		}
+		
 		return null;
 	}
 
@@ -426,6 +595,15 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 			logger.error("Could not set cell value!", e);
 		}
 	}
+	
+	   public void set(int row, int col, String value) {
+	        if (matrixImpl == null) return;
+	        try {
+	            matrixImpl.set(row, col, value);
+	        } catch (Exception e) {
+	            logger.error("Could not set cell value!", e);
+	        }
+	    }
 	
 	public String get(int row, int col) {
 		if (matrixImpl == null) return "null";
@@ -450,7 +628,7 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		}
 		return -1;
 	}
-
+	
 	public int getRowCount() {
 		if (matrixImpl == null) return 0;
 		try {
@@ -460,7 +638,7 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		}
 		return -1;
 	}
-
+    
 	public String getParsedResourceAsString() {
 		Object parsedRes = this.getParsedResource();
 		if (parsedRes instanceof IMatrixImplementationResource) {
@@ -528,12 +706,44 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		}
 		return false;
 	}
+	
+	public boolean saveAs(IPath path) {
+	    
+	    IFile target = ResourcesPlugin.getWorkspace().getRoot().getFile( path );
+	    IProgressMonitor monitor = new NullProgressMonitor();
+	    monitor.beginTask("Writing file", 1);
+        try {
+            target.create(
+                new ByteArrayInputStream(
+                    this.asCSV().getBytes("US-ASCII")
+                ),
+                false, monitor 
+            );
+            monitor.worked(1);
+            name = path.lastSegment();
+            input = new FileEditorInput( target );
+            setResource( target );
+            return true;
+            
+        } catch (UnsupportedEncodingException e) {
+           logger.error( "Could not encode the matrix: "+e.getMessage() );
+        } catch ( CoreException e ) {
+            logger.error( "Could not save the matrix to file: "+e.getMessage());
+        } finally {
+            monitor.done();
+        }
+	    
+	    return false;
+	}
 
 	public void unLoad(){
 //		super.unLoad();
 		propSource.removeAdvancedProperties();
 	}
 
+	/* This method is only used to get the JammaMatrix, let's leave that stuff
+	 * if we want to move the StringMatrix there and/or start using the 
+	 * JamaMatrix again */
 	private void findMatrixImplementation() {
 		// ok, find IMatrixImplementationResource's
 		IExtensionRegistry registry = Platform.getExtensionRegistry();
@@ -674,13 +884,21 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	}
 	
 	public void setSize(int row, int col) {
-		if (matrixImpl == null) findMatrixImplementation();
+		if (matrixImpl == null) matrixImpl = new StringMatrix();
+//		    findMatrixImplementation();
 		if (matrixImpl.hasResponseColumn())
 		    matrixImpl = matrixImpl.getInstance(row, col, matrixImpl.getResponseColumn());
 		else
         matrixImpl = matrixImpl.getInstance(row, col);
 		setParsedResource(matrixImpl);
 		setParsed(true);
+	}
+	
+	public void triangularMatrix(int size, boolean lowerTriangular, boolean symmetric) {
+	    if (matrixImpl == null) matrixImpl = new StringMatrix();
+	    matrixImpl = matrixImpl.getInstance( size, size, lowerTriangular, symmetric );
+	    setParsedResource(matrixImpl);
+	    setParsed(true);
 	}
 	
 	public String[] getEditorIDs(){
@@ -719,21 +937,26 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	public String asCSV() {
         StringBuffer buffer = new StringBuffer();
         try {
-            for (int col=1; col<=getColumnCount(); col++) {
-            	String colName = getColumnName(col);
-            	if (colName == null) {
-            		colName = "";
-            	} else {
-//            		colName.replaceAll("\"", "\\\"");
-            	}
-            	buffer.append(colName);
-            	if (col<getColumnCount()) buffer.append(',');
-            }
-            buffer.append('\n');
-            for (int row=0; row<getRowCount(); row++) {
-                if (getRowName(row+1) != null) {
-                    buffer.append(getRowName(row+1)).append(',');
+            if (matrixImpl.hasColHeader()) {
+                for (int col=1; col<=getColumnCount(); col++) {
+
+                    String colName = getColumnName(col);
+                    if (colName == null) {
+                        colName = "";
+                    } else {
+                        // colName.replaceAll("\"", "\\\"");
+                    }
+                    buffer.append(colName);
+                    if (col<getColumnCount()) buffer.append(',');
                 }
+                buffer.append('\n');
+            }
+           
+            for (int row=0; row<getRowCount(); row++) {
+                if (matrixImpl.hasRowHeader())
+                    if (getRowName(row+1) != null) {
+                        buffer.append(getRowName(row+1)).append(',');
+                    }
 
                 for (int col=0; col<getColumnCount(); col++) {
                     buffer.append(get(row+1, col+1));
@@ -750,5 +973,19 @@ public class MatrixResource extends BioObject implements IMatrixResource {
         return buffer.toString();
 	}
 	
-	
+	public void moveRowHeaderToColumn(int index) throws IllegalAccessException {
+	    matrixImpl.moveRowHeaderToColumn( index );
+	}
+
+	public void setRowAsColumnHeader(int index) throws IllegalAccessException {
+	    matrixImpl.setRowAsColumnHeader( index );
+	}
+
+	public void moveColumnHeaderToRow(int index) throws IllegalAccessException {
+	    matrixImpl.moveColumnHeaderToRow( index );
+	}
+
+	public void setColumnAsRowHeader(int index) throws IllegalAccessException {
+	    matrixImpl.setColumnAsRowHeader( index );
+	}
 }

@@ -23,15 +23,17 @@ import org.eclipse.ui.IActionFilter;
 public interface IMatrixImplementationResource extends IAdaptable, IActionFilter {
 	
 	public IMatrixImplementationResource getInstance(int rows, int cols);
-	
+	public IMatrixImplementationResource getInstance( int rows, int cols, 
+                                                      boolean lowerTriangular, 
+                                                      boolean symmetric );
 	public int getRowCount() throws Exception;
 	public int getColumnCount() throws Exception;
 	
 	/** Gets a value in the matrix. Indices start at 1. */
-	public double get(int row, int col) throws Exception;
+	public String get(int row, int col) throws Exception;
 	/** Sets a value in the matrix. Indices start at 1. */
 	public void set(int row, int col, double value) throws Exception;
-	
+	public void set(int row, int col, String value) throws Exception;
 	public boolean hasColHeader();
 	public boolean hasRowHeader();
 	/** Sets a column label. Index starts at 1. */
@@ -55,5 +57,13 @@ public interface IMatrixImplementationResource extends IAdaptable, IActionFilter
 
 public IMatrixImplementationResource getInstance( int row, int col,
                                                   int responseColumn );
+
+public void moveRowHeaderToColumn(int index) throws IllegalAccessException;
+
+public void setRowAsColumnHeader(int index) throws IllegalAccessException;
+
+public void moveColumnHeaderToRow(int index) throws IllegalAccessException;
+
+public void setColumnAsRowHeader(int index) throws IllegalAccessException;
 
 }

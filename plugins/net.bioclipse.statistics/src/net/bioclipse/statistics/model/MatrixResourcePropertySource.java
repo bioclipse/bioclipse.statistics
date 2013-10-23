@@ -12,6 +12,7 @@ package net.bioclipse.statistics.model;
 
 import net.bioclipse.core.domain.props.BioObjectPropertySource;
 
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
@@ -22,7 +23,7 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
  * 
  * @author egonw
  */
-public class MatrixResourcePropertySource extends BioObjectPropertySource implements IPropertySource{
+public class MatrixResourcePropertySource extends BioObjectPropertySource implements ISelection, IPropertySource{
 
 	protected static final String COL_SIZE = "Column count";
 	protected static final String ROW_SIZE = "Row count";
@@ -67,4 +68,23 @@ public class MatrixResourcePropertySource extends BioObjectPropertySource implem
 		getValueMap().remove(COL_SIZE);
 		getValueMap().remove(ROW_SIZE);
 	}
+	
+	public IPropertyDescriptor[] getPropertyDescriptors() {
+	    IPropertyDescriptor[] propertyDescriptors = new IPropertyDescriptor[2];
+	    IPropertyDescriptor test1 = new TextPropertyDescriptor("Test", "Test 1");;
+	    IPropertyDescriptor test2 = new TextPropertyDescriptor("Test", "test 2");
+	    propertyDescriptors[0] = test1;
+	    propertyDescriptors[1] = test2;
+	    
+	    return propertyDescriptors;
+	}
+	public Object getPropertyValue( Object id ) {
+	    return new Integer(42);
+	}
+
+    public boolean isEmpty() {
+
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
