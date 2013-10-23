@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013  Klas Jšnsson <klas.joensson@gmail.com>
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contact: http://www.bioclipse.net/
+ ******************************************************************************/
 package net.bioclipse.statistics.model;
 
 import java.util.ArrayList;
@@ -15,14 +25,12 @@ public class StringMatrix extends MatrixImplementationResource {
     private int responseColumnIndex;
     private Logger logger = Logger.getLogger( StringMatrix.class.toString() );
     
-    //Column and row headers
     private ArrayList<String> colIds;
     private ArrayList<String> rowIds;
     private ArrayList<String> responseColumn;
     // Used to preserve all col-headers when using row-headers
     private String topLeftElement = "";
- // Used to preserve all row-headers when using col-headers
-//    private String topElement = "";
+    
     /**
      * A simple constructor for creating an empty matrix.
      */
@@ -200,7 +208,6 @@ public class StringMatrix extends MatrixImplementationResource {
      */
     /* JavaSript uses arrays, so let's send in an array...*/
     public void setRowNames( String[] names ) throws IndexOutOfBoundsException {
-        // (names.length != rowIds.size() && !rowIds.isEmpty())
         try {
             if (names.length != getRowCount() && !rowIds.isEmpty())
                 throw new IndexOutOfBoundsException( "The inserted row must " +
@@ -393,9 +400,6 @@ public class StringMatrix extends MatrixImplementationResource {
             newRow.add( row[i] );
         
         matrix.addRow( index-1, newRow );
-        
-//        if (matrix.getRowDimension() > rowIds.size())
-//            rowIds.add( "" );
            
     }
     
@@ -676,17 +680,11 @@ public class StringMatrix extends MatrixImplementationResource {
             colIds.add( index-1, column[0] );
             hasColHeader = true;
         }
-//        if (hasRowHeader && !topLeftElement.isEmpty()) {
-//            newColumn.add( topLeftElement );
-//        }
             
         for (;i<column.length;i++)
             newColumn.add( column[i] );
         
         matrix.addColumn( index-1, newColumn );
-        
-//        if (matrix.getRowDimension() > rowIds.size())
-//            rowIds.add( index, "" );
            
     }
     
@@ -793,7 +791,7 @@ public class StringMatrix extends MatrixImplementationResource {
     
     public String toString() {
         StringBuffer matrixStr = new StringBuffer();
-        final String TAB = "\t";//"\u0009";
+        final String TAB = "\t";
         final String COMMA = "\u002C\u0020";
         final String NEW_ROW = "\n";
         int rows, columns;
@@ -854,14 +852,7 @@ public class StringMatrix extends MatrixImplementationResource {
         private ArrayList<ArrayList<String>> matrix;
         private boolean isLowerTriangular = false, isUpperTriangular = false, 
                 isSymmetric = false;
-        
-        /**
-         * Creates an 0x0 matrix.
-         */
-//        public Matrix() {
-//            matrix = new ArrayList<ArrayList<String>>();
-//        }
-        
+               
         /**
          * Creates a <code>rows x cols</code> matrix.
          * 

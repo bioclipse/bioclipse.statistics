@@ -89,9 +89,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.SaveAsDialog;
-import org.eclipse.ui.internal.UIPlugin;
 import org.eclipse.ui.part.EditorPart;
-import org.eclipse.ui.texteditor.IUpdate;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 import org.jfree.chart.JFreeChart;
@@ -313,13 +311,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
                 String colName = gc.getText();
                 GridItem gi = grid.getItem(p.y);
                 String value = gi.getText(p.x);
-                //                try{
                 CellData cd = new CellData(colName,p.y, value);
                 cs.addCell(cd);
-                //}catch (NumberFormatException e){
-                // logger.debug( "Swallowed a numberformat exception since cells " +
-                //in MatrixEditor are required to be double." );
-                // }
             }
             //Sets the selection to the selected cells
             MatrixEditor.this.setSelection(cs);
@@ -506,7 +499,6 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 
 				Vector<ColumnData> selectedColumns = getSelectedColumns();
 
-//				boolean atLeastTwoColumns = selectedColumns.size() >= 2;
 				boolean atLeastOneColumn = selectedColumns.size() >= 1;
 				
 				scatterPlotAction.setEnabled( atLeastOneColumn );
@@ -713,7 +705,6 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 							setDirty(true);
 							
 							//Set the edited value in underlying model
-//							double value = Double.parseDouble(textField.getText());
 							matrix.set(p.y+1, p.x+1, textField.getText() );
 							
 							//Remove widgets used to edit cell
@@ -896,7 +887,6 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			    int end = cdy.getIndices().length+ start;
 			    for (int i = start;i<end;i++)
 			        cdx.add( i+1, i );
-//			    cdx.setDataSource( this );
 			} else {
 			    cdx = ((ColumnData)columnsVector.get(0));
 			    cdy = ((ColumnData)columnsVector.get(1));
@@ -1249,15 +1239,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			Display.getDefault().asyncExec(new Runnable(){
 
 				public void run() {
-//					boolean answer=MessageDialog.openConfirm(getSite().getShell(), 
-//				    "Resource changed", "Matrix has been changed on file. Would you 
-//				    like to reload contents from file?");
-//					if (answer){
-						reloadFromFile();
-//					}else{
-//						//Mark as dirty to indicate that save is required to keep contents
-//						setDirty(true);
-//					}
+				    reloadFromFile();
 				}
 			});
 		}
@@ -1265,4 +1247,3 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 	}
 	
 }
-

@@ -297,7 +297,10 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	        {
 	            final ISelectionChangedListener listener = iter.next();
 	            final SelectionChangedEvent e = new SelectionChangedEvent(this, this.selection);
-	            //Does SWT stuff so this has to be called on SWT's thread
+	            /*Does SWT stuff so this has to be called on SWT's thread
+                 * It seems to not happens every time, but it seems to be, 
+                 * among others, the JChemPaintEditor (gets an error on row 677) 
+                 * that in some cases want to be redrawn...*/
 	            this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
 
 	                public void run() {

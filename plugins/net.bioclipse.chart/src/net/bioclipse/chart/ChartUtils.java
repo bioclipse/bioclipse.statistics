@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.commands.ICommandService;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
@@ -397,16 +398,6 @@ public class ChartUtils
                     "the chart view" + e.getMessage() );
         }
 		
-	}
-
-	/**
-	 * Utility method for converting JFreeChart to an image
-	 * @param parent used for color correction 
-	 * @param chart the chart to be made into an image
-	 * @param width image width
-	 * @param height image height
-		
-		view.display(chart, chartSelectionListener);
 	}
 
 	/**

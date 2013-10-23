@@ -83,8 +83,6 @@ public class MatrixResourcePropertySource extends BioObjectPropertySource implem
 	}
 
     public boolean isEmpty() {
-
-        // TODO Auto-generated method stub
         return false;
     }
 }

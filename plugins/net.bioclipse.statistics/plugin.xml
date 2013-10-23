@@ -95,5 +95,13 @@
          </action>
       </editorContribution>
    </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            category="The Bioclipse Workbench"
+            file="toc.xml"
+            primary="false">
+      </toc>
+   </extension>
 
 </plugin>

@@ -21,6 +21,7 @@ import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,6 +32,8 @@ import org.eclipse.ui.part.FileEditorInput;
 
 public class MatrixManager implements IBioclipseManager {
 
+    private Logger logger = Logger.getLogger( this.getClass() );
+    
     /**
      * Gives a short one word name of the manager used as variable name when
      * scripting.
@@ -68,15 +71,6 @@ public class MatrixManager implements IBioclipseManager {
         while (tokenizer.hasMoreTokens()) {
             String value = tokenizer.nextToken();
             matrix.set(rowCount+1, colCount+1, value);
-//            double value = Double.NaN;
-//            try {
-//                value = Double.parseDouble(tokenizer.nextToken());
-//            } catch (NumberFormatException exception) {}
-//            try {
-//                matrix.set(rowCount+1, colCount+1, value);
-//            } catch (Exception exception) {
-//                exception.printStackTrace();
-//            }
             colCount++;
             if (colCount == ncol) {
                 colCount = 0;
@@ -173,7 +167,7 @@ public class MatrixManager implements IBioclipseManager {
 			);
 			monitor.worked(1);
 		} catch (UnsupportedEncodingException e) {
-			// e.printStackTrace();
+			logger.error( "Could not encorde the file: "+e.getMessage() );
 		} finally {
 			monitor.done();
 		}

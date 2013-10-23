@@ -11,7 +11,6 @@
  *******************************************************************************/
 package net.bioclipse.statistics.model;
 
-import java.awt.List;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -24,7 +23,6 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import net.bioclipse.core.domain.BioObject;
-//import net.bioclipse.util.BioclipseConsole;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
@@ -50,18 +48,13 @@ import org.eclipse.ui.views.properties.IPropertySource;
  * @author egonw, ospjuth
  */
 public class MatrixResource extends BioObject implements IMatrixResource {
-	
-	//Bioclipse 1 logger
-	//private static final Logger logger = Activator.getLogManager().getLogger(MatrixResource.class.toString());
-	
+
 	private static final Logger logger = Logger.getLogger(MatrixResource.class);
 
 	private static final int TAB_SCANNER = 1;
 	private static final int COMMA_SCANNER = 2;
 	private static final int WHITESPACE_SCANNER = 3;
 
-    private static final String HARDCODED_RESPONSE_COLUMN_NAME = "RESPONSE";
-	
 	private String name;
 	private boolean parsed;
 	private IFileEditorInput input;
@@ -78,7 +71,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	}
 	
 	public MatrixResource(String name, IFileEditorInput input) {
-//		super(name);
 		this.name = name;
 		this.input = input;
 	}
@@ -95,62 +87,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	public void setInput(IFileEditorInput input){
 		this.input = input;
 	}
-	
-//	public MatrixResource(BioResourceType type, Object obj) {
-//		super(type,obj);
-//	}
-//
-//	public MatrixResource(BioResourceType type, String resString, String name) {
-//		super(name);
-//		if (getPersistedResource()==null){
-//			persistedResource=PersistedResource.newResource(resString); 
-//		}
-//		setDefaultResourceType(type);
-//	}
-	
-	/**
-	 * Make a copy of this object and return it if it can be parsed. 
-	 * Used to create new objects with a higher level taht replaces the old on parse 
-	 */
-//	public static IBioResource newResource(BioResourceType type, Object resourceObject, String name) {
-//
-//		if (resourceObject instanceof IPersistedResource) {
-//			IPersistedResource persRes = (IPersistedResource) resourceObject;
-//
-//			boolean parentIsParsed=persRes.getBioResourceParent().isParsed();
-//
-//			//This is the copy
-//			MatrixResource fResource= new MatrixResource(type, persRes);
-//			fResource.setParsed(parentIsParsed);
-//			fResource.setName(name);
-//			if (fResource.parseResource()==true){
-//				return fResource;
-//			}
-//			else{
-//				logger.error("PersistedResource:" + fResource.getName() + " could not be parsed into a MatrixResource");
-//				return null;
-//			}
-//			
-//		}	
-//
-//		if (resourceObject instanceof File) {
-//			IPersistedResource persRes = (IPersistedResource) resourceObject;
-//			
-//			//This is the copy
-//			MatrixResource matResource = new MatrixResource(type, persRes);
-//			matResource.setName(name);
-//			if (matResource.parseResource() == true) {
-//				return matResource;
-//			} else {
-//				logger.debug("PersistedResource:" + matResource.getName() + " could not be parsed into a MatrixResource");
-//				return null;
-//			}
-//			
-//		}
-//		
-//		logger.debug("ResourceObject not a File. Discarded.");
-//		return null;
-//	}
 
 	public boolean isParsed()
 	{
@@ -162,12 +98,11 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	 * @return
 	 */
 	public boolean parseResource() {
-//		if (!getPersistedResource().isLoaded()) return false;	//Return false if not loaded
+
 		if (isParsed()) return true;	//Return true if already parsed
 
 		logger.debug("Parsing the resource...");
 		
-//		findMatrixImplementation();
 		matrixImpl = new StringMatrix();
 		if (matrixImpl != null) {
 			// OK, next step: reading the input into the matrix
@@ -189,23 +124,7 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 				}
 				
 				parseStringIntoMatrix(matrixBuilder.toString());
-				
-				//Old parser
-//				read(new String(getPersistedResource().getInMemoryResource()));
 
-				// some demo code
-//				matrixImpl.newMatrix(5, 4);
-//				try {
-//					matrixImpl.set(4, 3, 5.0);
-//				} catch (Exception e) {
-//					logger.error("Could not set matrix content! " + e.getMessage(), e);
-//				}
-				
-//				if (propSource ==null){
-//					propSource=new MatrixResourcePropertySource(this);
-//				}
-//				propSource.addAdvancedProperties();
-				
 				setParsedResource(matrixImpl);
 				setParsed(true);
 				return true;
@@ -324,7 +243,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 		int matrixCols = 0;
 		
 		if (matrixRows == 0) {
-//			BioclipseConsole.writeToConsole("Matrix is empty!");
 			logger.debug("Matrix is empty!");
 			this.setSize(matrixRows, matrixCols);
 		}
@@ -370,51 +288,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
             		"header" );
         }
         
-        
-		/* Since we now handle strings we leave it to the user to decide the 
-		 * headers...*/ 
-        //Check if first row is a header, if this row contains anything but numbers it's considered a header
-//		Scanner matrixScanner = matrixScanner(matrixLines[0],matrixScannerType);
-//		
-//		if( !matrixScanner.hasNextDouble() )
-//		{
-//			//Remove one row from matrixRows because one of the rows is the header
-//			matrixRows--;
-//			int index = 0;
-//			while( matrixScanner.hasNext()) {
-//				index++;
-//				String colname = matrixScanner.next();
-//				matrixImpl.setColumnName(index, colname);
-//				
-//				//Handle response column for a hardcoded name
-//				//TODO: refactor this out
-//				if (colname.equalsIgnoreCase( HARDCODED_RESPONSE_COLUMN_NAME ) ){
-//				    matrixImpl.setResponseColumn( index );
-//				}
-//				
-//			}
-//		}
-//		
-////		double[][] matrix = new double[matrixRows][matrixCols];
-//		this.setSize(matrixRows, matrixCols);
-//		//Read in remaining rows
-//		if( matrixImpl.hasColHeader() )
-//		{
-//			for(int i = 1; i < matrixLines.length; i++ )
-//			{
-//				insertRow( i, matrixLines[i], matrixScannerType);
-//			}
-//		}
-//		//No column headers, read into matrix from first line
-//		else
-//		{
-//			for(int i = 0; i < matrixLines.length; i++ )
-//			{
-//				insertRow( i+1, matrixLines[i], matrixScannerType);
-//			}
-//		}
-		
-//		matrixScanner.close();
 		logger.debug("Parsed matrix");		
 	}
 
@@ -509,61 +382,52 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	//Utility method for inserting a row into the matrix (not the column header)
 	private void insertRow( int row, String rowString, int matrixScannerType )
 	{
-		Scanner matrixScanner = matrixScanner(rowString, matrixScannerType);
-		
-//		if( !matrixScanner.hasNextDouble() ) {
-//			matrixImpl.setRowName(row, matrixScanner.next());
-//		}
-		int col = 1;
-		String value;
-		while( matrixScanner.hasNext() )
-		{
-		    //If we have responses and this is the response column, add it
-		    if (matrixImpl.hasResponseColumn() && matrixImpl.getResponseColumn()==col){
-		        value = matrixScanner.next();
-		        matrixImpl.setResponse( row, value );
-		    }
-		    else{
-//		        double value=Double.NaN;
-//		        try {
-//		            value = matrixScanner.nextDouble();
-//		        }catch (Exception e){
-//		            logger.error( "Error parsing double. Row=" + row +" Col=" + col + " Expected double but was: " + matrixScanner.next() + " Error: " + e.getMessage());
-//		        }
-		        value = matrixScanner.next();
-		        if (value.isEmpty())
-		            value = " ";
-		        try {
-		            if (col > matrixImpl.getColumnCount() ) {		                
-		                // disregard data that does not fit the matrix
-                        logger.error("Found more data than can fit the matrix: too few labels?");                       
-		            } else {
-		                matrixImpl.set(row, col, value);
-		            }
-		        } catch (Exception e) 
-		        {
-		            logger.error("Failed to insert " + value + "at row " + row + ", col: " +col );
-		            e.printStackTrace();
-		        }
-		    }
-		    col++;
-		}
-		try {
-            if (row == 1 && col == matrixImpl.getColumnCount() - 1 ) {
-                /* If this is true, then its likely that the matrix has both 
-                 * column and row headers. */
-                String[] temp = new String[col+1];
-                temp[0]= " ";
-                for (int i = 1; i <= col;i++)
-                    temp[i] = matrixImpl.get( 1, i );
-                
-                for (int i = 0; i < temp.length; i++)
-                    matrixImpl.set( 1, i+1, temp[i] );
-            }
-        } catch ( Exception e ) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+	    Scanner matrixScanner = matrixScanner(rowString, matrixScannerType);
+
+	    int col = 1;
+	    String value;
+	    while( matrixScanner.hasNext() )
+	    {
+	        //If we have responses and this is the response column, add it
+	        if (matrixImpl.hasResponseColumn() && matrixImpl.getResponseColumn()==col){
+	            value = matrixScanner.next();
+	            matrixImpl.setResponse( row, value );
+	        }
+	        else{
+	            value = matrixScanner.next();
+	            if (value.isEmpty())
+	                value = " ";
+	            try {
+	                if (col > matrixImpl.getColumnCount() ) {		                
+	                    // disregard data that does not fit the matrix
+	                    logger.error("Found more data than can fit the matrix: too few labels?");                       
+	                } else {
+	                    matrixImpl.set(row, col, value);
+	                }
+	            } catch (Exception e) 
+	            {
+	                logger.error("Failed to insert " + value + "at row " + row + ", col: " +col );
+	                e.printStackTrace();
+	            }
+	        }
+	        col++;
+	    }
+	    try {
+	        if (row == 1 && col == matrixImpl.getColumnCount() - 1 ) {
+	            /* If this is true, then its likely that the matrix has both 
+	             * column and row headers. */
+	            String[] temp = new String[col+1];
+	            temp[0]= " ";
+	            for (int i = 1; i <= col;i++)
+	                temp[i] = matrixImpl.get( 1, i );
+
+	            for (int i = 0; i < temp.length; i++)
+	                matrixImpl.set( 1, i+1, temp[i] );
+	        }
+	    } catch ( Exception e ) {
+	        // TODO Auto-generated catch block
+	        e.printStackTrace();
+	    }
 	}
 
 	/**
@@ -778,7 +642,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 			}
 //			setParsedResource(matrixImpl);
 		} else {
-//			BioclipseConsole.writeToConsole("No matrix implementations found!");
 			logger.error("No matrix implementations found!");
 		}		
 	}
@@ -839,7 +702,6 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	      while (tokenizer.nextToken() == StreamTokenizer.TT_EOL);
 	      if (tokenizer.ttype == StreamTokenizer.TT_EOF) {
 	    	  // OK, found an empty matrix, that's fine
-//	    	  BioclipseConsole.writeToConsole("File is empty: creating an null matrix.");
 	    	  logger.debug("File is empty: creating an null matrix.");
 	    	  setSize(0,0);
 	          return;
