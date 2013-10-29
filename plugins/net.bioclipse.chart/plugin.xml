@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
+<?eclipse version="3.4"?>
 <plugin>
    <extension-point id="chats" name="Charts" schema="schema/chats.exsd"/>
 
@@ -14,6 +14,42 @@
             icon="icons/chart.jpg"
             id="net.bioclipse.plugins.views.ChartView"
             name="Chart"/>
+   </extension>
+   <extension
+         point="net.bioclipse.scripting.contribution">
+      <scriptContribution
+            id="bioclipse.chart.ui.business.ChartManager"
+            service="net.bioclipse.chart.ui.business.ChartManagerFactory">
+      </scriptContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="net.bioclipse.chart.ui.business.ChartFromSDF"
+            id="net.bioclipse.chart.ui.chartFromSDF"
+            name="To chart">
+      </command>
+   </extension>
+    <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:net.bioclipse.cdk.ui.sdfeditor.menu?before=additions">
+         <command
+               commandId="net.bioclipse.chart.ui.chartFromSDF"
+               label="Plot column"
+               style="push">
+         </command>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:net.bioclipse.cdk.ui.sdfeditor.column.menu?after=additions">
+         <command
+               commandId="net.bioclipse.chart.ui.chartFromSDF"
+               label="Plot column"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <!--extension
          point="net.bioclipse.bioclipseResources">

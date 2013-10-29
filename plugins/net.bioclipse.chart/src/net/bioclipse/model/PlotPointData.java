@@ -43,11 +43,6 @@ public class PlotPointData implements IPropertySource
 		this.rowNumber = rowNumber;
 		this.xColumn = xColumn;
 		this.yColumn = yColumn;
-		
-//        descriptors.add( new TextPropertyDescriptor(ChartConstants.X_COLUMN, "X column") );
-//        valueMap.put( ChartConstants.X_COLUMN, xColumn );
-//        descriptors.add( new TextPropertyDescriptor(ChartConstants.Y_COLUMN, "Y column") );
-//        valueMap.put( ChartConstants.Y_COLUMN, yColumn );
 	}
 	
 	public void setDataPoint(int i, int j){

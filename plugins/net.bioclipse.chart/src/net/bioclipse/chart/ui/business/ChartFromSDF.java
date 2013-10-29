@@ -13,18 +13,19 @@ package net.bioclipse.chart.ui.business;
 import java.util.Iterator;
 import java.util.List;
 
-import net.bioclipse.cdk.business.Activator;
 import net.bioclipse.cdk.business.ICDKManager;
+import net.bioclipse.cdk.business.IJavaCDKManager;
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculesEditor;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MultiPageMoleculesEditorPart;
+import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule.Property;
 import net.bioclipse.model.ChartConstants;
-import net.bioclipse.model.ChartDescriptor;
-import net.bioclipse.plugins.views.ChartView;
+//import net.bioclipse.model.ChartDescriptor;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
@@ -33,8 +34,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -47,17 +46,17 @@ import org.eclipse.ui.handlers.HandlerUtil;
 public class ChartFromSDF extends AbstractHandler {
 
     private Logger logger = Logger.getLogger( ChartFromSDF.class );
-    private ICDKManager cdk = Activator.getDefault().getJavaCDKManager();
-    private final static String CHART_VIEW_ID ="net.bioclipse.plugins.views.ChartView";
+    private ICDKManager cdk = ChartUtils.getManager( IJavaCDKManager.class );//Activator.getDefault().getJavaCDKManager();
+
     /* The column that shows the 2D-structure don't have any property, if that
      * selected the mass of the molecule will be calculated. */ 
     private final static String MOL_STRUCTURE_COLUMN = "2D-structure";
+    private ChartManager chart =  new ChartManager();
     
     @Override
     public Object execute( ExecutionEvent event ) throws ExecutionException {
       
         IEditorPart editorPart = HandlerUtil.getActiveEditor(event);        
-
         if ( editorPart!=null && 
                 editorPart instanceof MultiPageMoleculesEditorPart ) {
             MultiPageMoleculesEditorPart mpmep = (MultiPageMoleculesEditorPart)
@@ -68,14 +67,12 @@ public class ChartFromSDF extends AbstractHandler {
             double yValues[];
             double xValues[];
             String yLabel;
-            int indexes[];
             if (sel instanceof MolTableSelection) {
                 MolTableSelection selectedMols = (MolTableSelection) sel;
                 Iterator<ICDKMolecule> itr = selectedMols.iterator();
-                List<String> selectedProerties = selectedMols.getPropertiyNames();
                 List<Integer> selRows = selectedMols.getSelectedRows();
                 Point[] originRows = new Point[selRows.size()];
-                selectedProerties = selectedMols.getPropertiyNames();
+                List<String> selectedProerties = selectedMols.getPropertyNames();
                 int index = 0;
                 for (int row:selRows)
                     originRows[index++] = new Point( 0, row+1 );
@@ -87,12 +84,10 @@ public class ChartFromSDF extends AbstractHandler {
                      * (hopefully) it can be removed when bug 3521 is solved*/
                     yValues = new double[selectedMols.size()-1];
                     xValues = new double[selectedMols.size()-1];
-                    indexes = new int[selectedMols.size()-1];
                     itr.next();
                 } else {                
                     yValues = new double[selectedMols.size()];
                     xValues = new double[selectedMols.size()];
-                    indexes = new int[selectedMols.size()];
                 }
 
                 /* As it is now; if there's more than one column selected 
@@ -110,7 +105,7 @@ public class ChartFromSDF extends AbstractHandler {
                         xValues[i] = i + selRows.get( 0 ) + 1;
                         yValues[i] = getValue(mol, selectedProerties.get( 0 ));
                     }
-                    indexes[i] = originRows[i].y;
+                    
                     i++;
                 }
                 /*For some reason the iterator skip the last molecule. WHY!!:(*/
@@ -122,35 +117,38 @@ public class ChartFromSDF extends AbstractHandler {
                     xValues[i] = i + selRows.get( 0 ) + 1;
                     yValues[i] = getValue(mol, selectedProerties.get( 0 ));
                 }
-                indexes[i] = originRows[i].y;
                 
-                String xLabel;
+                
+                String xLabel, title;
                 if (twoColSelected) {
                     xLabel = selectedProerties.get( 0 );
+                    if (xLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        xLabel = ChartConstants.MOL_MASS;
+                    
                     yLabel = selectedProerties.get( 1 );
+                    if (yLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        yLabel = ChartConstants.MOL_MASS;
+                        
+                    title = xLabel + " against " + yLabel;
                 } else {
                     xLabel = ChartConstants.ROW_NUMBER;
                     yLabel = selectedProerties.get( 0 );
+                    if (yLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        yLabel = ChartConstants.MOL_MASS;
+                    title = yLabel + " for the selected molecules";
                 }
-                ChartDescriptor descriptor = new ChartDescriptor( editor, indexes, ChartConstants.SCATTER_PLOT, xLabel, yLabel, originRows );
-                if (xLabel.equals( MOL_STRUCTURE_COLUMN )) {
-                    xLabel = ChartConstants.MOL_MASS;
-                    descriptor.addExtraData( xValues );
-                }
-                if (yLabel.equals( MOL_STRUCTURE_COLUMN )) {
-                    yLabel = ChartConstants.MOL_MASS;
-                    descriptor.addExtraData( yValues );
-                }
-                String title = yLabel+" for the selected molecules";
+               
+                IChartDescriptor descriptor = ChartDescriptorFactory.
+                        scatterPlotDescriptor( editor, 
+                                               xLabel, 
+                                               xValues, 
+                                               yLabel,
+                                               yValues,
+                                               originRows,
+                                               title );
+             
+                chart.plot( descriptor );
 
-                
-                ChartUtils.scatterPlot( xValues, yValues, xLabel, yLabel, title, descriptor );
-                try {
-                    ChartView view = (ChartView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CHART_VIEW_ID);
-                    editor.addListener( view );
-                } catch ( PartInitException e ) {
-                   logger.error( "Could not get the view: "+e.getMessage() );
-                }
             }
         }
 

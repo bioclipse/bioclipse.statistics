@@ -8,7 +8,7 @@
  *
  * Contact: http://www.bioclipse.net/
  ******************************************************************************/
-package net.bioclipse.chart.ui.business;
+package net.bioclipse.chart.ui;
 
 import net.bioclipse.chart.ChartUtils;
 

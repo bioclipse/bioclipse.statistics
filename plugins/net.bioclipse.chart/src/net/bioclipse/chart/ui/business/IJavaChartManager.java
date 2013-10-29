@@ -10,6 +10,6 @@
  ******************************************************************************/
 package net.bioclipse.chart.ui.business;
 
-public interface IJavaUiManager extends IUiManager {
+public interface IJavaChartManager extends IChartManager {
 
 }

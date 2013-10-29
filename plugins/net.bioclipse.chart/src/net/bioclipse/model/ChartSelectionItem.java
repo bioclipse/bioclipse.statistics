@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import net.bioclipse.chart.IChartDescriptor;
+
 import org.apache.log4j.Logger;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,10 +42,10 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
     private HashMap<String, Object> valueMap;
     private ArrayList<IPropertyDescriptor> properties;
     private ChartEntity chartEntity;
-    private ChartDescriptor chartDescriptor;
+    private IChartDescriptor chartDescriptor;
     private static final Logger logger = Logger.getLogger(ChartSelectionItem.class);
     
-    public ChartSelectionItem(ChartEntity ce, ChartDescriptor cd) { 
+    public ChartSelectionItem(ChartEntity ce, IChartDescriptor cd) { 
         chartEntity = ce;
         properties = new ArrayList<IPropertyDescriptor>();
         valueMap = new HashMap<String, Object>();
@@ -91,11 +94,7 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
                 PropertyDescriptor descriptor1 = new TextPropertyDescriptor(ChartConstants.Y_VALUE, yLabel);
                 properties.add( descriptor1 );
                 valueMap.put( ChartConstants.Y_VALUE, y );
-                
-//                PropertyDescriptor descriptor2 = new TextPropertyDescriptor(ChartConstants.ITEMS, "Selected row");
-//                properties.add( descriptor2 );
-//                valueMap.put( ChartConstants.ITEMS, item );
-                
+                               
                 logger.debug("Scatter Plot/Time series data with x-value: "+x+", y-value: "+y+" and is from row "+item);
             } else if (dataset instanceof PcmLineChartDataset) {
                 /* The click was in  a line plot */
@@ -108,10 +107,6 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
                 PropertyDescriptor descriptor1 = new TextPropertyDescriptor(ChartConstants.Y_VALUE, yLabel);
                 properties.add( descriptor1 );
                 valueMap.put( ChartConstants.Y_VALUE, y );
-                
-//                PropertyDescriptor descriptor2 = new TextPropertyDescriptor(ChartConstants.ITEMS, "Selected row");
-//                properties.add( descriptor2 );
-//                valueMap.put( ChartConstants.ITEMS, item );
                 
                 logger.debug("Line plot data with x-value: "+x+" and y-value: "+y+" and is from row "+item);
             } else {
@@ -151,7 +146,7 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
     private void addMoreInfo() {
         if (chartDescriptor == null)
             return;
-        if (chartDescriptor.getPlotType() != ChartConstants.HISTOGRAM && chartDescriptor.getSource() != null) {
+        if (chartDescriptor.getPlotType() != ChartConstants.plotTypes.HISTOGRAM && chartDescriptor.getSource() != null) {
             int item;
             if (valueMap.isEmpty() || !valueMap.containsKey( ChartConstants.ITEMS )) {
                 item = 0;
@@ -166,31 +161,9 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
         properties.add( descriptor0 );
         valueMap.put( ChartConstants.SOURCE, chartDescriptor.getSourceName());
 
-//        PropertyDescriptor descriptor1 = new TextPropertyDescriptor(ChartConstants.CHART_TYPE, "DiagramType");
-//        properties.add( descriptor1 );
-//        switch (chartDescriptor.getPlotType()) {
-//            case ChartConstants.BAR_PLOT:
-//                valueMap.put( ChartConstants.CHART_TYPE, "Bar plot" );
-//                break;
-//            case ChartConstants.HISTOGRAM:
-//                valueMap.put( ChartConstants.CHART_TYPE, "Histogram" );
-//                break;
-//            case ChartConstants.LINE_PLOT:
-//                valueMap.put( ChartConstants.CHART_TYPE, "Line plot" );
-//                break;
-//            case ChartConstants.SCATTER_PLOT:
-//                valueMap.put( ChartConstants.CHART_TYPE, "Scatter plot" );
-//                break;
-//            case ChartConstants.TIME_SERIES:
-//                valueMap.put( ChartConstants.CHART_TYPE, "Time series" );
-//                break;
-//            default:
-//                valueMap.put( ChartConstants.SOURCE, "Unknown" );
-//                break;    
-//        }
     }
     
-    public ChartDescriptor getChartDescriptor() {
+    public IChartDescriptor getChartDescriptor() {
         return chartDescriptor;
     }
     
@@ -244,7 +217,7 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
         return values.get( 0 );
     }
 
-    public Iterator iterator() { 
+    public Iterator<IPropertyDescriptor> iterator() { 
         return properties.iterator();
     }
 
@@ -265,7 +238,7 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
         return values;
     }
 
-    public List toList() {
+    public List<Object> toList() {
         Set<String> keys = valueMap.keySet();
         List<Object> values = new ArrayList<Object>();
         for (String key: keys){

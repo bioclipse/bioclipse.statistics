@@ -22,7 +22,13 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
 
+import net.bioclipse.chart.ChartDescriptorFactory;
+import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
+import net.bioclipse.chart.ui.business.IChartManager;
+import net.bioclipse.chart.ui.business.IJavaChartManager;
 import net.bioclipse.core.domain.BioObject;
+import net.bioclipse.model.ChartConstants;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
@@ -36,6 +42,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.properties.IPropertySource;
@@ -425,8 +432,7 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	                matrixImpl.set( 1, i+1, temp[i] );
 	        }
 	    } catch ( Exception e ) {
-	        // TODO Auto-generated catch block
-	        e.printStackTrace();
+	        logger.error( "Could not set up the matrix properly: "+e.getMessage() );
 	    }
 	}
 
@@ -849,5 +855,101 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 
 	public void setColumnAsRowHeader(int index) throws IllegalAccessException {
 	    matrixImpl.setColumnAsRowHeader( index );
+	}
+	
+	/* TODO Should this be here (i.e. called as: myMatrix.plot...) or in the 
+	 * manager (i.e. called as matrix.scatterPlot(myMatrix, "myTitle", ...) )*/
+	
+	public IChartDescriptor plotAsScatterPlot(String title, int xColumn, int yColumn) {
+	    return createChartDescriptor( title, ChartConstants.plotTypes.SCATTER_PLOT, xColumn, yColumn );
+	}
+	
+	public IChartDescriptor plotAsLinePlot(String title, int xColumn, int yColumn) {
+	    return createChartDescriptor( title, ChartConstants.plotTypes.LINE_PLOT, xColumn, yColumn );
+    }
+
+	public IChartDescriptor plotAsTimeSerie(String title, int xColumn, int yColumn) {
+	    return createChartDescriptor( title, ChartConstants.plotTypes.TIME_SERIES, xColumn, yColumn );
+	}
+	
+	public IChartDescriptor plotAsHistogram(String title, int column, int bins) {
+        int[] columns = {column};
+        return this.plotAsHistogram( title, columns, bins );
+    }
+	
+	public IChartDescriptor plotAsHistogram(String title, int[] columns, int bins) {
+	    IChartDescriptor descriptor = null;
+	    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
+	    int rows = getRowCount();
+	    int size = columns.length*rows;
+	    int valueIndex = 0;
+	    double[] values = new double[size];
+        Point[] originCells = new Point[size];
+        for (int col:columns) {
+            for (int row=1;row<=rows;row++) {
+                values[valueIndex] = Double.parseDouble(this.get( row, col ));
+                originCells[valueIndex++] = new Point(col, row);
+            }
+        }
+        if (title == null)
+            title = getName();
+        
+        descriptor = ChartDescriptorFactory.histogramDescriptor( null, "", values, "", bins, originCells, title );
+        if (hasRowHeader()) {
+            descriptor.setItemLabels( getRowNames() );
+         }
+        chart.plot( descriptor );
+        return descriptor;
+	}
+	
+	private IChartDescriptor createChartDescriptor(String title, ChartConstants.plotTypes chartType, int xColumn, int yColumn) {
+	    int rows = getRowCount();
+	    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
+	    double[] xValues = new double[rows];
+	    double[] yValues = new double[rows];
+	    Point[] originCells = new Point[rows*2];
+	    IChartDescriptor descriptor = null;
+	    for (int i=0;i<rows;i++) {
+	        xValues[i] = Double.parseDouble( this.get( i+1, xColumn ) );
+	        yValues[i] = Double.parseDouble( this.get( i+1, yColumn ) );
+	        originCells[i] = new Point(xColumn, i+1);
+	        originCells[i+rows] = new Point(yColumn, i+1);
+	    }
+	    String xLabel = "", yLabel = "";
+	    if (hasColHeader()) {
+	        xLabel = getColumnName( xColumn );
+	        yLabel = getColumnName( yColumn );
+	    }
+
+	    switch(chartType) {
+	        case SCATTER_PLOT:
+	            descriptor = ChartDescriptorFactory.scatterPlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+	            break;
+	        case LINE_PLOT:
+                descriptor = ChartDescriptorFactory.linePlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+                break;
+	        case TIME_SERIES:
+                descriptor = ChartDescriptorFactory.linePlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+                break;
+	        default:
+	            descriptor = ChartDescriptorFactory.scatterPlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title ); 
+	    }
+	    if (hasRowHeader()) {
+	       descriptor.setItemLabels( getRowNames() );
+	    }
+	        
+	    chart.plot( descriptor );
+	    
+	    return descriptor;
+	}
+	
+	private String[] getRowNames(){
+	    int rows = getRowCount();
+	    String[] rowNames = new String[rows];
+	    for (int i=0;i<rows;i++) {
+	        rowNames[i] = getRowName( i+1 );
+	    }
+	    
+	    return rowNames;
 	}
 }

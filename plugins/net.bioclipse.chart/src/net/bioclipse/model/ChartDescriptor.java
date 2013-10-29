@@ -11,6 +11,8 @@ package net.bioclipse.model;
 
 import java.io.FileNotFoundException;
 
+import net.bioclipse.chart.IChartDescriptor;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
@@ -21,24 +23,28 @@ import org.eclipse.ui.IFileEditorInput;
  * @author Eskil Andersen, Klas Jšnsson
  *
  */
-public class ChartDescriptor {
+public class ChartDescriptor implements IChartDescriptor {
 	private IEditorPart source;
 	private int[] indices;
-	private int plotType;
+	private ChartConstants.plotTypes plotType;
 	private String xLabel, yLabel;
 	private Point[] originCells;
 	private String sourceName;
 	private IResource resource;
-	private double[] extraData;
+	private double[] xValues, yValues;
+	private String chartTitle;
+	private String[] itemLabels;
 	
-	public ChartDescriptor(IEditorPart source, int[] indices, int plotType,
-			String xLabel, String yLabel, Point[] originCells) {
+	public ChartDescriptor(IEditorPart source, ChartConstants.plotTypes plotType,
+			String xLabel, double[] xValues, String yLabel, double[] yValues, 
+			Point[] originCells, String ChartTitle) {
 		super();
 		this.source = source;
-		this.indices = indices;
 		this.plotType = plotType;
 		this.xLabel = xLabel;
+		this.xValues = xValues;
 		this.yLabel = yLabel;
+		this.yValues = yValues;
 		this.originCells = originCells;
 		if (source != null) {
 		    IFileEditorInput input = (IFileEditorInput) source.getEditorInput().getAdapter( IFileEditorInput.class );
@@ -48,22 +54,68 @@ public class ChartDescriptor {
 		    
 		} else
 		    sourceName = "Unknown";
+		this.chartTitle = ChartTitle;
 		
+		this.indices = new int[originCells.length];
+		int index = 0;
+		for (Point p:originCells)
+		    this.indices[index++] = p.y;
 	}
-
+	
+	public String getTitle() {
+	    return chartTitle;
+	}
+	
 	public String getXLabel() {
 		return xLabel;
 	}
 
+	public double[] getXValues() {
+	    return xValues;
+	}
+	
+	/**
+	 * Get a specific x-value. Returns <code>Double.NaN</code> if the index 
+	 * don't have a correspondent x-value. 
+	 * 
+	 * @param index Index of the wanted x-value
+	 * @return The wanted x-value or Double.NaN
+	 */
+	public double getXValue(int index) {
+	    if (index > 0 && index < xValues.length)
+	        return xValues[index];
+	    else
+	        return Double.NaN;
+	}
+	
 	public String getYLabel() {
 		return yLabel;
 	}
 
+	public double[] getYValues() {
+        return yValues;
+    }
+    
+    /**
+     * Get a specific y-value. Returns <code>Double.NaN</code> if the index 
+     * don't have a correspondent y-value or called when the plot is a 
+     * histogram.
+     * 
+     * @param index Index of the wanted y-value
+     * @return The wanted y-value or Double.NaN
+     */
+    public double getYValue(int index) {
+        if (index > 0 && index < yValues.length && plotType != ChartConstants.plotTypes.HISTOGRAM )
+            return yValues[index];
+        else
+            return Double.NaN;
+    }
+	
 	public IEditorPart getSource() {
 		return source;
 	}
 	
-	public int getPlotType() {
+	public ChartConstants.plotTypes getPlotType() {
 		return plotType;
 	}
 
@@ -119,29 +171,40 @@ public class ChartDescriptor {
 	    this.resource = file;
 	}
 	
-	/**
-	 * Make it possibly to send some values that can't be easy obtained 
-	 * otherwise. E.g. the masses of the molecules that due to restriction can't
-	 * be calculated everywhere.
-	 * 
-	 * @param values An array with the values
-	 */
-	public void addExtraData(double[] values) {
-	    this.extraData = values;
+	public void setItemLabels(String[] labels) {
+	    if (labels.length == xValues.length)
+	        this.itemLabels = labels;
+	    else
+	        throw new IllegalArgumentException( "The chart has to have as " +
+	        		"many lables as it has points." );
 	}
 	
-	/**
-	 * Gets value <code>index</code> from the array of extra data.
-	 * 
-	 * @param index The index of the wanted value of the data array
-	 * @return The wanted value or <code>Double.NaN</code> if it by some reason 
-	 * couldn't determine it    
-	 */
-	public double getExtraData(int index) {
-	    if (extraData == null || index >= extraData.length)
-	        return Double.NaN;
+	public String getItemLabel(int index) {
+	    if (hasItemLabels() && (index > 0 || index < itemLabels.length))
+	        return itemLabels[index];
 	    
-	    return extraData[index];
+	    throw new IllegalAccessError( "Cant find the item label." );
 	}
 	
+	public void setItemLabel(int index, String label) {
+        if (hasItemLabels() && (index > 0 || index < itemLabels.length))
+            itemLabels[index] = label;
+        
+        throw new IllegalAccessError( "Cant find the item label." );
+    }
+	
+	public String[] getItemLabels() {
+	    if (hasItemLabels())
+	        return itemLabels;
+	    
+	    return new String[0];
+    }
+	
+	public boolean hasItemLabels() {
+	    return (itemLabels != null);
+	}
+	
+	public void removeItemLabels() {
+	    itemLabels = null;
+	}
 }

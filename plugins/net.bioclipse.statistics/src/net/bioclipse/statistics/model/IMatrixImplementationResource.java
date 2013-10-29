@@ -10,7 +10,7 @@
  *     Ola Spjuth - extension to support response values
  *******************************************************************************/
 package net.bioclipse.statistics.model;
- 
+
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IActionFilter;
 
@@ -21,49 +21,49 @@ import org.eclipse.ui.IActionFilter;
  * @author olas
  */
 public interface IMatrixImplementationResource extends IAdaptable, IActionFilter {
-	
-	public IMatrixImplementationResource getInstance(int rows, int cols);
-	public IMatrixImplementationResource getInstance( int rows, int cols, 
+
+    public IMatrixImplementationResource getInstance(int rows, int cols);
+    public IMatrixImplementationResource getInstance( int rows, int cols, 
                                                       boolean lowerTriangular, 
                                                       boolean symmetric );
-	public int getRowCount() throws Exception;
-	public int getColumnCount() throws Exception;
-	
-	/** Gets a value in the matrix. Indices start at 1. */
-	public String get(int row, int col) throws Exception;
-	/** Sets a value in the matrix. Indices start at 1. */
-	public void set(int row, int col, double value) throws Exception;
-	public void set(int row, int col, String value) throws Exception;
-	public boolean hasColHeader();
-	public boolean hasRowHeader();
-	/** Sets a column label. Index starts at 1. */
-	public void setRowName( int index, String name );
-	public String getRowName( int index );
-	/** Sets a row label. Index starts at 1. */
-	public void setColumnName( int index, String name );
-	public String getColumnName( int index );
+    public int getRowCount() throws Exception;
+    public int getColumnCount() throws Exception;
 
-	/** Indicates that we have a response variable */
-	public boolean hasResponseColumn();
-  public void setHasResponseColumn(boolean hasResponse);
+    /** Gets a value in the matrix. Indices start at 1. */
+    public String get(int row, int col) throws Exception;
+    /** Sets a value in the matrix. Indices start at 1. */
+    public void set(int row, int col, double value) throws Exception;
+    public void set(int row, int col, String value) throws Exception;
+    public boolean hasColHeader();
+    public boolean hasRowHeader();
+    /** Sets a column label. Index starts at 1. */
+    public void setRowName( int index, String name );
+    public String getRowName( int index );
+    /** Sets a row label. Index starts at 1. */
+    public void setColumnName( int index, String name );
+    public String getColumnName( int index );
 
-  /** Defines the response column index */
-  public void setResponseColumn(int index);
-  public int getResponseColumn();
+    /** Indicates that we have a response variable */
+    public boolean hasResponseColumn();
+    public void setHasResponseColumn(boolean hasResponse);
 
-  /** The response values */
-  public void setResponse(int row, String value);
-  public String getResponse(int row);
+    /** Defines the response column index */
+    public void setResponseColumn(int index);
+    public int getResponseColumn();
 
-public IMatrixImplementationResource getInstance( int row, int col,
-                                                  int responseColumn );
+    /** The response values */
+    public void setResponse(int row, String value);
+    public String getResponse(int row);
 
-public void moveRowHeaderToColumn(int index) throws IllegalAccessException;
+    public IMatrixImplementationResource getInstance( int row, int col,
+                                                      int responseColumn );
 
-public void setRowAsColumnHeader(int index) throws IllegalAccessException;
+    public void moveRowHeaderToColumn(int index) throws IllegalAccessException;
 
-public void moveColumnHeaderToRow(int index) throws IllegalAccessException;
+    public void setRowAsColumnHeader(int index) throws IllegalAccessException;
 
-public void setColumnAsRowHeader(int index) throws IllegalAccessException;
+    public void moveColumnHeaderToRow(int index) throws IllegalAccessException;
+
+    public void setColumnAsRowHeader(int index) throws IllegalAccessException;
 
 }

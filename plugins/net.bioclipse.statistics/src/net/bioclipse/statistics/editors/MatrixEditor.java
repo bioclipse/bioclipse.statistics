@@ -21,9 +21,12 @@ import java.util.List;
 import java.util.Vector;
 
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
+import net.bioclipse.chart.ui.business.IChartManager;
+import net.bioclipse.chart.ui.business.IJavaChartManager;
 import net.bioclipse.dialogs.ChartDialog;
 import net.bioclipse.dialogs.HistogramDialog;
 import net.bioclipse.model.ChartConstants;
@@ -429,9 +432,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
     private void hookContextMenu(Composite parent) {
         //Context menu
         MenuManager manager = new MenuManager("matrix editor tools");
-       
-        
-        
+   
         final Action copyAction = new Action("&Copy"){
 
             @Override
@@ -460,20 +461,20 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			@Override
 			public void run() 
 			{
-				plot( ChartConstants.SCATTER_PLOT );
+				plot( ChartConstants.plotTypes.SCATTER_PLOT );
 
 			}			
 		};
 
 		final Action linePlotAction = new Action("&Line plot"){
 			public void run(){
-				plot( ChartConstants.LINE_PLOT );
+				plot( ChartConstants.plotTypes.LINE_PLOT );
 			}
 		};
 
 		final Action timeSeriesAction = new Action("&Time series plot"){
 			public void run(){
-				plot( ChartConstants.TIME_SERIES );
+				plot( ChartConstants.plotTypes.TIME_SERIES );
 			}
 		};
 
@@ -813,10 +814,10 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 	 * data and calls plot functions from net.bioclipse.chart
 	 * @param plotType ChartConstants.LINE_PLOT, SCATTER_PLOT or TIME_SERIES
 	 */
-	public void plot( int plotType )
+	public void plot( ChartConstants.plotTypes plotType )
 	{
 		Point[] cellSelection = grid.getCellSelection();
-
+		
 		int colMax = Integer.MIN_VALUE,
 		rowMax = Integer.MIN_VALUE,
 		colMin = Integer.MAX_VALUE,
@@ -879,41 +880,35 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		//If only 1 or 2 columns are selected no dialog is shown
 		else
 		{
-			ColumnData cdx,cdy;
-			if (columnsVector.size() == 1) {
-			    cdy = ((ColumnData)columnsVector.get(0));
-			    cdx = new ColumnData("Row");
-			    int start = cdy.getIndices()[0];
-			    int end = cdy.getIndices().length+ start;
-			    for (int i = start;i<end;i++)
-			        cdx.add( i+1, i );
-			} else {
-			    cdx = ((ColumnData)columnsVector.get(0));
-			    cdy = ((ColumnData)columnsVector.get(1));
-			}
-			ChartDescriptor descriptor = new ChartDescriptor(this, cdx.getIndices(),plotType ,cdx.getLabel(),cdy.getLabel(), cellSelection);
-			switch( plotType )
-			{
-			case ChartConstants.SCATTER_PLOT:
-			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(),
-			                            cdx.getLabel(), cdy.getLabel(), 
-			                            cdx.getLabel() + " against " + cdy.getLabel(), 
-			                            descriptor);
-			    break;
-			case ChartConstants.LINE_PLOT:
-				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
-				                    cdy.getLabel(), cdx.getLabel() + " against " + 
-				                    cdy.getLabel(), descriptor);
-				break;
-			case ChartConstants.TIME_SERIES:
-				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
-				                      cdy.getLabel(), cdx.getLabel() + " against " + 
-				                      cdy.getLabel(), descriptor);
-				break;
-			default: 
-				throw new IllegalArgumentException("Illegal value for plotType"); 
-			}
-			ChartUtils.setDataColumns(cdx.getLabel(), cdy.getLabel());
+		    ColumnData cdx,cdy;
+		    if (columnsVector.size() == 1) {
+		        cdy = ((ColumnData)columnsVector.get(0));
+		        cdx = new ColumnData("Row");
+		        int start = cdy.getIndices()[0];
+		        int end = cdy.getIndices().length+ start;
+		        for (int i = start;i<end;i++)
+		            cdx.add( i+1, i );
+		    } else {
+		        cdx = ((ColumnData)columnsVector.get(0));
+		        cdy = ((ColumnData)columnsVector.get(1));
+		    }
+
+		    StringBuffer title = new StringBuffer( cdx.getLabel() );
+		    title.append( " against " );
+		    title.append( cdy.getLabel() );
+		    
+		    IChartDescriptor descriptor = new ChartDescriptor(this, 
+		                                                     plotType,
+		                                                     cdx.getLabel(),
+		                                                     cdx.getValues(),
+		                                                     cdy.getLabel(),
+		                                                     cdy.getValues(), 
+		                                                     cellSelection,
+		                                                     title.toString() );
+
+
+		    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
+		    chart.plot( descriptor );
 		}
 	}
 
@@ -957,8 +952,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 				display.asyncExec(new Runnable()
 				{
 
-					@SuppressWarnings("unchecked")
-					public void run() 
+				    public void run() 
 					{
 						if( grid.isDisposed() )
 							return;
@@ -970,7 +964,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 						IStructuredSelection ss = (IStructuredSelection) selection;
 
 						PlotPointData element = (PlotPointData) ss.getFirstElement();
-						ChartDescriptor descriptor = cs.getDescriptor();
+						IChartDescriptor descriptor = cs.getDescriptor();
 						//Match the column names i element where x and y values reside with 
 						//their column numbers in grid
 						for( int i = 0; i < grid.getColumnCount(); i++)
@@ -1073,7 +1067,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		    IEditorPart editor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 		    
 		    if (chart != null) {
-		        ChartDescriptor cd = ChartUtils.getChartDescriptor( chart );
+		        IChartDescriptor cd = ChartUtils.getChartDescriptor( chart );
 		        try {
 		            if (cd.getResource().equals( ((MatrixEditor) editor).resource )) {
 		                XYPlot plot = (XYPlot) chart.getPlot();

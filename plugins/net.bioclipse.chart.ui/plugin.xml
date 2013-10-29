@@ -2,25 +2,17 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <extension
+   <!--extension
          point="net.bioclipse.scripting.contribution">
       <scriptContribution
-            service="net.bioclipse.chart.ui.business.UiManagerFactory"
-            id="net.bioclipse.chart.ui.business.UiManager">
+            service="net.bioclipse.chart.ui.business.ChartManagerFactory"
+            id="net.bioclipse.chart.ui.business.ChartManager">
       </scriptContribution>
-   </extension>
-   <extension
-         point="net.bioclipse.chart.chats">
-   </extension>
+   </extension-->
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="net.bioclipse.chart.ui.business.ChartFromSDF"
-            id="net.bioclipse.chart.ui.chartFromSDF"
-            name="To chart">
-      </command>
-      <command
-            defaultHandler="net.bioclipse.chart.ui.business.PointLabelHandler"
+            defaultHandler="net.bioclipse.chart.ui.PointLabelHandler"
             id="net.bioclipse.chart.ui.pointLabels"
             name="Point labels">
          <state
@@ -31,15 +23,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.menus">
-      <menuContribution
-            allPopups="false"
-            locationURI="popup:net.bioclipse.cdk.ui.sdfeditor.menu?before=additions">
-         <command
-               commandId="net.bioclipse.chart.ui.chartFromSDF"
-               label="Plot column"
-               style="push">
-         </command>
-      </menuContribution>
       <menuContribution
             allPopups="false"
             locationURI="toolbar:net.bioclipse.plugins.views?before=additions">

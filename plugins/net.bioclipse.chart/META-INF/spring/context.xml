@@ -6,13 +6,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-  <osgi:service id="javaUiManagerOSGI"
-                ref="javaUiManager"
-                interface="net.bioclipse.chart.ui.business.IJavaUiManager" />
+  <osgi:service id="javaChartManagerOSGI"
+                ref="javaChartManager"
+                interface="net.bioclipse.chart.ui.business.IJavaChartManager" />
 
-  <osgi:service id="javaScriptUiManagerOSGI"
-                ref="javaScriptUiManager"
-                interface="net.bioclipse.chart.ui.business.IJavaScriptUiManager" />
+  <osgi:service id="javaScriptChartManagerOSGI"
+                ref="javaScriptChartManager"
+                interface="net.bioclipse.chart.ui.business.IJavaScriptChartManager" />
 
   <osgi:reference id="recordingAdvice"
                   interface="net.bioclipse.recording.IRecordingAdvice" />
@@ -32,16 +32,16 @@
         <property name="pattern" value=".*" /> <!-- See also class implementation -->
   </bean>
 
-  <bean id="UiManagerTarget"
-        class="net.bioclipse.chart.ui.business.UiManager">
+  <bean id="ChartManagerTarget"
+        class="net.bioclipse.chart.ui.business.ChartManager">
   </bean>
 
-  <bean id="javaScriptUiManager"
+  <bean id="javaScriptChartManager"
         class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target"
-              ref="UiManagerTarget" />
+              ref="ChartManagerTarget" />
     <property name="proxyInterfaces"
-              value="net.bioclipse.chart.ui.business.IJavaScriptUiManager" />
+              value="net.bioclipse.chart.ui.business.IJavaScriptChartManager" />
     <property name="interceptorNames" >
         <list>
             <value>recordingAdvisor</value>
@@ -51,12 +51,12 @@
     </property>
   </bean>
 
-  <bean id="javaUiManager"
+  <bean id="javaChartManager"
         class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target"
-              ref="UiManagerTarget" />
+              ref="ChartManagerTarget" />
     <property name="proxyInterfaces"
-              value="net.bioclipse.chart.ui.business.IJavaUiManager" />
+              value="net.bioclipse.chart.ui.business.IJavaChartManager" />
     <property name="interceptorNames" >
         <list>
                 <value>recordingAdvisor</value>

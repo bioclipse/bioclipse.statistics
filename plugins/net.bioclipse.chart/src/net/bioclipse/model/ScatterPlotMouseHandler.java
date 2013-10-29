@@ -26,17 +26,16 @@ import java.util.Iterator;
 import javax.swing.event.MouseInputAdapter;
 
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
-import org.jfree.ui.RectangleInsets;
 
 /**
  * Handles clicks on scatter plots
@@ -65,7 +64,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		ChartPanel chartPanel = getChartPanel(e);
 		JFreeChart selectedChart = chartPanel.getChart();
-		ChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
+		IChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
 		int[] indices = cd.getSourceIndices();
 		
 		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
@@ -105,8 +104,8 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				
 				if(drawRect.contains(datasetPoint2D) ){
 				    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-                    cp.setPropertyValue( ChartConstants.X_VALUE, xK );
-                    cp.setPropertyValue( ChartConstants.Y_VALUE, yK );
+                    cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ) );
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ) );
                     cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					boolean pointAdded = mouseDragSelection.addPoint(cp);
 					if( pointAdded ){
@@ -238,7 +237,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			for (Component component : components) {
 				if( component instanceof ChartPanel ){
 					selectedPanel = (ChartPanel) component;
-//					selectedChart = chartPanel.getChart();
 					foundChartPanel = true;
 					break;
 				}
@@ -257,7 +255,7 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 
 	public void mouseClicked(MouseEvent me) {
 		Point2D p = null;
-		ChartDescriptor cd = null;
+		IChartDescriptor cd = null;
 		int[] indices = null;
 		JFreeChart selectedChart = null;
 		ChartPanel chartPanel = getChartPanel(me);
@@ -309,11 +307,9 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				//Check distance from click and point, don't want to mark points that are too far from the click
 				if ( Math.abs( xKCheck.doubleValue() ) <= .1  && Math.abs( yKCheck.doubleValue() ) <= .1){
 					//Create a new selection
-
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
-//					cp.setDataPoint(j, i);
-					cp.setPropertyValue( ChartConstants.X_VALUE, xK );
-                    cp.setPropertyValue( ChartConstants.Y_VALUE, yK );
+					cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ));
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ));
                     cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					currentSelection.addPoint(cp);
 					if( !me.isShiftDown() )

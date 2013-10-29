@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -82,7 +83,6 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 				if(path == null)
 					return;
 				
-//				System.out.println(path);
 				ImageWriter.saveImageSVG(path, activeChart);
 			}
 
@@ -176,8 +176,8 @@ public class JFreeChartActionFactory implements ChartActionFactory {
          * the coolbar of the chart view.*/
 	    ChartAction zoomSelect = new ChartAction("Click for zoom-mode", Action.AS_CHECK_BOX ){
 	        public void run() {
-	            ChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
-	                if (!this.isChecked() && cd.getPlotType() != ChartConstants.HISTOGRAM) {
+	            IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
+	                if (!this.isChecked() && cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM) {
 	                    this.setText( "Select" );
 	                    this.setToolTipText( "Click for zoom-mode" );
 	                    this.setImageDescriptor( ImageDescriptor
@@ -189,7 +189,7 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 	                    this.setImageDescriptor( ImageDescriptor
 	                                             .createFromFile(this.getClass(),
 	                                                     "13991find.gif") );
-	                    if (cd.getPlotType() == ChartConstants.HISTOGRAM) {
+	                    if (cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM) {
 	                        this.setChecked( true );
 	                        this.setEnabled( false ); 
 	                    }
@@ -199,10 +199,10 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 
             public void handleChartModelEvent( ChartModelEvent e ) {
                 if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
-                    ChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
+                    IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
                     
                     if (cd != null ) {
-                        if(cd.getPlotType() == ChartConstants.HISTOGRAM) {
+                        if(cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM) {
                             this.setText( "Zoom" );
                             this.setToolTipText( "Click for selection-mode" );
                             this.setImageDescriptor( ImageDescriptor

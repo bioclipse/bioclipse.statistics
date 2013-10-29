@@ -10,47 +10,22 @@
  ******************************************************************************/
 package net.bioclipse.chart.ui;
 
-import net.bioclipse.chart.ui.business.IUiManager;
-import net.bioclipse.chart.ui.business.IJavaUiManager;
-import net.bioclipse.chart.ui.business.IJavaScriptUiManager;
-
-import org.apache.log4j.Logger;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * The Activator class controls the plug-in life cycle
  */
 public class Activator extends AbstractUIPlugin {
 
-    private static final Logger logger = Logger.getLogger(Activator.class);
-
     // The shared instance
     private static Activator plugin;
 
-    // Trackers for getting the managers
-    private ServiceTracker javaFinderTracker;
-    private ServiceTracker jsFinderTracker;
-
-    public Activator() {
-    }
+    public Activator() {    }
 
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
-        javaFinderTracker
-            = new ServiceTracker( context,
-                                  IJavaUiManager.class.getName(),
-                                  null );
-
-        javaFinderTracker.open();
-        jsFinderTracker
-            = new ServiceTracker( context,
-                                  IJavaScriptUiManager.class.getName(),
-                                  null );
-
-        jsFinderTracker.open();
     }
 
     public void stop(BundleContext context) throws Exception {
@@ -67,39 +42,4 @@ public class Activator extends AbstractUIPlugin {
         return plugin;
     }
 
-    public IUiManager getJavaUiManager() {
-        IUiManager manager = null;
-        try {
-            manager = (IUiManager)
-                      javaFinderTracker.waitForService(1000*10);
-        }
-        catch (InterruptedException e) {
-            throw new IllegalStateException(
-                          "Could not get the Java UiManager",
-                          e );
-        }
-        if (manager == null) {
-            throw new IllegalStateException(
-                          "Could not get the Java UiManager");
-        }
-        return manager;
-    }
-
-    public IJavaScriptUiManager getJavaScriptUiManager() {
-        IJavaScriptUiManager manager = null;
-        try {
-            manager = (IJavaScriptUiManager)
-                      jsFinderTracker.waitForService(1000*10);
-        }
-        catch (InterruptedException e) {
-            throw new IllegalStateException(
-                          "Could not get the JavaScript UiManager",
-                          e );
-        }
-        if (manager == null) {
-            throw new IllegalStateException(
-                          "Could not get the JavaScript UiManager");
-        }
-        return manager;
-    }
 }

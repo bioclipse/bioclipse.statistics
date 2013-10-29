@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.model.PlotPointData;
 
 //import org.eclipse.core.runtime.IAdaptable;
@@ -23,9 +25,9 @@ import org.eclipse.ui.views.properties.TextPropertyDescriptor;
 public class ChartSelection implements IStructuredSelection
 {
 	private List<PlotPointData> points;
-	private ChartDescriptor descriptor;
+	private IChartDescriptor descriptor;
 	
-	public ChartDescriptor getDescriptor() {
+	public IChartDescriptor getDescriptor() {
 		return descriptor;
 	}
 	
@@ -53,8 +55,8 @@ public class ChartSelection implements IStructuredSelection
         return false;
 	}
 
-	public void setDescriptor(ChartDescriptor descriptor) {
-		this.descriptor = descriptor;
+	public void setDescriptor(IChartDescriptor iChartDescriptor) {
+		this.descriptor = iChartDescriptor;
 	}
 
 	public ChartSelection()

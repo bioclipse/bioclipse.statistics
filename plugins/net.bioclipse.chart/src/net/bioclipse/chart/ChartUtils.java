@@ -12,54 +12,45 @@ package net.bioclipse.chart;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import net.bioclipse.chart.events.CellChangeListener;
-import net.bioclipse.chart.events.CellChangeProvider;
 import net.bioclipse.chart.events.CellChangedEvent;
 import net.bioclipse.chart.events.CellData;
-import net.bioclipse.chart.events.CellSelection;
-import net.bioclipse.model.ChartConstants;
-import net.bioclipse.model.ChartDescriptor;
+import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
+import net.bioclipse.model.HistogramDiscriptor;
 import net.bioclipse.model.PcmLineChartDataset;
 import net.bioclipse.plugins.views.ChartView;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.commands.Command;
-import org.eclipse.core.commands.State;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.commands.ICommandService;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.event.PlotChangeEvent;
-import org.jfree.chart.labels.StandardXYItemLabelGenerator;
 import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.XYDataset;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
 
 /**
  * This is a utility class with static methods for plotting data on the chart plugins
@@ -78,47 +69,32 @@ public class ChartUtils
 	private static double[][] values;
 	private static ChartView view;
 	private static String[] nameOfObs;
-	static String yColumn;
-	static String xColumn;
-	static ChartSelection cs;
-	private static int currentPlotType = -1;
-	static int[] indices;
 	private static ChartManager chartManager = new ChartManager();
-	
-	private static List<CellChangeProvider> providers = new ArrayList<CellChangeProvider>();
-	private static List<CellChangeListener> listeners = new ArrayList<CellChangeListener>();
 	
 	/**
 	 * Displays data in a line plot
 	 * 
-	 * @param xValues x values of points
-	 * @param yValues y values of points
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title Chart title
-	 * @param analysisMatrixEditor 
-	 * @param indices
+	 * @param ChartDescriptor The description of the plot
 	 */
-	public static void linePlot( double[] xValues, double[] yValues,
-			String xLabel, String yLabel, String title, ChartDescriptor descriptor )
+	public static void linePlot( IChartDescriptor descriptor )
 	{
-		setupData(xValues, yValues, xLabel, yLabel, title);
+		setupData(descriptor);
 
-		PcmLineChartDataset dataset = new PcmLineChartDataset(values, nameOfObs, xLabel, yLabel, "", title, null);
-		chart = ChartFactory.createXYLineChart(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, true, true , false);
-		
-//		XYPlot plot = chart.getXYPlot();
-//		XYItemRenderer r = plot.getRenderer();
-//		if (r instanceof XYLineAndShapeRenderer) {
-//		    XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-//		    renderer.setBaseToolTipGenerator( plotToolTipGenerator );
-//		    renderer.setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
-//		    ICommandService service = (ICommandService) PlatformUI.getWorkbench().getService(ICommandService.class);
-//		    Command command = service.getCommand("net.bioclipse.chart.ui.pointLabelsButton");
-//		    State state = command.getState("org.eclipse.ui.commands.toggleState");
-//		    if (state!=null)
-//		        renderer.setBaseItemLabelsVisible( (Boolean) state.getValue() ); 
-//		}
+		PcmLineChartDataset dataset = new PcmLineChartDataset(values, 
+		                                                      nameOfObs, 
+		                                                      descriptor.getXLabel(), 
+		                                                      descriptor.getYLabel(), 
+		                                                      "", 
+		                                                      descriptor.getTitle(), 
+		                                                      null);
+		chart = ChartFactory.createXYLineChart( descriptor.getTitle(), 
+		                                        descriptor.getXLabel(), 
+		                                        descriptor.getYLabel(), 
+		                                        dataset, 
+		                                        PlotOrientation.VERTICAL, 
+		                                        true, 
+		                                        true , 
+		                                        false);
 		
 		chartManager.put(chart, descriptor);
 		ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
@@ -126,98 +102,30 @@ public class ChartUtils
 		view.display( chart, l );
 	}
 	
-
-	
 	public static void updateSelection(ChartSelection cs)
 	{
 		view.setSelection(cs);
 	}
-
-	/** If you want to map points on the plot to cells in a spreadsheet you need to
-	 *  set the columns from where you got your data
-	 * 
-	 * @param xColumn the label of the xColumn in the spreadsheet
-	 * @param yColumn the label of the yColumn in the spreadsheet
-	 * 
-	 * @throws IllegalArgumentException if xColumn or yColumn equals null
-	 */
-	public static void setDataColumns(String xColumn, String yColumn) throws IllegalArgumentException
-	{
-		if( xColumn == null || yColumn == null)
-			throw new IllegalArgumentException("xColumn or yColumn can not be null");
-		ChartUtils.xColumn = xColumn;
-		ChartUtils.yColumn = yColumn;
-	}
-	
-	/**
-	 * Marks a plotted point
-	 * @param series
-	 * @param index
-	 * @deprecated
-	 */
-	public static void markPoints( CellSelection cs )
-	{
-		if( chart != null && ChartUtils.currentPlotType == ChartConstants.SCATTER_PLOT )
-		{
-			ScatterPlotRenderer renderer = (ScatterPlotRenderer) chart.getXYPlot().getRenderer();
-			Iterator<CellData> iter = cs.iterator();
-			
-			renderer.clearMarkedPoints();
-			
-			while( iter.hasNext() )
-			{
-				CellData cd = iter.next();
-				if( cd.getColName().equals(ChartUtils.xColumn) || cd.getColName().equals(ChartUtils.yColumn) )
-				{	
-					renderer.addMarkedPoint(0, cd.getRowIndex());
-					chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
-				}
-			}
-		}
-	}
-
-	/**
-	 * Displays data in a scatter plot
-	 * 
-	 * @param xValues x values of points
-	 * @param yValues y values of points
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title plot title
-	 */
-//	public static void scatterPlot(double[] xValues, double[] yValues,
-//			String xLabel, String yLabel, String title, ChartDescriptor descriptor)
-//	{
-//		setupData(xValues, yValues, xLabel, yLabel, title);
-//		DefaultXYDataset dataset = new DefaultXYDataset();
-//		dataset.addSeries(1, values);
-//		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, false,false);
-//	
-//		ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
-//
-//		view.display( chart, l );
-//		ChartUtils.currentPlotType = ChartConstants.SCATTER_PLOT;
-//	}
 	
 	/**
 	 * Displays data in a scatter plot
 	 * 
-	 * @param xValues x values of points
-	 * @param yValues y values of points
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title plot title
-	 * @param indices 
-	 * @param dataSource The editor from which the charts data comes from, used so indices are mapped to the right editor
+	 * @param ChartDescriptor The description of the plot
 	 */
-	public static void scatterPlot(double[] xValues, double[] yValues,
-			String xLabel, String yLabel, String title, ChartDescriptor descriptor)
+	public static void scatterPlot( IChartDescriptor descriptor )
 	{
-		setupData(xValues, yValues, xLabel, yLabel, title);
+		setupData(descriptor);
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
 		
-		chart = ChartFactory.createScatterPlot(title, xLabel, yLabel, dataset, PlotOrientation.VERTICAL, false, true, false);
+		chart = ChartFactory.createScatterPlot(descriptor.getTitle(), 
+		                                       descriptor.getXLabel(), 
+		                                       descriptor.getYLabel(),
+		                                       dataset,
+		                                       PlotOrientation.VERTICAL,
+		                                       false,
+		                                       true,
+		                                       false);
         
 		chartManager.put(chart, descriptor);
 		ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
@@ -229,84 +137,91 @@ public class ChartUtils
 	/**
 	 * Displays histogram of the values in ChartView
 	 * 
-	 * @param values Data values
-	 * @param bins Number of bins to use
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title Histogram title
+	 * @param ChartDescriptor The description of the plot
 	 */
-	public static void histogram(double[] values, int bins, String xLabel, 
-	           String yLabel, String title, IEditorPart dataSource, Point[] originCells)
+	public static void histogram( IChartDescriptor descriptor ) throws IllegalArgumentException
 	{
-		setupData(values, null, xLabel, yLabel, title);
-		HistogramDataset histogramData = new HistogramDataset();
-		histogramData.addSeries(1, values, bins);
-		chart = ChartFactory.createHistogram(
-				title,
-				xLabel, 
-				yLabel, 
-				histogramData, 
-				PlotOrientation.VERTICAL, 
-				false, 
-				false, 
-				false
-		);
-		
-		ChartDescriptor descriptor = new ChartDescriptor(dataSource, null, ChartConstants.HISTOGRAM, xLabel, yLabel, originCells);
-		XYPlot plot = chart.getXYPlot();
-		XYItemRenderer r = plot.getRenderer();
-		if (r instanceof XYBarRenderer) {
-		    XYBarRenderer renderer = (XYBarRenderer) r;
-		    renderer.setBaseToolTipGenerator( new XYToolTipGenerator() {
+	    final HistogramDiscriptor desc;
+	    if (descriptor instanceof HistogramDiscriptor) {
+	        desc = (HistogramDiscriptor) descriptor;
 
-		        public String generateToolTip( XYDataset dataset, int series, int item ) {
-		            String tooltip = "";
-		            if (dataset instanceof IntervalXYDataset) {
-		                IntervalXYDataset barDataset = (IntervalXYDataset) dataset;
-		                tooltip = "["+barDataset.getStartXValue( series, item )+", "+barDataset.getEndXValue( series, item )+"]";
-		            }
-		            
-		            return tooltip;
-		        }
-		    } );
-		    renderer.setBaseItemLabelGenerator( new XYItemLabelGenerator() {
-                
-                public String generateLabel( XYDataset dataset, int series, int item ) {
-                    String label = "";
-                    if (dataset instanceof IntervalXYDataset) {
-                        IntervalXYDataset barDataset = (IntervalXYDataset) dataset;
-                        label = "["+barDataset.getStartXValue( series, item )+", "+barDataset.getEndXValue( series, item )+"]";
-                    }
-                    return label;
-                }
-            } );
-		}
-		chartManager.put(chart, descriptor);
-		ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
-		
-		view.display( chart, l );
-		ChartUtils.currentPlotType = ChartConstants.HISTOGRAM;
+	        HistogramDataset histogramData = new HistogramDataset();
+	        histogramData.addSeries(1, descriptor.getXValues(), desc.getNumberOfBins());
+	        chart = ChartFactory.createHistogram(
+	                                             descriptor.getTitle(),
+	                                             descriptor.getXLabel(), 
+	                                             descriptor.getYLabel(), 
+	                                             histogramData, 
+	                                             PlotOrientation.VERTICAL, 
+	                                             false, 
+	                                             false, 
+	                                             false
+	                );
+
+	        setupData( descriptor );
+
+	        XYPlot plot = chart.getXYPlot();
+	        XYItemRenderer r = plot.getRenderer();
+	        if (r instanceof XYBarRenderer) {
+	            XYBarRenderer renderer = (XYBarRenderer) r;
+	            renderer.setBaseToolTipGenerator( new XYToolTipGenerator() {
+
+	                public String generateToolTip( XYDataset dataset, int series, int item ) {
+	                    String tooltip = "";
+	                    if (dataset instanceof IntervalXYDataset) {
+	                        if (desc.hasItemLabels())
+	                            tooltip = desc.getItemLabel( item );
+	                        else {
+	                        IntervalXYDataset barDataset = (IntervalXYDataset) dataset;
+	                        tooltip = "["+barDataset.getStartXValue( series, item )+", "+barDataset.getEndXValue( series, item )+"]";
+	                        }
+	                    }
+
+	                    return tooltip;
+	                }
+	            } );
+	            renderer.setBaseItemLabelGenerator( new XYItemLabelGenerator() {
+
+	                public String generateLabel( XYDataset dataset, int series, int item ) {
+	                    String label = "";
+	                    if (dataset instanceof IntervalXYDataset) {
+	                        if (desc.hasItemLabels())
+	                            label = desc.getItemLabel( item );
+	                        else {
+	                        IntervalXYDataset barDataset = (IntervalXYDataset) dataset;
+	                        label = "["+barDataset.getStartXValue( series, item )+", "+barDataset.getEndXValue( series, item )+"]";
+	                        }
+	                    }
+	                    
+	                    return label;
+	                }
+	            } );
+	        }
+	        chartManager.put(chart, descriptor);
+	        ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
+
+	        view.display( chart, l );
+
+	    } else
+	        throw new IllegalArgumentException("The chart descriptor has to " +
+	        		"be a HistogramDescriptor when plotting a histogram.");
 	}
 
 	/**
 	 * Sets up common data
-	 * @param xValues   
-	 * @param yValues
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title Chart title
+	 * 
+	 * @param ChartDescriptor The description of the plot
 	 */
-	private static void setupData( double[] xValues, double[] yValues,
-			String xLabel, String yLabel, String title )
+	private static void setupData( IChartDescriptor descriptor )
 	{
 		values = new double[2][];
-		values[0] = xValues;
-		values[1] = yValues;
-
+		values[0] = descriptor.getXValues();
+		values[1] = descriptor.getYValues();
+			
 		view = null;
 
-		nameOfObs = new String[xValues.length];
-		for( int i = 0; i < xValues.length; i++)
+		nameOfObs = new String[values[0].length];
+		for( int i = 0; i < values[0].length; i++)
 		{
 			nameOfObs[i] = ""+i;
 		}
@@ -323,34 +238,26 @@ public class ChartUtils
 	/**
 	 * Plot time series
 	 * 
-	 * @param dataValues
-	 * @param timeValues
-	 * @param xLabel X axis label
-	 * @param yLabel Y axis label
-	 * @param title Chart title
-	 * @param dataSource 
-	 * @param indices
+	 * @param ChartDescriptor The description of the plot
 	 */
-	public static void timeSeries(double[] dataValues, double[] timeValues, 
-	                              String xLabel, String yLabel, String title, 
-	                              ChartDescriptor descriptor)
+	public static void timeSeries( IChartDescriptor descriptor )
 	{
-		setupData(dataValues, timeValues, xLabel, yLabel, title);
+		setupData(descriptor);
 		DefaultXYDataset dataset = new DefaultXYDataset();
 		dataset.addSeries(1, values);
-		chart = ChartFactory.createTimeSeriesChart(title, xLabel, yLabel, (XYDataset)dataset, false, true, false);
-//        XYPlot plot = chart.getXYPlot();
-//        XYItemRenderer r = plot.getRenderer();
-//        if (r instanceof XYLineAndShapeRenderer) {
-//            XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) r;
-//            renderer.setBaseToolTipGenerator( plotToolTipGenerator );
-//            renderer.setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
-//        }
+		chart = ChartFactory.createTimeSeriesChart(descriptor.getTitle(),
+		                                           descriptor.getXLabel(),
+		                                           descriptor.getYLabel(),
+		                                           (XYDataset) dataset,
+		                                           false,
+		                                           true,
+		                                           false);
+		
 		chartManager.put(chart, descriptor);
 		ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
 		
 		view.display( chart, l );
-		ChartUtils.currentPlotType = ChartConstants.TIME_SERIES;
+
 	}
 	
 	/**
@@ -363,8 +270,9 @@ public class ChartUtils
 	 * @param yLabel Range label
 	 * @param title Title of the plot
 	 */
+	// TODO This should also adapt to the new use of ChartDescriptor, or be removed...
 	public static void barPlot(double[][] dataValues, String[] seriesLabels, String[] categoryLabels, String xLabel,
-	                           String yLabel, String title, ChartDescriptor descriptor){
+	                           String yLabel, String title, IChartDescriptor descriptor){
 		DefaultCategoryDataset dataSet = new DefaultCategoryDataset();
 		
 		
@@ -439,25 +347,9 @@ public class ChartUtils
 		return new Image(parent.getDisplay(), imageData);
 	}
 	
-	public static void registerCellChangeProvider( CellChangeProvider provider )
-	{
-		if( !providers.contains(provider))
-		{
-			providers.add(provider);
-		}
-	}
-	
-	public static void registerCellChangeListener( CellChangeListener listener )
-	{
-		if( !listeners.contains(listener) )
-		{
-			listeners.add(listener);
-		}
-	}
-	
 	//These methods delegate to the model
 	//TODO:  Write general Interface/Abstract class for model so its not hardwired to ChartManager
-	public static ChartDescriptor getChartDescriptor(JFreeChart key) {
+	public static IChartDescriptor getChartDescriptor(JFreeChart key) {
 		return chartManager.get(key);
 	}
 
@@ -465,7 +357,7 @@ public class ChartUtils
 		return chartManager.getActiveChart();
 	}
 
-	public static ChartDescriptor put(JFreeChart chart, ChartDescriptor descriptor) {
+	public static IChartDescriptor put(JFreeChart chart, IChartDescriptor descriptor) {
 		return chartManager.put(chart, descriptor);
 	}
 
@@ -481,11 +373,11 @@ public class ChartUtils
 		chartManager.removeListener(listener);
 	}
 
-	public static ChartDescriptor remove(Object arg0) {
+	public static IChartDescriptor remove(Object arg0) {
 		return chartManager.remove(arg0);
 	}
 
-	public static Collection<ChartDescriptor> values() {
+	public static Collection<IChartDescriptor> values() {
 		return chartManager.values();
 	}
 
@@ -494,18 +386,13 @@ public class ChartUtils
 	}
 
 	public static void handleCellChangeEvent(CellChangedEvent e) {
-//		Iterator<CellChangeListener> iterator = listeners.iterator();
-//		while( iterator.hasNext() )
-//		{
-//			CellChangeListener listener = iterator.next();
-//			listener.handleCellChangeEvent(e);
-//		}
+
 		Set<JFreeChart> keySet = chartManager.keySet();
 		Iterator<JFreeChart> iterator = keySet.iterator();
 		while( iterator.hasNext()){
 			JFreeChart chart = iterator.next();
 			
-			ChartDescriptor desc = chartManager.get(chart);
+			IChartDescriptor desc = chartManager.get(chart);
 			
 			String domainLabel = desc.getXLabel();
 			String rangeLabel = desc.getYLabel();
@@ -572,4 +459,18 @@ public class ChartUtils
             return dataset.getY( series, item ).toString();
         }
     }; 
+    
+    public static <T extends IBioclipseManager> T getManager(Class<T> clazz) {
+        Bundle bundle = FrameworkUtil.getBundle( ChartUtils.class );
+        BundleContext context = bundle.getBundleContext();
+        ServiceReference<T> sRef = context.getServiceReference( clazz );
+        if(sRef!=null) {
+            T manager = context.getService( sRef );
+            if(manager!=null){
+                return manager;
+            }
+
+        }
+        throw new IllegalStateException("Could not get the "+clazz.getName());
+    }
 }

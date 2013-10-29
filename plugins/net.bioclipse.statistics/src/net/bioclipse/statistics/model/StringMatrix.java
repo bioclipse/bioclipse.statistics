@@ -214,8 +214,7 @@ public class StringMatrix extends MatrixImplementationResource {
                         "have the same number of elemnt as the rows has: " + 
                         names.length + "!=" + getRowCount() );
         } catch ( Exception e ) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.error( "Could not count the rows: "+e.getMessage() );
             return;
         }
         int i = 0;

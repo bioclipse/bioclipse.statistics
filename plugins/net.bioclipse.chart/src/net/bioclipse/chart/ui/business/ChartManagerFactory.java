@@ -15,7 +15,8 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 
-import net.bioclipse.chart.ui.Activator;
+import net.bioclipse.chart.Activator;
+import net.bioclipse.chart.ChartUtils;
 
 /**
  * Factory used for giving the manager to extension points.
@@ -25,7 +26,7 @@ import net.bioclipse.chart.ui.Activator;
  *
  * @author jonalv
  */
-public class UiManagerFactory
+public class ChartManagerFactory
        implements IExecutableExtension, IExecutableExtensionFactory {
 
     private Object manager;
@@ -34,12 +35,14 @@ public class UiManagerFactory
                                        String propertyName,
                                        Object data ) throws CoreException {
 
-        manager = Activator.getDefault().getJavaScriptUiManager();
+        manager = 
+                //ChartUtils.getManager( IJavaScriptChartManager.class );
+                Activator.getDefault().getJavaScripChartManager();
 
         if ( manager == null ) {
             throw new IllegalStateException(
                           "Could not get the JavaScript flavoured " +
-                          "UiManager" );
+                          "ChartManager" );
         }
     }
 

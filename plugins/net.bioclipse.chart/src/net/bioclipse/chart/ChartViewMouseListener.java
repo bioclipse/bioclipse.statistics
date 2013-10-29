@@ -26,9 +26,9 @@ import org.jfree.chart.entity.ChartEntity;
 public class ChartViewMouseListener implements ChartMouseListener {
 
     private ChartView myView;
-    private ChartDescriptor chartDescriptor;
+    private IChartDescriptor chartDescriptor;
     
-    public ChartViewMouseListener (ChartView view, ChartDescriptor chartDescriptor) {
+    public ChartViewMouseListener (ChartView view, IChartDescriptor chartDescriptor) {
         this.chartDescriptor = chartDescriptor;
         myView = view;
     }

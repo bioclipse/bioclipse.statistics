@@ -21,6 +21,7 @@ import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculesEditor;
 import net.bioclipse.chart.BioclipseChartPanel;
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
 import net.bioclipse.chart.events.CellChangeListener;
 import net.bioclipse.chart.events.CellChangedEvent;
@@ -29,7 +30,6 @@ import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
 import net.bioclipse.model.ChartConstants;
-import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
@@ -89,7 +89,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	private Frame frame;
 //	private static final boolean IS_MACOS = System.getProperty("os.name").contains("Mac");
 	private CTabFolder tabFolder;
-//	private ScatterPlotMouseHandler pmh;
 	private ChartActionFactory factory;
 	
 	/**
@@ -98,9 +97,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	public ChartView() {
 		super();
 		selectionListeners = new ArrayList<ISelectionChangedListener>();
-//		pmh = new ScatterPlotMouseHandler();
 		factory = new JFreeChartActionFactory();
-		ChartUtils.registerCellChangeListener(this);
 	}
 
 	/**
@@ -230,8 +227,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			//First get the set of charts that originates from CelSelection source and are scatter plots
 			while( i.hasNext()){
 				JFreeChart chart = i.next();
-				ChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
-				if( chartDescriptor.getSource() == source && chartDescriptor.getPlotType() == ChartConstants.SCATTER_PLOT){
+				IChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
+				if( chartDescriptor.getSource() == source && chartDescriptor.getPlotType() == ChartConstants.plotTypes.SCATTER_PLOT){
 					matchingCharts.add(chart);
 				}
 			}
@@ -240,7 +237,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			Iterator<JFreeChart> j = matchingCharts.iterator();
 			while( j .hasNext() ){
 				JFreeChart chart = j.next();
-				ChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
+				IChartDescriptor chartDescriptor = ChartUtils.getChartDescriptor(chart);
 
 				ScatterPlotRenderer renderer = (ScatterPlotRenderer) chart.getXYPlot().getRenderer();
 				Iterator<CellData> cellIterator = cs.iterator();
@@ -257,11 +254,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				}
 				chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
 			}
-		} else if (selection instanceof MolTableSelection) {
-//		    System.out.println("A MolTableSelection");
 		}
 	}
-
 
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		if(!selectionListeners.contains(listener))
@@ -310,7 +304,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	            });
 
 	        }
-	        ChartDescriptor cd = ((ChartSelection) selection).getDescriptor();
+	        IChartDescriptor cd = ((ChartSelection) selection).getDescriptor();
 	        labels.add( cd.getXLabel() );
             labels.add( cd.getYLabel() );
 	        if (cd.getSource() instanceof MoleculesEditor) {
@@ -337,7 +331,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	    } else if (selection instanceof ChartSelectionItem){	        
 	        ChartSelectionItem csi = ((ChartSelectionItem) selection);
 	        Object obj = csi.getPropertyValue( ChartConstants.ITEMS );
-	        ChartDescriptor cd = csi.getChartDescriptor();
+	        IChartDescriptor cd = csi.getChartDescriptor();
 	        Number row = (Number) obj;
 	        PlotPointData ppd = new PlotPointData( row.intValue(), cd.getXLabel(), cd.getYLabel() );
 	        ppd.addPropertyDescriptors( csi.getPropertyDescriptors() );
@@ -382,7 +376,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	 */
 	public void display( JFreeChart chart, ChartMouseListener listner )
 	{
-		final ChartDescriptor cd = ChartUtils.getChartDescriptor(chart);
+		final IChartDescriptor cd = ChartUtils.getChartDescriptor(chart);
 		
 		JFreeChartTab chartTab = new JFreeChartTab(tabFolder, SWT.CLOSE);
 		chartTab.setText(chart.getTitle().getText());
@@ -407,12 +401,12 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				frame.setVisible(true);
 
 				XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-				if( cd.getPlotType() != ChartConstants.HISTOGRAM )
+				if( cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM )
 				{
 					//Listens for mouseclicks on points
 					
 					switch (cd.getPlotType()) {
-					    case ChartConstants.SCATTER_PLOT:
+					    case SCATTER_PLOT:
 					        plot.setRenderer(new ScatterPlotRenderer(false,true));
 					        break;
 					    default:
@@ -425,11 +419,23 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
 
 			                public String generateToolTip( XYDataset dataset, int series, int item ) {
-			                    return dataset.getY( series, item ).toString();
+			                    if (cd.hasItemLabels())
+			                        return cd.getItemLabel( item );
+			                    else
+			                        return dataset.getY( series, item ).toString();
 			                }
 
 			            });
-			            ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
+			            
+			            if (cd.hasItemLabels()) {
+			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() {
+			                    @Override
+			                    public String generateLabel(XYDataset dataset, int series, int item) {
+			                        return cd.getItemLabel( item );
+			                    }
+			                });
+			            } else
+			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
 			            
 			        }
 //					if( ChartView.IS_MACOS )
@@ -481,9 +487,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		}
 	}
 
-	public void handleCellChangeEvent(CellChangedEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void handleCellChangeEvent(CellChangedEvent e) {    }
 
 }
