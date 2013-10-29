@@ -29,16 +29,21 @@ public class ChartDescriptor {
 	private Point[] originCells;
 	private String sourceName;
 	private IResource resource;
-	private double[] extraData;
+	private double[] xValues, yValues;
+	private String chartTitle;
+	private int bins = 0;
 	
 	public ChartDescriptor(IEditorPart source, int[] indices, int plotType,
-			String xLabel, String yLabel, Point[] originCells) {
+			String xLabel, double[] xValues, String yLabel, double[] yValues, 
+			Point[] originCells, String ChartTitle) {
 		super();
 		this.source = source;
 		this.indices = indices;
 		this.plotType = plotType;
 		this.xLabel = xLabel;
+		this.xValues = xValues;
 		this.yLabel = yLabel;
+		this.yValues = yValues;
 		this.originCells = originCells;
 		if (source != null) {
 		    IFileEditorInput input = (IFileEditorInput) source.getEditorInput().getAdapter( IFileEditorInput.class );
@@ -48,17 +53,76 @@ public class ChartDescriptor {
 		    
 		} else
 		    sourceName = "Unknown";
-		
+		this.chartTitle = ChartTitle;
 	}
 
+	/**
+	 * For histograms.
+	 * @param source
+	 * @param indices
+	 * @param xLabel
+	 * @param xValues
+	 * @param yLabel
+	 * @param bins
+	 * @param originCells
+	 * @param ChartTitle
+	 */
+	public ChartDescriptor(IEditorPart source, int[] indices, 
+	                       String xLabel, double[] values, String yLable, int bins, 
+	                       Point[] originCells, String ChartTitle) {
+	    this( source, indices, ChartConstants.HISTOGRAM, xLabel, values, yLable, new double[0], originCells, ChartTitle );
+	    this.bins = bins;
+	}
+	
+	public String getTitle() {
+	    return chartTitle;
+	}
+	
 	public String getXLabel() {
 		return xLabel;
 	}
 
+	public double[] getXValues() {
+	    return xValues;
+	}
+	
+	/**
+	 * Get a specific x-value. Returns <code>Double.NaN</code> if the index 
+	 * don't have a correspondent x-value. 
+	 * 
+	 * @param index Index of the wanted x-value
+	 * @return The wanted x-value or Double.NaN
+	 */
+	public double getXValue(int index) {
+	    if (index > 0 && index < xValues.length)
+	        return xValues[index];
+	    else
+	        return Double.NaN;
+	}
+	
 	public String getYLabel() {
 		return yLabel;
 	}
 
+	public double[] getYValues() {
+        return yValues;
+    }
+    
+    /**
+     * Get a specific y-value. Returns <code>Double.NaN</code> if the index 
+     * don't have a correspondent y-value or called when the plot is a 
+     * histogram.
+     * 
+     * @param index Index of the wanted y-value
+     * @return The wanted y-value or Double.NaN
+     */
+    public double getYValue(int index) {
+        if (index > 0 && index < yValues.length && plotType != ChartConstants.HISTOGRAM )
+            return yValues[index];
+        else
+            return Double.NaN;
+    }
+	
 	public IEditorPart getSource() {
 		return source;
 	}
@@ -119,29 +183,10 @@ public class ChartDescriptor {
 	    this.resource = file;
 	}
 	
-	/**
-	 * Make it possibly to send some values that can't be easy obtained 
-	 * otherwise. E.g. the masses of the molecules that due to restriction can't
-	 * be calculated everywhere.
-	 * 
-	 * @param values An array with the values
-	 */
-	public void addExtraData(double[] values) {
-	    this.extraData = values;
+	public int getNumberOfBins() {
+	    if (plotType == ChartConstants.HISTOGRAM)
+	        return bins;   
+	    else 
+	        throw new IllegalAccessError( "This is only for the histograms" );
 	}
-	
-	/**
-	 * Gets value <code>index</code> from the array of extra data.
-	 * 
-	 * @param index The index of the wanted value of the data array
-	 * @return The wanted value or <code>Double.NaN</code> if it by some reason 
-	 * couldn't determine it    
-	 */
-	public double getExtraData(int index) {
-	    if (extraData == null || index >= extraData.length)
-	        return Double.NaN;
-	    
-	    return extraData[index];
-	}
-	
 }

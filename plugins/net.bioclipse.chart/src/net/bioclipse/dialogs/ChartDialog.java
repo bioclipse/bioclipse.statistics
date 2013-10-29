@@ -374,49 +374,46 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				
 				okButton.addSelectionListener(new SelectionAdapter() {
 	
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							super.widgetSelected(e);
-							String xColumn = xValuesCombo.getText();
-							String yColumn = yValuesCombo.getText();
-							int xIndex = Arrays.binarySearch(items, xColumn);
-							int yIndex = Arrays.binarySearch(items, yColumn);
-							
-							double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
-							double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
-							int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
-//							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
-//						    if( diagramType == ChartConstants.SCATTER_PLOT )
-//						    {
-//							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
-//						    }
-//						    else if( diagramType == ChartConstants.LINE_PLOT)
-//						    {
-//							   ChartUtils.linePlot(xValues, yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
-//						    }
-							ChartDescriptor descriptor = new ChartDescriptor(dataSource, indices, diagramType, xColumn, yColumn, cellselection);
-							switch( diagramType )
-							{
-							case ChartConstants.SCATTER_PLOT:
-							    ChartUtils.scatterPlot( xValues , yValues, xAxisText.getText(),
-							    		yAxisText.getText(), chartText.getText(), descriptor);
-							    break;
-							case ChartConstants.LINE_PLOT:
-    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(),
-    							                    chartText.getText(), descriptor);
-    							break;
-    						case ChartConstants.TIME_SERIES:
-    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(),
-    							                      chartText.getText(), descriptor);
-    							break;
-    						default: 
-    							throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
-    						}
-							ChartUtils.setDataColumns(xColumn, yColumn);
-    						dialogShell.close();
-    						}
-    						
-    					});
+				    @Override
+				    public void widgetSelected(SelectionEvent e) {
+				        super.widgetSelected(e);
+				        String xColumn = xValuesCombo.getText();
+				        String yColumn = yValuesCombo.getText();
+				        int xIndex = Arrays.binarySearch(items, xColumn);
+				        int yIndex = Arrays.binarySearch(items, yColumn);
+
+				        double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
+				        double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
+				        int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
+				        //							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
+				        //						    if( diagramType == ChartConstants.SCATTER_PLOT )
+				        //						    {
+				        //							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
+				        //						    }
+				        //						    else if( diagramType == ChartConstants.LINE_PLOT)
+				        //						    {
+				        //							   ChartUtils.linePlot(xValues, yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
+				        //						    }
+				        ChartDescriptor descriptor = new ChartDescriptor(dataSource, indices, diagramType, xColumn, xValues, yColumn, yValues, cellselection, chartText.getText());
+				        switch( diagramType )
+				        {
+				            case ChartConstants.SCATTER_PLOT:
+				                ChartUtils.scatterPlot( descriptor );
+				                break;
+				            case ChartConstants.LINE_PLOT:
+				                ChartUtils.linePlot( descriptor );
+				                break;
+				            case ChartConstants.TIME_SERIES:
+				                ChartUtils.timeSeries( descriptor );
+				                break;
+				            default: 
+				                throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
+				        }
+				        ChartUtils.setDataColumns(xColumn, yColumn);
+				        dialogShell.close();
+				    }
+
+				});
 			}
 			dialogShell.setLocation(getParent().toDisplay(100, 100));
 			dialogShell.open();

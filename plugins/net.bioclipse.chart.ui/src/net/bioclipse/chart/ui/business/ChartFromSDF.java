@@ -19,7 +19,6 @@ import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculesEditor;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MultiPageMoleculesEditorPart;
-import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule.Property;
 import net.bioclipse.model.ChartConstants;
@@ -52,6 +51,7 @@ public class ChartFromSDF extends AbstractHandler {
     /* The column that shows the 2D-structure don't have any property, if that
      * selected the mass of the molecule will be calculated. */ 
     private final static String MOL_STRUCTURE_COLUMN = "2D-structure";
+    private ChartManager chart = new ChartManager();
     
     @Override
     public Object execute( ExecutionEvent event ) throws ExecutionException {
@@ -124,27 +124,28 @@ public class ChartFromSDF extends AbstractHandler {
                 }
                 indexes[i] = originRows[i].y;
                 
-                String xLabel;
+                String xLabel, title;
                 if (twoColSelected) {
                     xLabel = selectedProerties.get( 0 );
+                    if (xLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        xLabel = ChartConstants.MOL_MASS;
+                    
                     yLabel = selectedProerties.get( 1 );
+                    if (yLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        yLabel = ChartConstants.MOL_MASS;
+                        
+                    title = xLabel + " against " + yLabel;
                 } else {
                     xLabel = ChartConstants.ROW_NUMBER;
                     yLabel = selectedProerties.get( 0 );
+                    if (yLabel.equals( MOL_STRUCTURE_COLUMN )) 
+                        yLabel = ChartConstants.MOL_MASS;
+                    title = yLabel + " for the selected molecules";
                 }
-                ChartDescriptor descriptor = new ChartDescriptor( editor, indexes, ChartConstants.SCATTER_PLOT, xLabel, yLabel, originRows );
-                if (xLabel.equals( MOL_STRUCTURE_COLUMN )) {
-                    xLabel = ChartConstants.MOL_MASS;
-                    descriptor.addExtraData( xValues );
-                }
-                if (yLabel.equals( MOL_STRUCTURE_COLUMN )) {
-                    yLabel = ChartConstants.MOL_MASS;
-                    descriptor.addExtraData( yValues );
-                }
-                String title = yLabel+" for the selected molecules";
+               
+                ChartDescriptor descriptor = new ChartDescriptor( editor, indexes, ChartConstants.SCATTER_PLOT, xLabel, xValues, yLabel, yValues, originRows, title );
+                chart.plot( descriptor );
 
-                
-                ChartUtils.scatterPlot( xValues, yValues, xLabel, yLabel, title, descriptor );
                 try {
                     ChartView view = (ChartView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CHART_VIEW_ID);
                     editor.addListener( view );

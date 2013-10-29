@@ -32,14 +32,14 @@
         <property name="pattern" value=".*" /> <!-- See also class implementation -->
   </bean>
 
-  <bean id="UiManagerTarget"
-        class="net.bioclipse.chart.ui.business.UiManager">
+  <bean id="ChartManagerTarget"
+        class="net.bioclipse.chart.ui.business.ChartManager">
   </bean>
 
   <bean id="javaScriptUiManager"
         class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target"
-              ref="UiManagerTarget" />
+              ref="ChartManagerTarget" />
     <property name="proxyInterfaces"
               value="net.bioclipse.chart.ui.business.IJavaScriptUiManager" />
     <property name="interceptorNames" >
@@ -54,7 +54,7 @@
   <bean id="javaUiManager"
         class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="target"
-              ref="UiManagerTarget" />
+              ref="ChartManagerTarget" />
     <property name="proxyInterfaces"
               value="net.bioclipse.chart.ui.business.IJavaUiManager" />
     <property name="interceptorNames" >

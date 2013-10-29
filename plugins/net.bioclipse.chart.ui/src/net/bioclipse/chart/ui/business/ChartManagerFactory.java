@@ -25,7 +25,7 @@ import net.bioclipse.chart.ui.Activator;
  *
  * @author jonalv
  */
-public class UiManagerFactory
+public class ChartManagerFactory
        implements IExecutableExtension, IExecutableExtensionFactory {
 
     private Object manager;

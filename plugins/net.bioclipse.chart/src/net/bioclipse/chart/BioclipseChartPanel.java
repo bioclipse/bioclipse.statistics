@@ -16,8 +16,6 @@ import java.util.List;
 import net.bioclipse.cdk.domain.ICDKMolecule;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
 import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculeTableViewer.MolTableElement;
-import net.bioclipse.chart.events.CellData;
-import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.core.domain.IMolecule.Property;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartConstants;
@@ -45,6 +43,7 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 public class BioclipseChartPanel extends ChartPanel implements
         ISelectionListener {
 
+    private static final long serialVersionUID = -5751734175128962492L;
     private ScatterPlotMouseHandler smh;
     private ChartAction zoomSelectAction;
     
@@ -88,7 +87,6 @@ public class BioclipseChartPanel extends ChartPanel implements
                 ScatterPlotRenderer renderer = null;
                 if (plotRenderer instanceof ScatterPlotRenderer) {
                     renderer = (ScatterPlotRenderer) plot.getRenderer();
-//                    renderer.clearMarkedPoints();
                 }
                 String xLabel = plot.getDomainAxis().getLabel();
                 String yLabel = plot.getRangeAxis().getLabel();
@@ -172,7 +170,12 @@ public class BioclipseChartPanel extends ChartPanel implements
         else if (property.equals( ChartConstants.MOL_MASS )) {
             ChartDescriptor cd = ChartUtils.getChartDescriptor(getChart());
             if (cd != null) {
-                value = cd.getExtraData( element.getIndex() );
+                if (cd.getXLabel().equals( ChartConstants.MOL_MASS ))
+                    value = cd.getXValue( element.getIndex() );
+                else if (cd.getYLabel().equals( ChartConstants.MOL_MASS ))
+                    value = cd.getYValue( element.getIndex() );
+                else
+                    value = Double.NaN;
             } else 
                 value = Double.NaN;
         } else {
@@ -223,7 +226,12 @@ public class BioclipseChartPanel extends ChartPanel implements
             ChartDescriptor cd = ChartUtils.getChartDescriptor(getChart());
             for(Integer i:mtSel.getSelectedRows()) {
                 if (cd != null) {
-                    values.add( cd.getExtraData( i ) );
+                    if (cd.getXLabel().equals( ChartConstants.MOL_MASS ))
+                        values.add( cd.getXValue( i ) );
+                    else if (cd.getYLabel().equals( ChartConstants.MOL_MASS ))
+                        values.add(  cd.getYValue( i ) );
+                    else
+                        values.add( Double.NaN );
                 } else {
                     values.add( Double.NaN );
                 }

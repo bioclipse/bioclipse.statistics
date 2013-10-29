@@ -13,6 +13,6 @@ package net.bioclipse.chart.ui.business;
 import net.bioclipse.managers.business.IBioclipseJSManager;
 
 public interface IJavaScriptUiManager
-       extends IUiManager, IBioclipseJSManager {
+       extends IChartManager, IBioclipseJSManager {
 
 }

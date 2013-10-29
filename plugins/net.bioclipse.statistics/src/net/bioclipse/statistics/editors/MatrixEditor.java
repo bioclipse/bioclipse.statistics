@@ -816,7 +816,7 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 	public void plot( int plotType )
 	{
 		Point[] cellSelection = grid.getCellSelection();
-
+		
 		int colMax = Integer.MIN_VALUE,
 		rowMax = Integer.MIN_VALUE,
 		colMin = Integer.MAX_VALUE,
@@ -879,41 +879,48 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		//If only 1 or 2 columns are selected no dialog is shown
 		else
 		{
-			ColumnData cdx,cdy;
-			if (columnsVector.size() == 1) {
-			    cdy = ((ColumnData)columnsVector.get(0));
-			    cdx = new ColumnData("Row");
-			    int start = cdy.getIndices()[0];
-			    int end = cdy.getIndices().length+ start;
-			    for (int i = start;i<end;i++)
-			        cdx.add( i+1, i );
-			} else {
-			    cdx = ((ColumnData)columnsVector.get(0));
-			    cdy = ((ColumnData)columnsVector.get(1));
-			}
-			ChartDescriptor descriptor = new ChartDescriptor(this, cdx.getIndices(),plotType ,cdx.getLabel(),cdy.getLabel(), cellSelection);
-			switch( plotType )
-			{
-			case ChartConstants.SCATTER_PLOT:
-			    ChartUtils.scatterPlot( cdx.getValues(), cdy.getValues(),
-			                            cdx.getLabel(), cdy.getLabel(), 
-			                            cdx.getLabel() + " against " + cdy.getLabel(), 
-			                            descriptor);
-			    break;
-			case ChartConstants.LINE_PLOT:
-				ChartUtils.linePlot(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
-				                    cdy.getLabel(), cdx.getLabel() + " against " + 
-				                    cdy.getLabel(), descriptor);
-				break;
-			case ChartConstants.TIME_SERIES:
-				ChartUtils.timeSeries(cdx.getValues(), cdy.getValues(), cdx.getLabel(), 
-				                      cdy.getLabel(), cdx.getLabel() + " against " + 
-				                      cdy.getLabel(), descriptor);
-				break;
-			default: 
-				throw new IllegalArgumentException("Illegal value for plotType"); 
-			}
-			ChartUtils.setDataColumns(cdx.getLabel(), cdy.getLabel());
+		    ColumnData cdx,cdy;
+		    if (columnsVector.size() == 1) {
+		        cdy = ((ColumnData)columnsVector.get(0));
+		        cdx = new ColumnData("Row");
+		        int start = cdy.getIndices()[0];
+		        int end = cdy.getIndices().length+ start;
+		        for (int i = start;i<end;i++)
+		            cdx.add( i+1, i );
+		    } else {
+		        cdx = ((ColumnData)columnsVector.get(0));
+		        cdy = ((ColumnData)columnsVector.get(1));
+		    }
+
+		    StringBuffer title = new StringBuffer( cdx.getLabel() );
+		    title.append( " against " );
+		    title.append( cdy.getLabel() );
+		    
+		    ChartDescriptor descriptor = new ChartDescriptor(this, 
+		                                                     cdx.getIndices(), 
+		                                                     plotType,
+		                                                     cdx.getLabel(),
+		                                                     cdx.getValues(),
+		                                                     cdy.getLabel(),
+		                                                     cdy.getValues(), 
+		                                                     cellSelection,
+		                                                     title.toString() );
+
+		    switch( plotType )
+		    {
+		        case ChartConstants.SCATTER_PLOT:
+		            ChartUtils.scatterPlot( descriptor );
+		            break;
+		        case ChartConstants.LINE_PLOT:
+		            ChartUtils.linePlot( descriptor );
+		            break;
+		        case ChartConstants.TIME_SERIES:
+		            ChartUtils.timeSeries( descriptor );
+		            break;
+		        default: 
+		            throw new IllegalArgumentException("Illegal value for plotType"); 
+		    }
+		    ChartUtils.setDataColumns(cdx.getLabel(), cdy.getLabel());
 		}
 	}
 

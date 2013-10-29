@@ -31,12 +31,10 @@ import net.bioclipse.chart.ScatterPlotRenderer;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.Range;
-import org.jfree.ui.RectangleInsets;
 
 /**
  * Handles clicks on scatter plots
@@ -105,8 +103,8 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				
 				if(drawRect.contains(datasetPoint2D) ){
 				    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-                    cp.setPropertyValue( ChartConstants.X_VALUE, xK );
-                    cp.setPropertyValue( ChartConstants.Y_VALUE, yK );
+                    cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ) );
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ) );
                     cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					boolean pointAdded = mouseDragSelection.addPoint(cp);
 					if( pointAdded ){
@@ -238,7 +236,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			for (Component component : components) {
 				if( component instanceof ChartPanel ){
 					selectedPanel = (ChartPanel) component;
-//					selectedChart = chartPanel.getChart();
 					foundChartPanel = true;
 					break;
 				}
@@ -311,9 +308,8 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 					//Create a new selection
 
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
-//					cp.setDataPoint(j, i);
-					cp.setPropertyValue( ChartConstants.X_VALUE, xK );
-                    cp.setPropertyValue( ChartConstants.Y_VALUE, yK );
+					cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ));
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ));
                     cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					currentSelection.addPoint(cp);
 					if( !me.isShiftDown() )

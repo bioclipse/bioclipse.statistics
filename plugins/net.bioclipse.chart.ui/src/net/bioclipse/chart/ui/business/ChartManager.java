@@ -20,9 +20,9 @@ import org.apache.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import net.bioclipse.statistics.model.*;
 
-public class UiManager implements IBioclipseManager {
+public class ChartManager implements IBioclipseManager {
 
-    private static final Logger logger = Logger.getLogger(UiManager.class);
+    private static final Logger logger = Logger.getLogger(ChartManager.class);
 
     /**
      * Gives a short one word name of the manager used as variable name when
@@ -30,16 +30,6 @@ public class UiManager implements IBioclipseManager {
      */
     public String getManagerName() {
         return "chart";
-    }
-    
-    public String say() {
-        return "Hi!";
-    }
-   
-    public void plot() {
-        double[] x = {1, 4, 6, 8};
-        double[] y = {12, 5, 1, 7};
-        this.linePlot( x, y, "x-Label", "y-Label", "My title" );
     }
    
     /*
@@ -59,7 +49,8 @@ public class UiManager implements IBioclipseManager {
     }
     
     public void linePlot(double[] xValues, double[] yValues) {
-        this.plot( xValues, yValues, "The x-values", "The y-values", "Line Plot", ChartConstants.LINE_PLOT );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.LINE_PLOT, "X-axis", xValues, "Y-axis", yValues, null, "Line Plot" );
+        this.plot( descriptor );
     }
     
     public void linePlot(ArrayList<Object> xValues, ArrayList<Object> yValues) 
@@ -95,7 +86,8 @@ public class UiManager implements IBioclipseManager {
     }
     
     public void linePlot(double[] xValues, double[] yValues, String xLabel, String yLabel, String title) {
-        this.plot( xValues, yValues, xLabel, yLabel, title, ChartConstants.LINE_PLOT );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.LINE_PLOT, xLabel, xValues, yLabel, yValues, null, title );
+        this.plot( descriptor );
     }
     
     /*
@@ -114,12 +106,14 @@ public class UiManager implements IBioclipseManager {
     }
     
     public void scatterPlot(double[] xValues, double[] yValues) {
-        this.plot( xValues, yValues, "X-axis", "Y-axis", "Scatter plot", ChartConstants.SCATTER_PLOT );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.SCATTER_PLOT, "X-axis", xValues, "Y-axis", yValues, null, "Scatter plot" );
+        this.plot( descriptor );
     }
     
     public void scatterPlot(double[] xValues, double[] yValues, String xLabel, 
                            String yLabel, String title) {
-        this.plot( xValues, yValues, xLabel, yLabel, title, ChartConstants.SCATTER_PLOT );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.SCATTER_PLOT, xLabel, xValues, yLabel, yValues, null, title );
+        this.plot( descriptor );
     }
     
     /* 
@@ -138,12 +132,14 @@ public class UiManager implements IBioclipseManager {
     }
     
     public void timeSeries(double[] xValues, double[] yValues) {
-        this.plot( xValues, yValues, "X-axis", "Y-axis", "Time series", ChartConstants.TIME_SERIES );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.TIME_SERIES, "X-axis", xValues, "Y-axis", yValues, null, "Time series" );
+        this.plot( descriptor );
     }
     
     public void timeSeries(double[] xValues, double[] yValues, String xLabel, 
                            String yLabel, String title) {
-        this.plot( xValues, yValues, xLabel, yLabel, title, ChartConstants.TIME_SERIES );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.TIME_SERIES, xLabel, xValues, yLabel, yValues, null, title );
+        this.plot( descriptor );
     }
     
     /*
@@ -151,15 +147,18 @@ public class UiManager implements IBioclipseManager {
      */
     
     public void histogram(double[] values, int bins) {
-        this.plotHistogram( values, bins, "", "", "Histogram" );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, "Values", values, "", bins, null, "Histogram" );
+        this.plotHistogram( descriptor );
     }
     
     public void histogram(double[] values, int bins, String title) {
-        this.plotHistogram( values, bins, "", "", title );
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, "Values", values, "", bins, null, title );
+        this.plotHistogram( descriptor );
     }
     
-    public void histogram(double[] values, int bins, String xLabel, String yLabel, String title ) {
-        this.plotHistogram( values, bins, xLabel, yLabel, title );
+    public void histogram(double[] values, int bins, String xLabel, String yLable, String title ) {
+        ChartDescriptor descriptor = new ChartDescriptor( null, null, xLabel, values, yLable, bins, null, title );
+        this.plotHistogram( descriptor );
     }
     
     /*
@@ -219,53 +218,39 @@ public class UiManager implements IBioclipseManager {
                 yValues[i] = 0;
             }
         }
+            
+        ChartDescriptor descriptor;
+        
         if (matrix.hasColHeader())
-            plot( xValues, yValues, matrix.getColumnName( column1 ),
-                      matrix.getColumnName( column2 ), title, type );
+            descriptor = new ChartDescriptor( null, null, type, matrix.getColumnName( column1 ), xValues, matrix.getColumnName( column2 ), yValues, null, title );
         else
-            plot( xValues, yValues, "X axis", "Y axis", title, type );
+            descriptor = new ChartDescriptor( null, null, type, "X-axis", xValues, "Y-axis", yValues, null, title );
+        
+        this.plot( descriptor );
     }
     
     /**
-     * An internal method that does the actual plotting for line plot, scatter
-     * plot and time series.
-     * @param xValues The X-values of the plot (or data values in time series)
-     * @param yValues The Y-values of the plot (or time values in time series)
-     * @param xLabel The X-label
-     * @param yLabel The Y-label
-     * @param title The title of the plot
-     * @param type The plot type (e.g <code>ChartConstants.LINE_PLOT</code> )
+     * An method that does the actual plotting for line plot, scatter
+     * plot and time series. Also used when plotting from the molTableEditor.
+     * 
+     * @param ChartDescriptor The description of the chart to be plotted
      */
-    private void plot(double[] xValues, double[] yValues, String xLabel, String yLabel, String title, int type) {
-        final double[] x = xValues;
-        final double[] y = yValues;
-        final String x_label = xLabel;
-        final String y_label = yLabel;
-        final String finalTitle = title;
-        final int chartType = type;
-        int[] indexes = new int[x.length];
-        for (int i = 0;i<x.length;i++)
-            indexes[i]= i+1;
-        final ChartDescriptor descriptor = new ChartDescriptor( null, indexes, type, x_label, y_label, null );
-        descriptor.setSourceName( "JavaScript" );
+    public void plot(final ChartDescriptor chartDescriptor) {
         
         Display.getDefault().asyncExec(new Runnable() {
             
             @Override
             public void run() {
-                switch (chartType) {
+                switch (chartDescriptor.getPlotType()) {
                     case ChartConstants.LINE_PLOT:
-                        ChartUtils.linePlot( x, y, x_label, y_label, finalTitle,
-                                             descriptor );
+                        ChartUtils.linePlot( chartDescriptor );
                         break;
                         
                     case ChartConstants.SCATTER_PLOT:
-                        ChartUtils.scatterPlot( x, y, x_label, y_label, 
-                                                finalTitle, descriptor );
+                        ChartUtils.scatterPlot( chartDescriptor );
                         break;
                     case ChartConstants.TIME_SERIES:
-                        ChartUtils.timeSeries( x, y, x_label, x_label,
-                                               finalTitle, descriptor );
+                        ChartUtils.timeSeries( chartDescriptor );
                         break;
                 }
             }
@@ -274,16 +259,13 @@ public class UiManager implements IBioclipseManager {
     }
     
     
-    private void plotHistogram(final double[] values, final int bins, 
-                              final String xLabel, final String yLabel, 
-                              final String title) {
+    private void plotHistogram(final ChartDescriptor chartDescriptor) {
         
         Display.getDefault().asyncExec(new Runnable() {
 
             @Override
             public void run() {
-                ChartUtils.histogram( values, bins, xLabel, yLabel, title, null,
-                                      null );
+                ChartUtils.histogram( chartDescriptor );
             }
             
         });
@@ -328,7 +310,7 @@ public class UiManager implements IBioclipseManager {
             }
         } else
             categories = categoryLabels;
-        final ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.BAR_PLOT, xLabel, yLabel, null );
+        final ChartDescriptor descriptor = new ChartDescriptor( null, null, ChartConstants.BAR_PLOT, xLabel, dataValues[0], yLabel, dataValues[1], null, title );
         descriptor.setSourceName( "JavaScript" );
         Display.getDefault().asyncExec(new Runnable() {
 

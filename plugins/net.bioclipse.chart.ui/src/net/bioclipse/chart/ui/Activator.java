@@ -10,7 +10,7 @@
  ******************************************************************************/
 package net.bioclipse.chart.ui;
 
-import net.bioclipse.chart.ui.business.IUiManager;
+import net.bioclipse.chart.ui.business.IChartManager;
 import net.bioclipse.chart.ui.business.IJavaUiManager;
 import net.bioclipse.chart.ui.business.IJavaScriptUiManager;
 
@@ -67,10 +67,10 @@ public class Activator extends AbstractUIPlugin {
         return plugin;
     }
 
-    public IUiManager getJavaUiManager() {
-        IUiManager manager = null;
+    public IChartManager getJavaUiManager() {
+        IChartManager manager = null;
         try {
-            manager = (IUiManager)
+            manager = (IChartManager)
                       javaFinderTracker.waitForService(1000*10);
         }
         catch (InterruptedException e) {

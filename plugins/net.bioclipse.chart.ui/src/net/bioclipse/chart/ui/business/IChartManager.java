@@ -21,16 +21,8 @@ import net.bioclipse.statistics.model.IMatrixResource;
 @PublishedClass(
     value="A manager for creating charts from different datasets."
 )
-public interface IUiManager extends IBioclipseManager {
-    
-    @Recorded
-    @PublishedMethod(methodSummary = "Says Hi")
-    public String say();
-    
-    @Recorded
-    @PublishedMethod(methodSummary = "Create a plot out of five values for testing")
-    public void plot();
-    
+public interface IChartManager extends IBioclipseManager {
+       
     @Recorded
     @PublishedMethod(methodSummary = "Makes a line plot from a matrix.",
             params="IMatrixResource matrix")

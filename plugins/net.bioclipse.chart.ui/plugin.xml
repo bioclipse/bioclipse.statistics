@@ -5,12 +5,9 @@
    <extension
          point="net.bioclipse.scripting.contribution">
       <scriptContribution
-            service="net.bioclipse.chart.ui.business.UiManagerFactory"
-            id="net.bioclipse.chart.ui.business.UiManager">
+            service="net.bioclipse.chart.ui.business.ChartManagerFactory"
+            id="net.bioclipse.chart.ui.business.ChartManager">
       </scriptContribution>
-   </extension>
-   <extension
-         point="net.bioclipse.chart.chats">
    </extension>
    <extension
          point="org.eclipse.ui.commands">
