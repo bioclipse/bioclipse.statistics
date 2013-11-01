@@ -23,7 +23,6 @@ import net.bioclipse.core.business.BioclipseException;
 import net.bioclipse.core.domain.IMolecule.Property;
 import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
-import net.bioclipse.plugins.views.ChartView;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.commands.AbstractHandler;
@@ -32,8 +31,6 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -47,7 +44,7 @@ public class ChartFromSDF extends AbstractHandler {
 
     private Logger logger = Logger.getLogger( ChartFromSDF.class );
     private ICDKManager cdk = Activator.getDefault().getJavaCDKManager();
-    private final static String CHART_VIEW_ID ="net.bioclipse.plugins.views.ChartView";
+
     /* The column that shows the 2D-structure don't have any property, if that
      * selected the mass of the molecule will be calculated. */ 
     private final static String MOL_STRUCTURE_COLUMN = "2D-structure";
@@ -72,10 +69,9 @@ public class ChartFromSDF extends AbstractHandler {
             if (sel instanceof MolTableSelection) {
                 MolTableSelection selectedMols = (MolTableSelection) sel;
                 Iterator<ICDKMolecule> itr = selectedMols.iterator();
-                List<String> selectedProerties = selectedMols.getPropertiyNames();
                 List<Integer> selRows = selectedMols.getSelectedRows();
                 Point[] originRows = new Point[selRows.size()];
-                selectedProerties = selectedMols.getPropertiyNames();
+                List<String> selectedProerties = selectedMols.getPropertyNames();
                 int index = 0;
                 for (int row:selRows)
                     originRows[index++] = new Point( 0, row+1 );
@@ -146,12 +142,6 @@ public class ChartFromSDF extends AbstractHandler {
                 ChartDescriptor descriptor = new ChartDescriptor( editor, indexes, ChartConstants.SCATTER_PLOT, xLabel, xValues, yLabel, yValues, originRows, title );
                 chart.plot( descriptor );
 
-                try {
-                    ChartView view = (ChartView) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CHART_VIEW_ID);
-                    editor.addListener( view );
-                } catch ( PartInitException e ) {
-                   logger.error( "Could not get the view: "+e.getMessage() );
-                }
             }
         }
 

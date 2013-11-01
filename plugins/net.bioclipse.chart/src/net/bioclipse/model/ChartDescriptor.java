@@ -10,6 +10,10 @@
 package net.bioclipse.model;
 
 import java.io.FileNotFoundException;
+import java.net.BindException;
+import java.util.List;
+
+import net.bioclipse.chart.BioclipseChartPanel;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.swt.graphics.Point;
@@ -32,6 +36,7 @@ public class ChartDescriptor {
 	private double[] xValues, yValues;
 	private String chartTitle;
 	private int bins = 0;
+	private String[] itemLabels;
 	
 	public ChartDescriptor(IEditorPart source, int[] indices, int plotType,
 			String xLabel, double[] xValues, String yLabel, double[] yValues, 
@@ -188,5 +193,42 @@ public class ChartDescriptor {
 	        return bins;   
 	    else 
 	        throw new IllegalAccessError( "This is only for the histograms" );
+	}
+	
+	public void setItemLabels(String[] labels) {
+	    if (labels.length == xValues.length)
+	        this.itemLabels = labels;
+	    else
+	        throw new IllegalArgumentException( "The chart has to have as " +
+	        		"many lables as it has points." );
+	}
+	
+	public String getItemLabel(int index) {
+	    if (hasItemLabels() && (index > 0 || index < itemLabels.length))
+	        return itemLabels[index];
+	    
+	    throw new IllegalAccessError( "Cant find the item label." );
+	}
+	
+	public void setItemLabel(int index, String label) {
+        if (hasItemLabels() && (index > 0 || index < itemLabels.length))
+            itemLabels[index] = label;
+        
+        throw new IllegalAccessError( "Cant find the item label." );
+    }
+	
+	public String[] getItemLabels() {
+	    if (hasItemLabels())
+	        return itemLabels;
+	    
+	    return new String[0];
+    }
+	
+	public boolean hasItemLabels() {
+	    return (itemLabels != null);
+	}
+	
+	public void removeItemLabels() {
+	    itemLabels = null;
 	}
 }

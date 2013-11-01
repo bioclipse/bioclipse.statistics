@@ -50,6 +50,15 @@
             </command>
          </toolbar>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:net.bioclipse.cdk.ui.sdfeditor.column.menu?after=additions">
+         <command
+               commandId="net.bioclipse.chart.ui.chartFromSDF"
+               label="Plot column"
+               style="push">
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">

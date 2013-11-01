@@ -11,8 +11,8 @@
 package net.bioclipse.chart.ui;
 
 import net.bioclipse.chart.ui.business.IChartManager;
-import net.bioclipse.chart.ui.business.IJavaUiManager;
-import net.bioclipse.chart.ui.business.IJavaScriptUiManager;
+import net.bioclipse.chart.ui.business.IJavaChartManager;
+import net.bioclipse.chart.ui.business.IJavaScriptChartManager;
 
 import org.apache.log4j.Logger;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -41,13 +41,13 @@ public class Activator extends AbstractUIPlugin {
         plugin = this;
         javaFinderTracker
             = new ServiceTracker( context,
-                                  IJavaUiManager.class.getName(),
+                                  IJavaChartManager.class.getName(),
                                   null );
 
         javaFinderTracker.open();
         jsFinderTracker
             = new ServiceTracker( context,
-                                  IJavaScriptUiManager.class.getName(),
+                                  IJavaScriptChartManager.class.getName(),
                                   null );
 
         jsFinderTracker.open();
@@ -85,10 +85,10 @@ public class Activator extends AbstractUIPlugin {
         return manager;
     }
 
-    public IJavaScriptUiManager getJavaScriptUiManager() {
-        IJavaScriptUiManager manager = null;
+    public IJavaScriptChartManager getJavaScriptUiManager() {
+        IJavaScriptChartManager manager = null;
         try {
-            manager = (IJavaScriptUiManager)
+            manager = (IJavaScriptChartManager)
                       jsFinderTracker.waitForService(1000*10);
         }
         catch (InterruptedException e) {

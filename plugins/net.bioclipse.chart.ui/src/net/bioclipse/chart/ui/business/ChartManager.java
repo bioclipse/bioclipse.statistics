@@ -218,13 +218,26 @@ public class ChartManager implements IBioclipseManager {
                 yValues[i] = 0;
             }
         }
-            
+        int[] indexes = new int[matrix.getRowCount()];
+        for (int i=0;i<matrix.getRowCount();i++)
+            indexes[i] = i+1;
+        
         ChartDescriptor descriptor;
         
         if (matrix.hasColHeader())
-            descriptor = new ChartDescriptor( null, null, type, matrix.getColumnName( column1 ), xValues, matrix.getColumnName( column2 ), yValues, null, title );
+            descriptor = new ChartDescriptor( null, indexes, type, matrix.getColumnName( column1 ), xValues, matrix.getColumnName( column2 ), yValues, null, title );
         else
-            descriptor = new ChartDescriptor( null, null, type, "X-axis", xValues, "Y-axis", yValues, null, title );
+            descriptor = new ChartDescriptor( null, indexes, type, "X-axis", xValues, "Y-axis", yValues, null, title );
+        
+        if (matrix.hasRowHeader()) {
+            String[] itemLabels = new String[matrix.getRowCount()];
+            for (int i = 0; i < matrix.getRowCount(); i++)
+                itemLabels[i] = matrix.getRowName( i+1 );
+            
+            descriptor.setItemLabels( itemLabels );
+        }
+        
+        descriptor.setSourceName( "Matrix from the JS-console" );
         
         this.plot( descriptor );
     }

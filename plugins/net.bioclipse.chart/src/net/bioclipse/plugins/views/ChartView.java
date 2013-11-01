@@ -257,11 +257,8 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				}
 				chart.plotChanged(new PlotChangeEvent(chart.getPlot()));
 			}
-		} else if (selection instanceof MolTableSelection) {
-//		    System.out.println("A MolTableSelection");
 		}
 	}
-
 
 	public void addSelectionChangedListener(ISelectionChangedListener listener) {
 		if(!selectionListeners.contains(listener))
@@ -425,11 +422,23 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 			            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
 
 			                public String generateToolTip( XYDataset dataset, int series, int item ) {
-			                    return dataset.getY( series, item ).toString();
+			                    if (cd.hasItemLabels())
+			                        return cd.getItemLabel( item );
+			                    else
+			                        return dataset.getY( series, item ).toString();
 			                }
 
 			            });
-			            ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
+			            
+			            if (cd.hasItemLabels()) {
+			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() {
+			                    @Override
+			                    public String generateLabel(XYDataset dataset, int series, int item) {
+			                        return cd.getItemLabel( item );
+			                    }
+			                });
+			            } else
+			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
 			            
 			        }
 //					if( ChartView.IS_MACOS )

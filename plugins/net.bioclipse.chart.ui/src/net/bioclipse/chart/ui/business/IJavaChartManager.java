@@ -10,9 +10,6 @@
  ******************************************************************************/
 package net.bioclipse.chart.ui.business;
 
-import net.bioclipse.managers.business.IBioclipseJSManager;
-
-public interface IJavaScriptUiManager
-       extends IChartManager, IBioclipseJSManager {
+public interface IJavaChartManager extends IChartManager {
 
 }

@@ -69,8 +69,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 	private Vector<ColumnData> columns;
 	private int diagramType;
 	private Label plotTypeLabel;
-	private Button rowRadioButton;
-	private Button colRadioButton;
+//	private Button rowRadioButton;
+//	private Button colRadioButton;
 	private Combo plotTypeCombo;
 	private Label seperator;
 	private boolean isPlotTypeEnabled;
@@ -124,39 +124,44 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 			dialogShell.pack();			
 			dialogShell.setSize(434, 322);
 			dialogShell.setText("Chart Dialog");
-			{
-				rowRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
-				FormData rowButtonLData = new FormData();
-				rowButtonLData.width = 217;
-				rowButtonLData.height = 20;
-				rowButtonLData.left =  new FormAttachment(0, 1000, 57);
-				rowButtonLData.top =  new FormAttachment(0, 1000, 176);
-				rowRadioButton.setLayoutData(rowButtonLData);
-				rowRadioButton.setText("Data series in rows");
-				rowRadioButton.addSelectionListener(new SelectionAdapter() {
-
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
-						super.widgetSelected(e);
-					}
-					
-				});
-			}
-			{
-				colRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
-				FormData colRadioButtonLData = new FormData();
-				colRadioButtonLData.width = 217;
-				colRadioButtonLData.height = 20;
-				colRadioButtonLData.left =  new FormAttachment(0, 1000, 57);
-				colRadioButtonLData.top =  new FormAttachment(0, 1000, 157);
-				colRadioButton.setLayoutData(colRadioButtonLData);
-				colRadioButton.setText("Data series in columns");
-				colRadioButton.addSelectionListener(new SelectionAdapter() {
-				});
-				colRadioButton.setSelection(true);
+			/* There function are to set if the data series should be picked 
+			 * from the columns or rows. But as it is now the plotting in BC 
+			 * does not support plotting for more than one serie per diagram.
+			 * If this is implemented this buttons might be of use, so for now 
+			 * they are just out comment. */
+//			{
+//				rowRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+//				FormData rowButtonLData = new FormData();
+//				rowButtonLData.width = 217;
+//				rowButtonLData.height = 20;
+//				rowButtonLData.left =  new FormAttachment(0, 1000, 57);
+//				rowButtonLData.top =  new FormAttachment(0, 1000, 176);
+//				rowRadioButton.setLayoutData(rowButtonLData);
+//				rowRadioButton.setText("Data series in rows");
+//				rowRadioButton.addSelectionListener(new SelectionAdapter() {
+//
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						// TODO Auto-generated method stub
+//						super.widgetSelected(e);
+//					}
+//					
+//				});
+//			}
+//			{
+//				colRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+//				FormData colRadioButtonLData = new FormData();
+//				colRadioButtonLData.width = 217;
+//				colRadioButtonLData.height = 20;
+//				colRadioButtonLData.left =  new FormAttachment(0, 1000, 57);
+//				colRadioButtonLData.top =  new FormAttachment(0, 1000, 157);
+//				colRadioButton.setLayoutData(colRadioButtonLData);
+//				colRadioButton.setText("Data series in columns");
+//				colRadioButton.addSelectionListener(new SelectionAdapter() {
+//				});
+//				colRadioButton.setSelection(true);
 				
-			}
+//			}
 			{
 				plotTypeCombo = new Combo(dialogShell, SWT.DROP_DOWN | SWT.READ_ONLY);
 				plotTypeCombo.add("Scatter Plot");
