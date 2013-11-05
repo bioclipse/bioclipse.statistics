@@ -34,12 +34,12 @@ public class ChartManagerFactory
                                        String propertyName,
                                        Object data ) throws CoreException {
 
-        manager = Activator.getDefault().getJavaScriptUiManager();
+        manager = Activator.getDefault().getJavaScripChartManager();
 
         if ( manager == null ) {
             throw new IllegalStateException(
                           "Could not get the JavaScript flavoured " +
-                          "UiManager" );
+                          "ChartManager" );
         }
     }
 

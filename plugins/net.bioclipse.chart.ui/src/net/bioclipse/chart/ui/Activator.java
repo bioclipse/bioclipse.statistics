@@ -67,7 +67,7 @@ public class Activator extends AbstractUIPlugin {
         return plugin;
     }
 
-    public IChartManager getJavaUiManager() {
+    public IChartManager getJavaChartManager() {
         IChartManager manager = null;
         try {
             manager = (IChartManager)
@@ -75,17 +75,17 @@ public class Activator extends AbstractUIPlugin {
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(
-                          "Could not get the Java UiManager",
+                          "Could not get the Java ChartManager",
                           e );
         }
         if (manager == null) {
             throw new IllegalStateException(
-                          "Could not get the Java UiManager");
+                          "Could not get the Java ChartManager");
         }
         return manager;
     }
 
-    public IJavaScriptChartManager getJavaScriptUiManager() {
+    public IJavaScriptChartManager getJavaScripChartManager() {
         IJavaScriptChartManager manager = null;
         try {
             manager = (IJavaScriptChartManager)
@@ -93,12 +93,12 @@ public class Activator extends AbstractUIPlugin {
         }
         catch (InterruptedException e) {
             throw new IllegalStateException(
-                          "Could not get the JavaScript UiManager",
+                          "Could not get the JavaScript ChartManager",
                           e );
         }
         if (manager == null) {
             throw new IllegalStateException(
-                          "Could not get the JavaScript UiManager");
+                          "Could not get the JavaScript ChartManager");
         }
         return manager;
     }
