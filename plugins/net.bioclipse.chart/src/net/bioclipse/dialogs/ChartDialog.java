@@ -15,8 +15,11 @@ import java.util.Vector;
 
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.model.ChartConstants;
+import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ColumnData;
 
+import org.apache.log4j.Logger;
+import org.eclipse.core.internal.registry.ThirdLevelConfigurationElementHandle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -29,7 +32,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -63,29 +69,33 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 	private Vector<ColumnData> columns;
 	private int diagramType;
 	private Label plotTypeLabel;
-	private Button rowRadioButton;
-	private Button colRadioButton;
+//	private Button rowRadioButton;
+//	private Button colRadioButton;
 	private Combo plotTypeCombo;
 	private Label seperator;
 	private boolean isPlotTypeEnabled;
 	private List<ColumnData> columnDataList;
-
+	private IEditorPart dataSource;
+	private Point[] cellselection;
+	private Logger logger = Logger.getLogger( this.getClass() );
+	
 	/**
 	* Auto-generated main method to display this 
 	* org.eclipse.swt.widgets.Dialog inside a new Shell.
 	*/
 	public static void main(String[] args) {
-		try {
-			Display display = Display.getDefault();
-			Shell shell = new Shell(display);
-			ChartDialog inst = new ChartDialog(shell, SWT.NULL,ChartConstants.LINE_PLOT,null, true);
-			inst.open();
-		} catch (Exception e) {
+	    try {
+	        Display display = Display.getDefault();
+	        Shell shell = new Shell(display);
+	        ChartDialog inst = new ChartDialog(shell, SWT.NULL,ChartConstants.LINE_PLOT,null, true, null, null);
+	        inst.open();
+	    } catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public ChartDialog(Shell parent, int style, int diagramType, Vector<ColumnData> columns, boolean enablePlotType) throws IllegalArgumentException
+	public ChartDialog(Shell parent, int style, int diagramType, Vector<ColumnData> columns,
+	                   boolean enablePlotType, IEditorPart dataSource, Point[] originCells) throws IllegalArgumentException
 	{
 		super(parent, style);
 		items = new String[columns.size()];
@@ -99,8 +109,9 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 		this.columns = columns;
 		this.isPlotTypeEnabled = enablePlotType;
 		this.diagramType = diagramType;
-		
 		columnDataList = columns;
+		this.dataSource = dataSource;
+		this.cellselection = originCells;
 	}
 
 	public void open() {
@@ -113,39 +124,44 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 			dialogShell.pack();			
 			dialogShell.setSize(434, 322);
 			dialogShell.setText("Chart Dialog");
-			{
-				rowRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
-				FormData rowButtonLData = new FormData();
-				rowButtonLData.width = 217;
-				rowButtonLData.height = 20;
-				rowButtonLData.left =  new FormAttachment(0, 1000, 57);
-				rowButtonLData.top =  new FormAttachment(0, 1000, 176);
-				rowRadioButton.setLayoutData(rowButtonLData);
-				rowRadioButton.setText("Data series in rows");
-				rowRadioButton.addSelectionListener(new SelectionAdapter() {
-
-					@Override
-					public void widgetSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
-						super.widgetSelected(e);
-					}
-					
-				});
-			}
-			{
-				colRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
-				FormData colRadioButtonLData = new FormData();
-				colRadioButtonLData.width = 217;
-				colRadioButtonLData.height = 20;
-				colRadioButtonLData.left =  new FormAttachment(0, 1000, 57);
-				colRadioButtonLData.top =  new FormAttachment(0, 1000, 157);
-				colRadioButton.setLayoutData(colRadioButtonLData);
-				colRadioButton.setText("Data series in columns");
-				colRadioButton.addSelectionListener(new SelectionAdapter() {
-				});
-				colRadioButton.setSelection(true);
+			/* There function are to set if the data series should be picked 
+			 * from the columns or rows. But as it is now the plotting in BC 
+			 * does not support plotting for more than one serie per diagram.
+			 * If this is implemented this buttons might be of use, so for now 
+			 * they are just out comment. */
+//			{
+//				rowRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+//				FormData rowButtonLData = new FormData();
+//				rowButtonLData.width = 217;
+//				rowButtonLData.height = 20;
+//				rowButtonLData.left =  new FormAttachment(0, 1000, 57);
+//				rowButtonLData.top =  new FormAttachment(0, 1000, 176);
+//				rowRadioButton.setLayoutData(rowButtonLData);
+//				rowRadioButton.setText("Data series in rows");
+//				rowRadioButton.addSelectionListener(new SelectionAdapter() {
+//
+//					@Override
+//					public void widgetSelected(SelectionEvent e) {
+//						// TODO Auto-generated method stub
+//						super.widgetSelected(e);
+//					}
+//					
+//				});
+//			}
+//			{
+//				colRadioButton = new Button(dialogShell, SWT.RADIO | SWT.LEFT);
+//				FormData colRadioButtonLData = new FormData();
+//				colRadioButtonLData.width = 217;
+//				colRadioButtonLData.height = 20;
+//				colRadioButtonLData.left =  new FormAttachment(0, 1000, 57);
+//				colRadioButtonLData.top =  new FormAttachment(0, 1000, 157);
+//				colRadioButton.setLayoutData(colRadioButtonLData);
+//				colRadioButton.setText("Data series in columns");
+//				colRadioButton.addSelectionListener(new SelectionAdapter() {
+//				});
+//				colRadioButton.setSelection(true);
 				
-			}
+//			}
 			{
 				plotTypeCombo = new Combo(dialogShell, SWT.DROP_DOWN | SWT.READ_ONLY);
 				plotTypeCombo.add("Scatter Plot");
@@ -218,8 +234,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				yValuesComboLData.left =  new FormAttachment(0, 1000, 141);
 				yValuesComboLData.top =  new FormAttachment(0, 1000, 236);
 				yValuesCombo.setLayoutData(yValuesComboLData);
-//				yValuesCombo.setItems(items);
-//				yValuesCombo.select(1);
+				yValuesCombo.setItems(items);
+				yValuesCombo.select(1);
 				yValuesCombo.addSelectionListener(new ValidSelectionAdapter());
 			}
 			{
@@ -301,8 +317,8 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				xValuesComboLData.left =  new FormAttachment(0, 1000, 141);
 				xValuesComboLData.top =  new FormAttachment(0, 1000, 202);
 				xValuesCombo.setLayoutData(xValuesComboLData);
-//				xValuesCombo.setItems(items);
-//				xValuesCombo.select(0);
+				xValuesCombo.setItems(items);
+				xValuesCombo.select(0);
 				xValuesCombo.addSelectionListener( new ValidSelectionAdapter() );
 			}
 			
@@ -363,46 +379,46 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 				
 				okButton.addSelectionListener(new SelectionAdapter() {
 	
-						@Override
-						public void widgetSelected(SelectionEvent e) {
-							super.widgetSelected(e);
-							String xColumn = xValuesCombo.getText();
-							String yColumn = yValuesCombo.getText();
-							int xIndex = Arrays.binarySearch(items, xColumn);
-							int yIndex = Arrays.binarySearch(items, yColumn);
-							
-							double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
-							double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
-							int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
-							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
-//						    if( diagramType == ChartConstants.SCATTER_PLOT )
-//						    {
-//							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
-//						    }
-//						    else if( diagramType == ChartConstants.LINE_PLOT)
-//						    {
-//							   ChartUtils.linePlot(xValues, yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
-//						    }
-							switch( diagramType )
-							{
-							case ChartConstants.SCATTER_PLOT:
-							    ChartUtils.scatterPlot( xValues , yValues, xAxisText.getText(),
-							    		yAxisText.getText(), chartText.getText(), indices, dataSource);
-							    break;
-							case ChartConstants.LINE_PLOT:
-    							ChartUtils.linePlot(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
-    							break;
-    						case ChartConstants.TIME_SERIES:
-    							ChartUtils.timeSeries(xValues, yValues, xAxisText.getText(), yAxisText.getText(), chartText.getText(), indices, dataSource);
-    							break;
-    						default: 
-    							throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
-    						}
-							ChartUtils.setDataColumns(xColumn, yColumn);
-    						dialogShell.close();
-    						}
-    						
-    					});
+				    @Override
+				    public void widgetSelected(SelectionEvent e) {
+				        super.widgetSelected(e);
+				        String xColumn = xValuesCombo.getText();
+				        String yColumn = yValuesCombo.getText();
+				        int xIndex = Arrays.binarySearch(items, xColumn);
+				        int yIndex = Arrays.binarySearch(items, yColumn);
+
+				        double[] xValues = ((ColumnData)columns.get(xIndex)).getValues();
+				        double[] yValues = ((ColumnData)columns.get(yIndex)).getValues();
+				        int[] indices = ((ColumnData)columns.get(yIndex)).getIndices();
+				        //							IEditorPart dataSource = ((ColumnData)columns.get(yIndex)).getDataSource();
+				        //						    if( diagramType == ChartConstants.SCATTER_PLOT )
+				        //						    {
+				        //							   ChartUtils.scatterPlot( xValues , yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
+				        //						    }
+				        //						    else if( diagramType == ChartConstants.LINE_PLOT)
+				        //						    {
+				        //							   ChartUtils.linePlot(xValues, yValues, xAxisLabel.getText(), yAxisLabel.getText(), nameLabel.getText());
+				        //						    }
+				        ChartDescriptor descriptor = new ChartDescriptor(dataSource, indices, diagramType, xColumn, xValues, yColumn, yValues, cellselection, chartText.getText());
+				        switch( diagramType )
+				        {
+				            case ChartConstants.SCATTER_PLOT:
+				                ChartUtils.scatterPlot( descriptor );
+				                break;
+				            case ChartConstants.LINE_PLOT:
+				                ChartUtils.linePlot( descriptor );
+				                break;
+				            case ChartConstants.TIME_SERIES:
+				                ChartUtils.timeSeries( descriptor );
+				                break;
+				            default: 
+				                throw new IllegalArgumentException("Illegal value for diagramType, value was" + diagramType ); 
+				        }
+				        ChartUtils.setDataColumns(xColumn, yColumn);
+				        dialogShell.close();
+				    }
+
+				});
 			}
 			dialogShell.setLocation(getParent().toDisplay(100, 100));
 			dialogShell.open();
@@ -412,7 +428,7 @@ public class ChartDialog extends org.eclipse.swt.widgets.Dialog {
 					display.sleep();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+		    logger.error( "Falied to open the chart dialog: "+e.getMessage() );
 		}
 	}
 	

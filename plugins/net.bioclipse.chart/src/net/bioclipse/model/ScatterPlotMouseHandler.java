@@ -34,10 +34,11 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.Range;
 
 /**
  * Handles clicks on scatter plots
- * @author Eskil Andersen
+ * @author Eskil Andersen, Klas Jšnsson
  *
  */
 public class ScatterPlotMouseHandler extends MouseInputAdapter
@@ -88,11 +89,9 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		drawRect.y = y1;
 		drawRect.width = x2 - drawRect.x;
 		drawRect.height = y2 - drawRect.y;
-		
-		
+				
 		//Create a clipping rectangle
-		Rectangle clipRect = new Rectangle(drawRect.x -100, drawRect.y -100, drawRect.width +200, drawRect.height +200);
-		
+		Rectangle clipRect = new Rectangle(drawRect.x-100, drawRect.y-100, drawRect.width+200, drawRect.height+200);
 		
 		//Check for selected points
 		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
@@ -103,7 +102,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 				Point2D datasetPoint2D = new Point2D.Double(domainValueTo2D(chartPanel, plot, xK.doubleValue()),rangeValueTo2D(chartPanel, plot, yK.doubleValue()));
 				
 				if(drawRect.contains(datasetPoint2D) ){
-					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+				    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+                    cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ) );
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ) );
+                    cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					boolean pointAdded = mouseDragSelection.addPoint(cp);
 					if( pointAdded ){
 						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(j, i);
@@ -147,10 +149,12 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		ChartPanel chartPanel = getChartPanel(e);
 		startX = e.getX();
 		startY = e.getY();
-		
+
 		if( !e.isShiftDown())
 		{
-			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).clearMarkedPoints();
+		    XYItemRenderer renderer = ((XYPlot)chartPanel.getChart().getPlot()).getRenderer();
+		    if (renderer instanceof ScatterPlotRenderer)
+		        ((ScatterPlotRenderer) renderer).clearMarkedPoints();
 			currentSelection = new ChartSelection();
 			chartPanel.getChart().plotChanged(new PlotChangeEvent(chartPanel.getChart().getPlot()));
 		} else{
@@ -166,7 +170,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
 		super.mouseReleased(e);
 		startX = 0;
 		startY = 0;
@@ -174,7 +177,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		lastY = 0;
 		ChartPanel chartPanel = this.getChartPanel(e);
 		chartPanel.repaint();
-		
 		currentSelection.addAll(mouseDragSelection);
 		ChartUtils.updateSelection(currentSelection);
 		
@@ -218,12 +220,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		return y.doubleValue();
 	}
-	
 
-	
 	private ChartPanel getChartPanel(MouseEvent me)
 	{
-		Point2D p = null;
+
 		Frame sourceFrame;
 		ChartPanel selectedPanel = null;
 		
@@ -236,7 +236,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			for (Component component : components) {
 				if( component instanceof ChartPanel ){
 					selectedPanel = (ChartPanel) component;
-//					selectedChart = chartPanel.getChart();
 					foundChartPanel = true;
 					break;
 				}
@@ -258,11 +257,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		ChartDescriptor cd = null;
 		int[] indices = null;
 		JFreeChart selectedChart = null;
-		
 		ChartPanel chartPanel = getChartPanel(me);
 		p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
 		selectedChart = chartPanel.getChart();
-
+		
 		cd = ChartUtils.getChartDescriptor(selectedChart);
 		indices = cd.getSourceIndices();
 
@@ -279,7 +277,12 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		// now convert the Java2D coordinate to axis coordinates...
 		Number xx = getDomainX(chartPanel, plot, p);
 		Number yy = getRangeY(chartPanel, plot, p);
-
+        Range xRange = plot.getDataRange( plot.getDomainAxis() );
+        Range yRange = plot.getDataRange( plot.getRangeAxis() );
+        if (xRange.getLowerBound() != 0)
+            xx=xx.doubleValue()/xRange.getCentralValue();
+        if (yRange.getLowerBound() != 0)
+            yy=yy.doubleValue()/yRange.getCentralValue();
 		//Find the selected point in the dataset
 		//If shift is down, save old selections
 		if( !me.isShiftDown() || currentSelection == null)
@@ -292,15 +295,22 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			for (int i=0; i<plot.getDataset().getSeriesCount();i++){
 				Number xK = plot.getDataset().getX(i,j);
 				Number yK = plot.getDataset().getY(i,j);
+		        if (xRange.getLowerBound() != 0)
+		            xK=xK.doubleValue()/xRange.getCentralValue();
+		        if (yRange.getLowerBound() != 0)
+		            yK=yK.doubleValue()/yRange.getCentralValue();
 				Number xKCheck = xK.doubleValue()-xx.doubleValue();
+				
 				Number yKCheck = yK.doubleValue()-yy.doubleValue();
-				Number xxCheck = xKCheck.doubleValue()*xKCheck.doubleValue();
-				Number yyCheck = yKCheck.doubleValue()*yKCheck.doubleValue();
+				
 				//Check distance from click and point, don't want to mark points that are too far from the click
-				if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
+				if ( Math.abs( xKCheck.doubleValue() ) <= .1  && Math.abs( yKCheck.doubleValue() ) <= .1){
 					//Create a new selection
+
 					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
-					cp.setDataPoint(j, i);
+					cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ));
+                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ));
+                    cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
 					currentSelection.addPoint(cp);
 					if( !me.isShiftDown() )
 						renderer.clearMarkedPoints();

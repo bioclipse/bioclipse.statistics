@@ -109,4 +109,5 @@ public class ChartManager
 	public Set<JFreeChart> keySet() {
 		return charts.keySet();
 	}
+
 }

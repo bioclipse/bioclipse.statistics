@@ -16,4 +16,21 @@ public class ChartConstants
 	public static final int LINE_PLOT = 3;
 	public static final int TIME_SERIES = 4;
 	public static final int PLOT_MENU = 5;
+	public static final int BAR_PLOT = 6;
+	
+	// Different properties used in the properties view
+	public static final String ITEMS = "Items selected";
+	public static final String SELECTED_ROWS = "Rows";
+	public static final String SOURCE = "Source";
+	public static final String MAX_VALUE = "Max value";
+	public static final String MIN_VALUE = "Min value";
+	public static final String AVERAGE_VALUE = "Average";
+	public static final String X_VALUE = "X-value";
+	public static final String Y_VALUE = "Y-value";
+	public static final String X_COLUMN = "Xcolumn";
+	public static final String Y_COLUMN = "Ycolumn";
+	public static final String POINT = "Point";
+	public static final String ROW_NUMBER = "Row number";
+	public static final String CHART_TYPE = "Chart type";
+	public static final String MOL_MASS = "Molecular mass";
 }

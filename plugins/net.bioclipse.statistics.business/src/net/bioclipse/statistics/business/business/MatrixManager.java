@@ -21,14 +21,19 @@ import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.statistics.model.IMatrixResource;
 import net.bioclipse.statistics.model.MatrixResource;
 
+import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.part.FileEditorInput;
 
 public class MatrixManager implements IBioclipseManager {
 
+    private Logger logger = Logger.getLogger( this.getClass() );
+    
     /**
      * Gives a short one word name of the manager used as variable name when
      * scripting.
@@ -37,6 +42,19 @@ public class MatrixManager implements IBioclipseManager {
         return "matrix";
     }
 
+    public IMatrixResource create( IFile file ) throws ParseException {
+        String name = file.getName();
+        IFileEditorInput fei = new FileEditorInput( file );
+        IMatrixResource matrix =
+                new MatrixResource(name, fei);
+        
+        if (!matrix.parseResource())
+            throw new ParseException( "Could not parse " + 
+                    file.getFullPath().toOSString() + " into an matrix." );
+        
+        return matrix;
+    }
+    
     public IMatrixResource create(
             String valueSequence, int ncol) {
         StringTokenizer tokenizer = new StringTokenizer(valueSequence);
@@ -51,15 +69,8 @@ public class MatrixManager implements IBioclipseManager {
         int rowCount = 0;
         int colCount = 0;
         while (tokenizer.hasMoreTokens()) {
-            double value = Double.NaN;
-            try {
-                value = Double.parseDouble(tokenizer.nextToken());
-            } catch (NumberFormatException exception) {}
-            try {
-                matrix.set(rowCount+1, colCount+1, value);
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
+            String value = tokenizer.nextToken();
+            matrix.set(rowCount+1, colCount+1, value);
             colCount++;
             if (colCount == ncol) {
                 colCount = 0;
@@ -71,6 +82,21 @@ public class MatrixManager implements IBioclipseManager {
     }
     
     public IMatrixResource create(double[][] values) {
+        IMatrixResource matrix =
+            new MatrixResource("", (IFileEditorInput)null);
+        int ncol = values.length;
+        int nrow = values[0].length;
+        matrix.setSize(ncol, nrow);
+        
+        for (int row=0; row<nrow; row++) {
+            for (int col=0; col<ncol; col++) {
+                matrix.set(row+1, col+1, values[row][col]);
+            }
+        }
+        return matrix;
+    }
+    
+    public IMatrixResource create(String[][] values) {
         IMatrixResource matrix =
             new MatrixResource("", (IFileEditorInput)null);
         int ncol = values.length;
@@ -107,7 +133,7 @@ public class MatrixManager implements IBioclipseManager {
         return matrix;
     }
 
-    public IMatrixResource addRow(IMatrixResource matrix, List<Double> values)
+    public IMatrixResource addRow(IMatrixResource matrix, List<String> values)
     throws BioclipseException {
     	int row = matrix.getRowCount();
     	if (row != 0 && values.size() != matrix.getColumnCount())
@@ -141,7 +167,7 @@ public class MatrixManager implements IBioclipseManager {
 			);
 			monitor.worked(1);
 		} catch (UnsupportedEncodingException e) {
-			// e.printStackTrace();
+			logger.error( "Could not encorde the file: "+e.getMessage() );
 		} finally {
 			monitor.done();
 		}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Plot from the MolTableEditor" link_to="../net.bioclipse.cdk.ui.sdfeditor/toc.xml#mtePlotting"> 
+    <topic label="Plot properties"  href="html/plotFrMolTableEditor.html"/> 
+</toc>
