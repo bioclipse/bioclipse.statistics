@@ -13,6 +13,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.bioclipse.chart.ChartConstants;
+
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;

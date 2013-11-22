@@ -26,6 +26,8 @@ import org.eclipse.ui.IEditorPart;
 import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
+import net.bioclipse.chart.ui.business.IChartManager;
+import net.bioclipse.chart.ui.business.IJavaChartManager;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -130,7 +132,10 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 						                             originCells, 
 						                             chartNameText.getText() );
 						
-						ChartUtils.histogram( descriptor );
+						IChartManager chart = 
+						        ChartUtils.getManager(IJavaChartManager.class);
+						chart.plot( descriptor );
+
 						dialogShell.close();
 					}
 					

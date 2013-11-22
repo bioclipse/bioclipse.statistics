@@ -70,7 +70,28 @@ public interface IChartManager extends IBioclipseManager {
     @PublishedMethod(methodSummary = "Creates a histogram with a title and labels.",
             params="double[] values, int bins")
     public void histogram(double[] values, int bins, String xLabel, String yLabel, String title );
-        
+    
+    @Recorded
+    @PublishedMethod(methodSummary = "Creates a histogram with a title and labels.",
+            params="double[] values, int bins")
+    public void histogram(double[] values, int bins, String xLabel, String yLabel, String title, String[] itemLabels );
+    
+    @Recorded
+    @PublishedMethod(methodSummary = "Makes a scatterplot that plots the x-values as a function of the y-values.",
+            params="double[] xValues, double[] yValues")
+    public void scatterPlot(double[] xValues, double[] yValues);
+    
+    @Recorded
+    @PublishedMethod(methodSummary = "Plot a scatter plot that plots the x-values as a function of the y-values and let the user set the labels and title.",
+                params="double[] xValues, double[] yValues, String xLabel, String yLabel, String title")
+    public void scatterPlot(double[] xValues, double[] yValues, String xLabel, 
+                            String yLabel, String title);
+    @Recorded
+    @PublishedMethod(methodSummary = "Plot a scatter plot that plots the x-values as a function of the y-values and let the user set the labels, title and lable items.",
+                params="double[] xValues, double[] yValues, String xLabel, String yLabel, String title")
+    public void scatterPlot(double[] xValues, double[] yValues, String xLabel, 
+                            String yLabel, String title, String[] labelItems);
+    
     @Recorded
     @PublishedMethod(methodSummary = "Returns the chart descriptor of the active chart" )
     public IChartDescriptor getCharDescriptorOfActiveChart();

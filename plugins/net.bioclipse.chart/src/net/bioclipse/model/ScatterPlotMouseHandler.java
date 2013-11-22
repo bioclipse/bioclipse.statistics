@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import javax.swing.event.MouseInputAdapter;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;

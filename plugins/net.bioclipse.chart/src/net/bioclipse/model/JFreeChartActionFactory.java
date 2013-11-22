@@ -12,6 +12,7 @@ package net.bioclipse.model;
 import java.io.IOException;
 import java.util.Set;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 

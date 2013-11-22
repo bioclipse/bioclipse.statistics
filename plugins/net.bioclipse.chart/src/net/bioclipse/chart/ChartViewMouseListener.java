@@ -8,7 +8,6 @@
  *****************************************************************************/
 package net.bioclipse.chart;
 
-import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartSelectionItem;
 import net.bioclipse.plugins.views.ChartView;
 import org.eclipse.jface.viewers.StructuredSelection;

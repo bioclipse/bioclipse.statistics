@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.model.PlotPointData;
 

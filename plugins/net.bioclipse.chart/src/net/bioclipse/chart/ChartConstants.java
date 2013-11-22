@@ -7,7 +7,7 @@
  *
  *****************************************************************************/
 
-package net.bioclipse.model;
+package net.bioclipse.chart;
 
 public class ChartConstants
 {

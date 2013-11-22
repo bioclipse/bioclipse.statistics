@@ -14,13 +14,10 @@ import java.util.ArrayList;
 import net.bioclipse.managers.business.IBioclipseManager;
 import net.bioclipse.chart.*;
 
-import org.apache.log4j.Logger;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Display;
 
 public class ChartManager implements IBioclipseManager {
-
-    private static final Logger logger = Logger.getLogger(ChartManager.class);
 
     /**
      * Gives a short one word name of the manager used as variable name when

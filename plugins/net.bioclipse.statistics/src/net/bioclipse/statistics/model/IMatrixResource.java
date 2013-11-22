@@ -12,6 +12,7 @@ package net.bioclipse.statistics.model;
 
 import org.eclipse.core.runtime.IPath;
 
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.core.domain.IBioObject;
 
 public interface IMatrixResource extends IBioObject {
@@ -63,5 +64,15 @@ public interface IMatrixResource extends IBioObject {
     public boolean parseString(String matrixStr, int columns, String regex);
     
     public boolean parseCSVString(String matrixStr, int columns);
+    
+    public IChartDescriptor plotAsScatterPlot(String title, int xColumn, int yColumn);
 
+    public IChartDescriptor plotAsLinePlot(String title, int xColumn, int yColumn);
+    
+    public IChartDescriptor plotAsTimeSerie(String title, int xColumn, int yColumn);
+    
+    public IChartDescriptor plotAsHistogram(String title, int column, int bins);
+    
+    public IChartDescriptor plotAsHistogram(String title, int[] columns, int bins);
+    
 }

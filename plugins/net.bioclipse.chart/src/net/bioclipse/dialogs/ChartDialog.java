@@ -12,12 +12,12 @@ package net.bioclipse.dialogs;
 import java.util.Arrays;
 import java.util.Vector;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ui.business.IChartManager;
 import net.bioclipse.chart.ui.business.IJavaChartManager;
-import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ColumnData;
 
 import org.apache.log4j.Logger;

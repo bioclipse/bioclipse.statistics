@@ -3,7 +3,6 @@ package net.bioclipse.chart;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 
-import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.HistogramDiscriptor;
 

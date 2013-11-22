@@ -9,13 +9,18 @@
 package net.bioclipse.model;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
+import net.bioclipse.chart.ChartConstants;
+import net.bioclipse.chart.ChartPoint;
 import net.bioclipse.chart.IChartDescriptor;
 
 /**
@@ -213,4 +218,7 @@ public class HistogramDiscriptor implements IChartDescriptor, IAdaptable {
         return null;
     }
     
+    public List<ChartPoint> handleEvent( ISelection selection ) {
+        return new ArrayList<ChartPoint>();
+    }
 }

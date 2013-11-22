@@ -17,9 +17,8 @@ import java.util.Set;
 
 import javax.swing.SwingUtilities;
 
-import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
-import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculesEditor;
 import net.bioclipse.chart.BioclipseChartPanel;
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
@@ -29,7 +28,6 @@ import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
-import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
@@ -307,26 +305,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	        IChartDescriptor cd = ((ChartSelection) selection).getDescriptor();
 	        labels.add( cd.getXLabel() );
             labels.add( cd.getYLabel() );
-	        if (cd.getSource() instanceof MoleculesEditor) {
-	            final MoleculesEditor me = (MoleculesEditor) cd.getSource();
-	            int size = ((ChartSelection) selection).size();
-	            int[] selectedRows = new int[size];
-	            int i=0;
-	            Iterator<PlotPointData> itr = ((ChartSelection) selection).iterator();
-	            while (itr.hasNext()) {
-	                PlotPointData ppd = itr.next();
-	                selectedRows[i++] = ppd.getRowNumber();
-	            }
-	            final MolTableSelection mts = new MolTableSelection( selectedRows,  me.getModel(), labels );
-	            
-	               this.getSite().getShell().getDisplay().asyncExec(new Runnable() {
-
-	                    public void run() {
-	                        me.getEditorSite().getSelectionProvider().setSelection( mts );
-	                    }
-
-	                });
-	        }
 
 	    } else if (selection instanceof ChartSelectionItem){	        
 	        ChartSelectionItem csi = ((ChartSelectionItem) selection);
@@ -342,15 +320,7 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	        setSelection( cs );
 	        labels.add( cd.getXLabel() );
 	        labels.add( cd.getYLabel() );
-	        if (cd.getSource() != null) {
-	            cd.getSource().getEditorSite().getSelectionProvider().setSelection( csi );
-	            if (cd.getSource() instanceof MoleculesEditor) {
-	                MoleculesEditor me = (MoleculesEditor) cd.getSource();
-	                int[] selectedRows = {row.intValue()};
-	                MolTableSelection mts = new MolTableSelection( selectedRows,  me.getModel(), labels );
-	                me.getEditorSite().getSelectionProvider().setSelection( mts );
-	            }
-	        }
+
 	        final SelectionChangedEvent e = new SelectionChangedEvent(this, csi);
             java.util.Iterator<ISelectionChangedListener> iter = selectionListeners.iterator();
             while( iter.hasNext() )

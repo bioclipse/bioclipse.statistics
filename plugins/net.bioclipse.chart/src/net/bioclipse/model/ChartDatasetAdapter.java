@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.bioclipse.chart.events.CellData;
 
-import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
 
 /**

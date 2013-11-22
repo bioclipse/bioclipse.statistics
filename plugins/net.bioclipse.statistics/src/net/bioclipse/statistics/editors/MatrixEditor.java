@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
@@ -29,7 +30,6 @@ import net.bioclipse.chart.ui.business.IChartManager;
 import net.bioclipse.chart.ui.business.IJavaChartManager;
 import net.bioclipse.dialogs.ChartDialog;
 import net.bioclipse.dialogs.HistogramDialog;
-import net.bioclipse.model.ChartConstants;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartSelection;
 import net.bioclipse.model.ColumnData;

@@ -22,13 +22,13 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.Vector;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ui.business.IChartManager;
 import net.bioclipse.chart.ui.business.IJavaChartManager;
 import net.bioclipse.core.domain.BioObject;
-import net.bioclipse.model.ChartConstants;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
@@ -860,24 +860,79 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	/* TODO Should this be here (i.e. called as: myMatrix.plot...) or in the 
 	 * manager (i.e. called as matrix.scatterPlot(myMatrix, "myTitle", ...) )*/
 	
-	public IChartDescriptor plotAsScatterPlot(String title, int xColumn, int yColumn) {
-	    return createChartDescriptor( title, ChartConstants.plotTypes.SCATTER_PLOT, xColumn, yColumn );
+	/**
+	 * Plots column <code>xColumn</code> against column <code>yColumn</code> as
+	 * a scatter plot.
+	 * 
+	 * @param title The title of the plot
+	 * @param xColumn The column that contains the x-values to the plot
+	 * @param yColumn The column that contains the y-values to the plot
+	 * @return A chart descriptor that describes the plot
+	 */
+	public IChartDescriptor plotAsScatterPlot(String title, int xColumn, 
+	                                          int yColumn) {
+	    return createChartDescriptor( title, 
+	                                  ChartConstants.plotTypes.SCATTER_PLOT,
+	                                  xColumn, yColumn );
 	}
 	
-	public IChartDescriptor plotAsLinePlot(String title, int xColumn, int yColumn) {
-	    return createChartDescriptor( title, ChartConstants.plotTypes.LINE_PLOT, xColumn, yColumn );
+	/**
+     * Plots column <code>xColumn</code> against column <code>yColumn</code> as
+     * a line plot.
+     * 
+     * @param title The title of the plot
+     * @param xColumn The column that contains the x-values to the plot
+     * @param yColumn The column that contains the y-values to the plot
+     * @return A chart descriptor that describes the plot
+     */
+	public IChartDescriptor plotAsLinePlot(String title, int xColumn,
+	                                       int yColumn) {
+	    return createChartDescriptor( title, 
+	                                  ChartConstants.plotTypes.LINE_PLOT,
+	                                  xColumn, yColumn );
     }
-
-	public IChartDescriptor plotAsTimeSerie(String title, int xColumn, int yColumn) {
-	    return createChartDescriptor( title, ChartConstants.plotTypes.TIME_SERIES, xColumn, yColumn );
+	
+	/**
+     * Plots column <code>xColumn</code> against column <code>yColumn</code> as
+     * a time series.
+     * 
+     * @param title The title of the plot
+     * @param xColumn The column that contains the x-values to the plot
+     * @param yColumn The column that contains the y-values to the plot
+     * @return A chart descriptor that describes the plot
+     */
+	public IChartDescriptor plotAsTimeSerie(String title, int xColumn,
+	                                        int yColumn) {
+	    return createChartDescriptor( title,
+	                                  ChartConstants.plotTypes.TIME_SERIES,
+	                                  xColumn, yColumn );
 	}
 	
-	public IChartDescriptor plotAsHistogram(String title, int column, int bins) {
+	/**
+     * Plots the values in column <code>column</code> in a histogram with <code>
+     * bins<code> bins.
+     * 
+     * @param title The title of the plot
+     * @param column The column that contains the values to the plot
+     * @param bins The number of bins in the histogram
+     * @return A chart descriptor that describes the plot
+     */
+	public IChartDescriptor plotAsHistogram(String title,int column, int bins) {
         int[] columns = {column};
         return this.plotAsHistogram( title, columns, bins );
     }
 	
-	public IChartDescriptor plotAsHistogram(String title, int[] columns, int bins) {
+	/**
+     * Plots the values in the columns listed in the array <code>columns</code> 
+     * in a histogram with <code>bins<code> bins.
+     * 
+     * @param title The title of the plot
+     * @param columns An array with the column numbers to be plotted
+     * @param bins The number of bins in the histogram
+     * @return A chart descriptor that describes the plot
+     */
+	public IChartDescriptor plotAsHistogram(String title, 
+	                                        int[] columns, int bins) {
 	    IChartDescriptor descriptor = null;
 	    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
 	    int rows = getRowCount();
@@ -894,7 +949,13 @@ public class MatrixResource extends BioObject implements IMatrixResource {
         if (title == null)
             title = getName();
         
-        descriptor = ChartDescriptorFactory.histogramDescriptor( null, "", values, "", bins, originCells, title );
+        descriptor = ChartDescriptorFactory.histogramDescriptor( null, 
+                                                                 "", 
+                                                                 values, 
+                                                                 "", 
+                                                                 bins, 
+                                                                 originCells, 
+                                                                 title );
         if (hasRowHeader()) {
             descriptor.setItemLabels( getRowNames() );
          }
@@ -902,7 +963,18 @@ public class MatrixResource extends BioObject implements IMatrixResource {
         return descriptor;
 	}
 	
-	private IChartDescriptor createChartDescriptor(String title, ChartConstants.plotTypes chartType, int xColumn, int yColumn) {
+	/**
+	 * Internal method that does the plotting (except for the histogram).
+	 * 
+	 * @param title The title of the plot
+	 * @param chartType What type of plot to be plotted
+	 * @param xColumn The column that contains the x-values to the plot
+     * @param yColumn The column that contains the y-values to the plot
+     * @return A chart descriptor that describes the plot
+	 */
+	private IChartDescriptor createChartDescriptor(String title, 
+	                                         ChartConstants.plotTypes chartType,
+	                                         int xColumn, int yColumn) {
 	    int rows = getRowCount();
 	    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
 	    double[] xValues = new double[rows];
@@ -923,16 +995,24 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 
 	    switch(chartType) {
 	        case SCATTER_PLOT:
-	            descriptor = ChartDescriptorFactory.scatterPlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+	            descriptor = ChartDescriptorFactory.
+	                    scatterPlotDescriptor( null, xLabel, xValues, yLabel, 
+	                                           yValues, originCells, title );
 	            break;
 	        case LINE_PLOT:
-                descriptor = ChartDescriptorFactory.linePlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+                descriptor = ChartDescriptorFactory.
+                        linePlotDescriptor( null, xLabel, xValues, yLabel, 
+                                            yValues, originCells, title );
                 break;
 	        case TIME_SERIES:
-                descriptor = ChartDescriptorFactory.linePlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title );
+                descriptor = ChartDescriptorFactory.
+                        linePlotDescriptor( null, xLabel, xValues, yLabel,
+                                            yValues, originCells, title );
                 break;
 	        default:
-	            descriptor = ChartDescriptorFactory.scatterPlotDescriptor( null, xLabel, xValues, yLabel, yValues, originCells, title ); 
+	            descriptor = ChartDescriptorFactory.
+	                    scatterPlotDescriptor( null, xLabel, xValues, yLabel,
+	                                           yValues, originCells, title ); 
 	    }
 	    if (hasRowHeader()) {
 	       descriptor.setItemLabels( getRowNames() );
@@ -943,6 +1023,11 @@ public class MatrixResource extends BioObject implements IMatrixResource {
 	    return descriptor;
 	}
 	
+	/**
+	 * An internal method to get the row-names of the matrix.
+	 * 
+	 * @return An array with the row names
+	 */
 	private String[] getRowNames(){
 	    int rows = getRowCount();
 	    String[] rowNames = new String[rows];

@@ -9,17 +9,9 @@
 package net.bioclipse.chart;
 
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import net.bioclipse.cdk.domain.ICDKMolecule;
-import net.bioclipse.cdk.ui.sdfeditor.editor.MolTableSelection;
-import net.bioclipse.cdk.ui.sdfeditor.editor.MoleculeTableViewer.MolTableElement;
-import net.bioclipse.core.domain.IMolecule.Property;
 import net.bioclipse.model.ChartAction;
-import net.bioclipse.model.ChartConstants;
-import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ScatterPlotMouseHandler;
 
 import org.eclipse.jface.viewers.ISelection;
@@ -79,45 +71,19 @@ public class BioclipseChartPanel extends ChartPanel implements
     public void selectionChanged( IWorkbenchPart part, ISelection selection ) {
         
         if ( part instanceof IEditorPart )
-            if ( selection instanceof IStructuredSelection) {
-                
-                IStructuredSelection sel = (IStructuredSelection) selection;             
+            if ( selection instanceof IStructuredSelection) {           
                 XYPlot plot = (XYPlot) getChart().getPlot();
                 XYItemRenderer plotRenderer = plot.getRenderer();
                 ScatterPlotRenderer renderer = null;
                 if (plotRenderer instanceof ScatterPlotRenderer) {
                     renderer = (ScatterPlotRenderer) plot.getRenderer();
-                }
-                String xLabel = plot.getDomainAxis().getLabel();
-                String yLabel = plot.getRangeAxis().getLabel();
-                if (renderer != null) {
-                    if (sel instanceof MolTableSelection) {
-                        MolTableSelection mtSel = (MolTableSelection) sel;
-                        List<Double> xValues = getValues( mtSel, xLabel );
-                        List<Double> yValues = getValues( mtSel, yLabel );
-                        renderer.clearMarkedPoints();
-                        for (int i = 0;i<xValues.size();i++) 
-                            selectPoints( xValues.get( i ), yValues.get( i ), plot, renderer );
-
-                    } else {
-                        double xValue, yValue;
-                        Iterator itr = sel.iterator();
-                        while (itr.hasNext()) {
-                            Object obj = itr.next();
-                            if (obj instanceof MolTableElement) {
-                                MolTableElement element = (MolTableElement) obj;
-
-                                xValue = getValue( element, xLabel );
-                                yValue = getValue( element, yLabel );
-                                renderer.clearMarkedPoints();
-                                selectPoints( xValue, yValue, plot, renderer );
-
-                            }
-
-                        }
+                    IChartDescriptor cd = ChartUtils.getChartDescriptor( getChart() );
+                    List<ChartPoint> values = cd.handleEvent( selection ); 
+                    renderer.clearMarkedPoints();
+                    for (ChartPoint cp:values) {
+                        selectPoints( cp.getX(), cp.getY(), plot, renderer );
                     }
-
-                } 
+                }
             }
         
     }
@@ -146,107 +112,11 @@ public class BioclipseChartPanel extends ChartPanel implements
     @Override
     public void mouseClicked(MouseEvent e) {
         IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
-        if (cd != null && cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM)//ChartConstants.HISTOGRAM)
+        if (cd != null && cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM)
             super.mouseClicked( e );
         else
             smh.mouseClicked( e );
         
-    }
-    
-    /**
-     * Gets the value of a specific property from a selection in a 
-     * MolTableViewer.
-     * 
-     * @param element The selected element, i.e. row
-     * @param property The name of the property
-     * @return The value that the selected property has in this element, or 
-     *      <code>Double.NaN</code> if it by some reason couldn't determine it
-     */
-    private double getValue(MolTableElement element, String property ) {
-        double value = Double.NaN;
-
-        if (property.equals( ChartConstants.ROW_NUMBER ))
-            value = element.getIndex() + 1;
-        else if (property.equals( ChartConstants.MOL_MASS )) {
-            IChartDescriptor cd = ChartUtils.getChartDescriptor(getChart());
-            if (cd != null) {
-                if (cd.getXLabel().equals( ChartConstants.MOL_MASS ))
-                    value = cd.getXValue( element.getIndex() );
-                else if (cd.getYLabel().equals( ChartConstants.MOL_MASS ))
-                    value = cd.getYValue( element.getIndex() );
-                else
-                    value = Double.NaN;
-            } else 
-                value = Double.NaN;
-        } else {
-            ICDKMolecule mol = (ICDKMolecule) element.getAdapter( ICDKMolecule.class );
-            value = getValue( mol, property );
-        }
-        return value;
-    }
-    
-    /**
-     * Gets the value of a specific property from a molecule.
-     * 
-     * @param mol The molecule
-     * @param property The name of the property
-     * @return The value of the selected property of this molecule, or 
-     *      <code>Double.NaN</code> if it by some reason couldn't determine it
-     */
-    private double getValue(ICDKMolecule mol, String property) {
-        double value = Double.NaN;
-        try {
-            Object obj = mol.getProperty( property, Property.USE_CACHED_OR_CALCULATED );
-            value = Double.parseDouble( obj.toString() );
-        } catch (NumberFormatException e){
-            value = Double.NaN;
-        } catch (NullPointerException e) {
-            value = Double.NaN;
-        }
-        
-        return value;
-    }
-
-    /**
-     * The same as <code>getValue(MolTableElement, String )</code>, but for a 
-     * selection of several rows.
-     *  
-     * @param mtSel The selection containing the rows selected
-     * @param property The name of the property
-     * @return A <code>List</code> with the values of the selected property of 
-     *  this molecule, or <code>Double.NaN</code> if it by some reason couldn't 
-     *  determine it
-     */
-    private List<Double> getValues(MolTableSelection mtSel, String property) {
-        List<Double> values = new ArrayList<Double>(mtSel.size());
-        if (property.equals( ChartConstants.ROW_NUMBER ))
-            for(Integer i:mtSel.getSelectedRows())
-                values.add( i.doubleValue() + 1 );
-        else if (property.equals( ChartConstants.MOL_MASS )) {
-            IChartDescriptor cd = ChartUtils.getChartDescriptor(getChart());
-            for(Integer i:mtSel.getSelectedRows()) {
-                if (cd != null) {
-                    if (cd.getXLabel().equals( ChartConstants.MOL_MASS ))
-                        values.add( cd.getXValue( i ) );
-                    else if (cd.getYLabel().equals( ChartConstants.MOL_MASS ))
-                        values.add(  cd.getYValue( i ) );
-                    else
-                        values.add( Double.NaN );
-                } else {
-                    values.add( Double.NaN );
-                }
-            }
-        } else {
-            ICDKMolecule mol;
-            Iterator<ICDKMolecule> mtSelItr = mtSel.iterator();
-            while (mtSelItr.hasNext()) {
-                mol = (ICDKMolecule) mtSelItr.next();
-                values.add( getValue( mol, property ) );
-            }
-            mol = (ICDKMolecule) mtSelItr.next();
-            values.add( getValue( mol, property ) );
-        }
-        return values;
     }
     
     /**

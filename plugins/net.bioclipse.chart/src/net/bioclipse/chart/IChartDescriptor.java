@@ -1,15 +1,16 @@
 package net.bioclipse.chart;
 
 import java.io.FileNotFoundException;
-
-import net.bioclipse.model.ChartConstants;
+import java.util.List;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 
 
-public interface IChartDescriptor {
+public interface IChartDescriptor extends IAdaptable {
 
     /**
      * Returns the title of the chart.
@@ -38,8 +39,6 @@ public interface IChartDescriptor {
      * @param index The index of the wanted  x-value
      * @return The x-value with index <code>index</code>
      */
-    /* TODO Decide if it should be, 'cos it's not really needed, but might be 
-    good in the future...*/
     public double getXValue(int index); 
     
     /**
@@ -62,8 +61,6 @@ public interface IChartDescriptor {
      * @param index The index of the wanted  y-value
      * @return The y-value with index <code>index</code>
      */
-    /* TODO Decide if it should be, 'cos it's not really needed, but might be 
-     good in the future...*/
     public double getYValue(int index);
     
     /**
@@ -89,8 +86,6 @@ public interface IChartDescriptor {
      * 
      * @return The values row numbers
      */
-    /*TODO This information is also in the origin cells (see the method below)
-     * Use that instead?*/
     public int[] getSourceIndices();
     
     /**
@@ -131,29 +126,6 @@ public interface IChartDescriptor {
     public IResource getResource() throws FileNotFoundException;
     
     /**
-     * Sets a the <code>IResource</code> that is to be associated with this 
-     * chart. 
-     * 
-     * @param file
-     */
-    /* TODO Decide if it should be removed or not: This method not used but 
-     * might be good to have when plotting some thing from a file via the 
-     * JS-console.*/
-    public void setResource(IResource file);
-    
-    /**
-     * If the plot is a histogram this method returns the number of bins. If the
-     * chart isn't a histogram an exception is thrown. The number of bins is set 
-     * in a special constructor for histograms.
-     * 
-     * @return The number of bins
-     * @throws IllegalAccessError If the chart isn't a histogram.
-     */
-    /* TODO Decide if it should not be a special version of the chart descriptor
-     * for histograms and in that case only have this method there...*/ 
-//    public int getNumberOfBins() throws IllegalAccessError; 
-    
-    /**
      * Sets the item labesl for thsi chart. I.e. what should be shown in the 
      * tool-tips and point labels of the chart. If not set the y-value will be 
      * used.
@@ -189,7 +161,6 @@ public interface IChartDescriptor {
      * 
      * @return The item labels or an empty array
      */
-    // TODO Maybe it should throw an exception if the labels are not set
     public String[] getItemLabels();
     
     /**
@@ -205,5 +176,8 @@ public interface IChartDescriptor {
      * if that's not wanted this method can be used to remove them without
      * Manipulating the matrix.
      */
-    public void removeItemLabels(); 
+    public void removeItemLabels();
+    
+    public List<ChartPoint> handleEvent( ISelection selection ); 
+    
 }

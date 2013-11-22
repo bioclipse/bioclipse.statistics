@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.IChartDescriptor;
 
 import org.apache.log4j.Logger;

@@ -10,10 +10,17 @@
 package net.bioclipse.model;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.bioclipse.chart.ChartConstants;
+import net.bioclipse.chart.ChartDescriptorFactory;
+import net.bioclipse.chart.ChartPoint;
 import net.bioclipse.chart.IChartDescriptor;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
@@ -23,7 +30,7 @@ import org.eclipse.ui.IFileEditorInput;
  * @author Eskil Andersen, Klas Jšnsson
  *
  */
-public class ChartDescriptor implements IChartDescriptor {
+public class ChartDescriptor implements IChartDescriptor, IAdaptable {
 	private IEditorPart source;
 	private int[] indices;
 	private ChartConstants.plotTypes plotType;
@@ -207,4 +214,42 @@ public class ChartDescriptor implements IChartDescriptor {
 	public void removeItemLabels() {
 	    itemLabels = null;
 	}
+
+    @Override
+    public Object getAdapter( Class adapter ) {
+        if (adapter == HistogramDiscriptor.class) {
+            
+            int size = xValues.length * 2 ;
+            double[] values = new double[size];
+            for (int i=0;i<xValues.length;i++) {
+                values[i] = xValues[i];
+                values[i+xValues.length] = yValues[i];
+            }
+            
+            int bins;
+            if (size < 6)
+                bins = 3;
+            else if (size < 20)
+                bins = 5;
+            else
+                bins = 10;
+            
+            String label = xLabel.isEmpty() ? "" : xLabel;
+            label = yLabel.isEmpty() ? "" : " and "+ yLabel;
+            
+            return ChartDescriptorFactory.histogramDescriptor( source, 
+                                                               label, 
+                                                               values, 
+                                                               "", 
+                                                               bins, 
+                                                               originCells, 
+                                                               chartTitle );
+        }
+        
+        return null;
+    }
+    
+    public List<ChartPoint> handleEvent( ISelection selection ) {
+        return new ArrayList<ChartPoint>();
+    }
 }
