@@ -6,8 +6,6 @@ Bundle-Version: 2.6.1.qualifier
 Bundle-Vendor: The Bioclipse Team
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.ui.workbench.texteditor,
- org.eclipse.jface.text,
  org.eclipse.ui.views,
  net.bioclipse.chart,
  org.eclipse.ui.ide,
@@ -15,7 +13,8 @@ Require-Bundle: org.eclipse.ui,
  net.bioclipse.core,
  org.springframework.bundle.spring.aop,
  net.sf.cglib,
- org.springframework.osgi.aopalliance.osgi
+ org.springframework.osgi.aopalliance.osgi,
+ org.jfreechart;bundle-version="1.0.15"
 Bundle-ActivationPolicy: lazy
 Export-Package: net.bioclipse.statistics,
  net.bioclipse.statistics.editors,
@@ -25,5 +24,8 @@ Export-Package: net.bioclipse.statistics,
 Bundle-Activator: net.bioclipse.statistics.Activator
 Bundle-ClassPath: .,
  jars/org.eclipse.nebula.widgets.grid_1.0.0.jar
-Import-Package: org.apache.log4j
+Import-Package: net.bioclipse.chart.ui.business,
+ net.bioclipse.ui.business.describer,
+ org.apache.log4j,
+ org.eclipse.ui.texteditor
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

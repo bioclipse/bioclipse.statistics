@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="Editors" link_to="../net.bioclipse.ui/toc.xml#editors"> 
+    <topic label="The Matrix Editor"  href="html/matrixEditorHelp.html"/> 
+</toc>

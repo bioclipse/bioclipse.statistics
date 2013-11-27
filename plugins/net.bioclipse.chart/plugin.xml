@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.0"?>
+<?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="chats" name="Charts" schema="schema/chats.exsd"/>
 
    <extension
          point="org.eclipse.ui.views">
@@ -14,15 +15,12 @@
             id="net.bioclipse.plugins.views.ChartView"
             name="Chart"/>
    </extension>
-   <!--extension
-         point="net.bioclipse.bioclipseResources">
-    <itemType
-          class="net.bioclipse.model.type.EmptyResourceFactory"
-          fileExtension="EMPTY"
-          icon="icons/sample.gif"
-          id="bioclipse.EmptyResource"
-          level="1"
-          name="CDK Resource"
-          targetClass="java.io.File"/>
-   </extension-->
+   <extension
+         point="net.bioclipse.scripting.contribution">
+      <scriptContribution
+            id="bioclipse.chart.ui.business.ChartManager"
+            service="net.bioclipse.chart.ui.business.ChartManagerFactory">
+      </scriptContribution>
+   </extension>
+  
 </plugin>

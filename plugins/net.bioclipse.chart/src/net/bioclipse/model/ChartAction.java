@@ -12,4 +12,10 @@ package net.bioclipse.model;
 import org.eclipse.jface.action.Action;
 
 public abstract class ChartAction extends Action implements ChartModelListener {
+    protected ChartAction(){
+        super();
+    }
+    protected ChartAction(String text, int type){
+        super(text, type);
+    }
 }

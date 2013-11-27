@@ -20,9 +20,14 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 
+import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
+import net.bioclipse.chart.ui.business.IChartManager;
+import net.bioclipse.chart.ui.business.IJavaChartManager;
 
 /**
 * This code was edited or generated using CloudGarden's Jigloo
@@ -60,7 +65,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 			Display display = Display.getDefault();
 			Shell shell = new Shell(display);
 			HistogramDialog inst = new HistogramDialog(shell, SWT.NULL, new double[0]);
-			inst.open(null);
+			inst.open(null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -71,7 +76,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 		this.values = values;
 	}
 
-	public void open(final IEditorPart dataSource) {
+	public void open(final IEditorPart dataSource, final Point[] originCells) {
 		try {
 			Shell parent = getParent();
 			dialogShell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -93,7 +98,7 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
+
 						super.widgetSelected(e);
 						dialogShell.close();
 					}
@@ -113,10 +118,24 @@ public class HistogramDialog extends org.eclipse.swt.widgets.Dialog {
 
 					@Override
 					public void widgetSelected(SelectionEvent e) {
-						// TODO Auto-generated method stub
+
 						super.widgetSelected(e);
-						ChartUtils.histogram(values, Integer.parseInt(binsText.getText()),
-								xAxisText.getText(), yAxisText.getText(), chartNameText.getText(), dataSource);
+						IChartDescriptor descriptor = 
+						        ChartDescriptorFactory.
+						        histogramDescriptor( dataSource, 
+						                             xAxisText.getText(), 
+						                             values, 
+						                             yAxisText.getText(), 
+						                             Integer.
+						                               parseInt(binsText.
+						                                      getText()), 
+						                             originCells, 
+						                             chartNameText.getText() );
+						
+						IChartManager chart = 
+						        ChartUtils.getManager(IJavaChartManager.class);
+						chart.plot( descriptor );
+
 						dialogShell.close();
 					}
 					

@@ -1,5 +1,5 @@
 /* ***************************************************************************
- * Copyright (c) 2008 Bioclipse Project
+ * Copyright (c) 2008, 2013 Bioclipse Project
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,7 @@
 package net.bioclipse.chart.events;
 
 /**
- * @author EskilA
+ * @author EskilA, Klas Jšnsson
  *
  */
 public class CellData 
@@ -25,14 +25,14 @@ public class CellData
 	//Row of the selected cell
 	private int row;
 	//Value of the selected cell
-	private double value;
+	private String value;
 	
 	public CellData()
 	{
 		
 	}
 	
-	public CellData( String colName, int row, double value )
+	public CellData( String colName, int row, String value )
 	{
 		this.colName = colName;
 		this.row = row;
@@ -51,10 +51,10 @@ public class CellData
 	public void setRowIndex(int row) {
 		this.row = row;
 	}
-	public double getValue() {
+	public String getValue() {
 		return value;
 	}
-	public void setValue(double value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 

@@ -16,29 +16,31 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import net.bioclipse.chart.IChartDescriptor;
+
 import org.jfree.chart.JFreeChart;
 
 /**
  * Manages all chart instances
- * @author Eskil Andersen
+ * @author Eskil Andersen, Klas Jšnsson
  *
  */
 public class ChartManager 
 {
-	private HashMap<JFreeChart, ChartDescriptor> charts;
+	private HashMap<JFreeChart, IChartDescriptor> charts;
 	private List<ChartModelListener> chartModelListeners;
 	private JFreeChart activeChart;
 	
 	public ChartManager(){
-		charts = new HashMap<JFreeChart, ChartDescriptor>();
+		charts = new HashMap<JFreeChart, IChartDescriptor>();
 		chartModelListeners = new ArrayList<ChartModelListener>();
 	}
 	
-	public ChartDescriptor put(JFreeChart chart, ChartDescriptor descriptor){
+	public IChartDescriptor put(JFreeChart chart, IChartDescriptor descriptor){
 		return charts.put(chart, descriptor);
 	}
 	
-	public ChartDescriptor get(JFreeChart key)
+	public IChartDescriptor get(JFreeChart key)
 	{
 		return charts.get(key);
 	}
@@ -87,26 +89,25 @@ public class ChartManager
 		return activeChart;
 	}
 
-	public ChartDescriptor remove(Object arg0) {
+	public IChartDescriptor remove(Object arg0) {
 		if( activeChart == arg0 )
 		{
 			setActiveChart(null);
 		}
 		
-		ChartDescriptor descriptor = charts.remove(arg0);
+		IChartDescriptor descriptor = charts.remove(arg0);
 		if( charts.isEmpty() )
 			setActiveChart(null);
 
 		return descriptor;
 	}
 	
-	
-
-	public Collection<ChartDescriptor> values() {
+	public Collection<IChartDescriptor> values() {
 		return charts.values();
 	}
 
 	public Set<JFreeChart> keySet() {
 		return charts.keySet();
 	}
+
 }
