@@ -16,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.bioclipse.model.ChartDescriptor;
-
 import org.eclipse.jface.viewers.IStructuredSelection;
 
 /** Contains a selection of cells from MatrixGridEditor to be passed
@@ -28,7 +26,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 public class CellSelection implements IStructuredSelection {
 	
 	private List<CellData> cells;
-	private ChartDescriptor chartDescriptor;
 	private Object source;
 	
 	

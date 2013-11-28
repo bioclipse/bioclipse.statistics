@@ -7,15 +7,35 @@ Bundle-Vendor: The Bioclipse Team
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.views,
- org.eclipse.core.resources
+ org.eclipse.core.resources,
+ org.jfreechart;bundle-version="1.0.15",
+ net.bioclipse.core;bundle-version="2.6.1"
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: net.bioclipse.chart.Activator
-Bundle-ClassPath: .,
+Bundle-ClassPath: chart.jar,
  jars/batik-dom.jar,
  jars/batik-svggen.jar,
- jars/batik-awt-util.jar
+ jars/batik-awt-util.jar,
+ jars/batik-util.jar,
+ jars/xml-apis.jar,
+ jars/batik-anim.jar,
+ jars/batik-bridge.jar,
+ jars/batik-codec.jar,
+ jars/batik-css.jar,
+ jars/batik-ext.jar,
+ jars/batik-extension.jar,
+ jars/batik-gui-util.jar,
+ jars/batik-gvt.jar,
+ jars/batik-parser.jar,
+ jars/batik-script.jar,
+ jars/batik-svg-dom.jar,
+ jars/batik-swing.jar,
+ jars/batik-transcoder.jar,
+ jars/batik-xml.jar,
+ jars/js.jar
 Export-Package: net.bioclipse.chart;uses:="net.bioclipse.chart.events,org.jfree.chart.renderer.xy",
  net.bioclipse.chart.events;uses:="org.eclipse.jface.viewers",
+ net.bioclipse.chart.ui.business,
  net.bioclipse.dialogs;uses:="org.eclipse.swt.widgets",
  net.bioclipse.model;
   uses:="org.eclipse.jface.viewers,
@@ -29,17 +49,5 @@ Export-Package: net.bioclipse.chart;uses:="net.bioclipse.chart.events,org.jfree.
    org.eclipse.swt.widgets,
    org.eclipse.ui"
 Import-Package: org.apache.log4j,
- org.jfree.chart;version="1.0.15",
- org.jfree.chart.axis;version="1.0.15",
- org.jfree.chart.event;version="1.0.15",
- org.jfree.chart.plot;version="1.0.15",
- org.jfree.chart.renderer;version="1.0.15",
- org.jfree.chart.renderer.xy;version="1.0.15",
- org.jfree.chart.title;version="1.0.15",
- org.jfree.data;version="1.0.15",
- org.jfree.data.category;version="1.0.15",
- org.jfree.data.general;version="1.0.15",
- org.jfree.data.statistics;version="1.0.15",
- org.jfree.data.xy;version="1.0.15",
- org.jfree.util;version="1.0.18"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+ org.eclipse.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

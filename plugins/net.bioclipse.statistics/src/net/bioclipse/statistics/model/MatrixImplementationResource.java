@@ -12,13 +12,28 @@ package net.bioclipse.statistics.model;
 public abstract class MatrixImplementationResource implements IMatrixImplementationResource {
 
 	public Object getAdapter(Class adapter) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public boolean testAttribute(Object target, String name, String value) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/* TODO The following methods are not implemented in the JamaMatrix, if it's
+	 * to be used it should implement these methods*/
+	public void moveRowHeaderToColumn(int index) throws IllegalAccessException {
+	    throw new IllegalAccessException( "Not implemented for this matrix type" );
+	}
+	
+	public void setRowAsColumnHeader(int index) throws IllegalAccessException {
+	    throw new IllegalAccessException( "Not implemented for this matrix type" );
+	}
+	
+	public void moveColumnHeaderToRow(int index) throws IllegalAccessException {
+	    throw new IllegalAccessException( "Not implemented for this matrix type" );
+	}
+	
+	public void setColumnAsRowHeader(int index) throws IllegalAccessException {
+	    throw new IllegalAccessException( "Not implemented for this matrix type" );
+	}
 }

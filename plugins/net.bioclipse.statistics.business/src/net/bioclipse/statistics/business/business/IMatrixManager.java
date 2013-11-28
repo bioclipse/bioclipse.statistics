@@ -13,7 +13,9 @@ package net.bioclipse.statistics.business.business;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.bindings.keys.ParseException;
 
 import net.bioclipse.core.PublishedClass;
 import net.bioclipse.core.PublishedMethod;
@@ -46,6 +48,20 @@ public interface IMatrixManager extends IBioclipseManager {
 
     @Recorded
     @PublishedMethod(methodSummary=
+        "Creates a new matrix domain object, starting from a array of " +
+        "String arrays."
+    )
+    public IMatrixResource create(String[][] values);
+    
+    @Recorded
+    @PublishedMethod(methodSummary=
+        "Creates a new matrix domain object, from a file."
+    )
+    public IMatrixResource create(IFile file) throws ParseException;
+    public IMatrixResource create(String file) throws ParseException;
+    
+    @Recorded
+    @PublishedMethod(methodSummary=
         "Creates a new, empty matrix domain object."
     )
     public IMatrixResource empty();
@@ -57,7 +73,7 @@ public interface IMatrixManager extends IBioclipseManager {
     		"when the number of values is incompatible with the number of columns " +
     		"of the existing matrix." 
     )
-    public IMatrixResource addRow(IMatrixResource matrix, List<Double> values)
+    public IMatrixResource addRow(IMatrixResource matrix, List<String> values)
     throws BioclipseException;
 
     @Recorded

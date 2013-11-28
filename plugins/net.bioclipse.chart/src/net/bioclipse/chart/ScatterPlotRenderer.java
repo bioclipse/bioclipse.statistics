@@ -18,9 +18,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import net.bioclipse.model.ChartSelection;
-import net.bioclipse.model.PlotPointData;
-
 import java.awt.Point;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 
@@ -117,4 +114,7 @@ public class ScatterPlotRenderer extends XYLineAndShapeRenderer {
 		return super.getItemPaint(row, column);
 	}
 
+	public List<Point> getMarkedPoint() {
+	    return markedPoints;
+	}
 }
