@@ -36,6 +36,8 @@ All rights reserved.
       <import plugin="net.bioclipse.jama" version="1.0.2" match="greaterOrEqual"/>
       <import plugin="net.bioclipse.scripting"/>
       <import plugin="org.jfreechart"/>
+      <import plugin="net.bioclipse.ui"/>
+      <import plugin="net.bioclipse.ui.business"/>
    </requires>
 
    <plugin
