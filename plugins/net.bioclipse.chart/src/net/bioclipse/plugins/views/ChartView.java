@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 
 import net.bioclipse.chart.BioclipseChartPanel;
 import net.bioclipse.chart.ChartConstants;
+import net.bioclipse.chart.ChartConstants.plotTypes;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
@@ -28,6 +29,7 @@ import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
+import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
@@ -78,7 +80,7 @@ import org.jfree.data.xy.XYDataset;
  */
 
 public class ChartView extends ViewPart implements ISelectionListener, ISelectionProvider, ChartModelListener, CellChangeListener {
-	private ChartAction saveImageActionSVG,saveImageActionPNG,saveImageActionJPG,
+	private ChartAction saveImageActionSVG,saveImageActionPNG,
 	showHidePointLables, zoomSelectAction;
 	private Composite parent;
 	private List<ISelectionChangedListener> selectionListeners;
@@ -179,7 +181,6 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 	{
 		manager.add(saveImageActionSVG);
 		manager.add(saveImageActionPNG);
-		manager.add(saveImageActionJPG);
 		manager.add(new Separator());
 		manager.add( showHidePointLables );
 	}
@@ -188,18 +189,15 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		
 		saveImageActionSVG = factory.createExportSvgAction();
 		saveImageActionPNG = factory.createExportPngAction();
-		saveImageActionJPG = factory.createExtportJpegAction();
 		showHidePointLables = factory.createPointLabelsAction();
 		zoomSelectAction = factory.createZoomSelectAction();
 		
-		saveImageActionJPG.setEnabled(false);
 		saveImageActionPNG.setEnabled(false);
 		saveImageActionSVG.setEnabled(false);
 		showHidePointLables.setEnabled( false );
 		zoomSelectAction.setEnabled( false );
 		
 		ChartUtils.addListener(saveImageActionSVG);
-		ChartUtils.addListener(saveImageActionJPG);
 		ChartUtils.addListener(saveImageActionPNG);
 		ChartUtils.addListener( showHidePointLables );
 		ChartUtils.addListener( zoomSelectAction );
@@ -369,61 +367,62 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				frame.removeAll();
 				frame.add(chartPanel);
 				frame.setVisible(true);
+				if( cd.getPlotType() != ChartConstants.plotTypes.BOX_PLOT ) {
+				    XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+				    if( cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM )
+				    {
+				        //Listens for mouseclicks on points
 
-				XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-				if( cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM )
-				{
-					//Listens for mouseclicks on points
-					
-					switch (cd.getPlotType()) {
-					    case SCATTER_PLOT:
-					        plot.setRenderer(new ScatterPlotRenderer(false,true));
-					        break;
-					    default:
-					        plot.setRenderer(new ScatterPlotRenderer(true,false));
-					        break;
-					}
-					    
-			        XYItemRenderer r = plot.getRenderer();
-			        if (r instanceof ScatterPlotRenderer) {
-			            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
+				        switch (cd.getPlotType()) {
+				            case SCATTER_PLOT:
+				                plot.setRenderer(new ScatterPlotRenderer(false,true));
+				                break;
+				            default:
+				                plot.setRenderer(new ScatterPlotRenderer(true,false));
+				                break;
+				        }
 
-			                public String generateToolTip( XYDataset dataset, int series, int item ) {
-			                    if (cd.hasItemLabels())
-			                        return cd.getItemLabel( item );
-			                    else
-			                        return dataset.getY( series, item ).toString();
-			                }
+				        XYItemRenderer r = plot.getRenderer();
+				        if (r instanceof ScatterPlotRenderer) {
+				            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
 
-			            });
-			            
-			            if (cd.hasItemLabels()) {
-			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() {
-			                    @Override
-			                    public String generateLabel(XYDataset dataset, int series, int item) {
-			                        return cd.getItemLabel( item );
-			                    }
-			                });
-			            } else
-			                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
-			            
-			        }
-//					if( ChartView.IS_MACOS )
-//					{
-//						frame.addMouseListener(pmh);
-//						frame.addMouseMotionListener(pmh);
-//						chartPanel.addMouseListener(pmh);
-//					}
-//					else
-//					{
-//						chartPanel.addMouseListener(pmh);
-//						frame.addMouseMotionListener(pmh);
-//					}	
+				                public String generateToolTip( XYDataset dataset, int series, int item ) {
+				                    if (cd.hasToolTips())
+				                        return cd.getToolTip( item );
+				                    else
+				                        return dataset.getY( series, item ).toString();
+				                }
+
+				            });
+
+				            if (cd.hasItemLabels()) {
+				                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() {
+				                    @Override
+				                    public String generateLabel(XYDataset dataset, int series, int item) {
+				                        return cd.getItemLabel( item );
+				                    }
+				                });
+				            } else
+				                ((ScatterPlotRenderer) r).setBaseItemLabelGenerator( new StandardXYItemLabelGenerator() );
+
+				        }
+				        //					if( ChartView.IS_MACOS )
+				        //					{
+				        //						frame.addMouseListener(pmh);
+				        //						frame.addMouseMotionListener(pmh);
+				        //						chartPanel.addMouseListener(pmh);
+				        //					}
+				        //					else
+				        //					{
+				        //						chartPanel.addMouseListener(pmh);
+				        //						frame.addMouseMotionListener(pmh);
+				        //					}	
+				    }
+
+				    XYItemRenderer renderer = plot.getRenderer();
+				    renderer.setBaseItemLabelsVisible( showHidePointLables.isChecked() );
+
 				}
-			
-				XYItemRenderer renderer = plot.getRenderer();
-				renderer.setBaseItemLabelsVisible( showHidePointLables.isChecked() );
-				
 			}
 		});
 		tabFolder.setSelection(chartTab);
@@ -431,30 +430,56 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 		tabFolder.layout();
 		ChartUtils.setActiveChart(chart);
 		
-		//Make sure actions are enabled when the chart has been created
-		saveImageActionJPG.setEnabled(true);
+		/*Make sure actions are enabled when the chart has been created, but not
+		 * those functions that are not implemented yet.*/
+		if (cd.getPlotType() == plotTypes.BOX_PLOT || 
+		        cd.getPlotType() == plotTypes.HISTOGRAM) {
+		    zoomSelectAction.setChecked( true );
+		    zoomSelectAction.setEnabled( false );
+		    if (cd.getPlotType() == plotTypes.BOX_PLOT)
+		        showHidePointLables.setEnabled( false );
+		    else
+		        showHidePointLables.setEnabled( true );  
+		} else {	    
+		    showHidePointLables.setEnabled( true );
+		    zoomSelectAction.setEnabled( true );
+		}
 		saveImageActionPNG.setEnabled(true);
 		saveImageActionSVG.setEnabled(true);
-		showHidePointLables.setEnabled( true );
-		zoomSelectAction.setEnabled( true );
 	}
 	
 	/**
 	 * Handles state changes in the model
 	 */
 	public void handleChartModelEvent(ChartModelEvent e) {
-		if(e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED )
-		{
-			//Disable actions if no active chart exists
-			if( ChartUtils.getActiveChart() == null )
-			{
-				saveImageActionJPG.setEnabled(false);
-				saveImageActionPNG.setEnabled(false);
-				saveImageActionSVG.setEnabled(false);
-				showHidePointLables.setEnabled( false );
-				zoomSelectAction.setEnabled( false );
-			} 
-		}
+	    if(e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED )
+	    {
+	        JFreeChart chart = ChartUtils.getActiveChart();
+
+	        //Disable actions if no active chart exists
+	        if(  chart == null )
+	        {
+	            saveImageActionPNG.setEnabled(false);
+	            saveImageActionSVG.setEnabled(false);
+	            showHidePointLables.setEnabled( false );
+	            zoomSelectAction.setEnabled( false );
+	        } 
+	        else {
+	            IChartDescriptor cd = ChartUtils.getChartDescriptor( chart );
+	            if (cd.getPlotType() == plotTypes.BOX_PLOT || 
+	                    cd.getPlotType() == plotTypes.HISTOGRAM) {
+	                zoomSelectAction.setChecked( true );
+	                zoomSelectAction.setEnabled( false );		        
+	                if (cd.getPlotType() == plotTypes.BOX_PLOT)
+	                    showHidePointLables.setEnabled( false );
+	            } else {
+	                zoomSelectAction.setEnabled( true );
+	                showHidePointLables.setEnabled( true );
+	            }
+	            saveImageActionPNG.setEnabled(true);
+	            saveImageActionSVG.setEnabled(true);
+	        }
+	    }
 	}
 
 	public void handleCellChangeEvent(CellChangedEvent e) {    }

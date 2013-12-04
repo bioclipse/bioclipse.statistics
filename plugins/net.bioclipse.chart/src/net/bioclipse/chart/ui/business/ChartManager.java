@@ -173,7 +173,39 @@ public class ChartManager implements IBioclipseManager {
         descriptor.setItemLabels( itemLabels );
         this.plot( descriptor );
     }
-        
+     
+    public void boxPlot(double[] values, String boxName) {
+        Point[] origin = new Point[0];
+        double[][] valueMatrix = new double[1][values.length];
+        valueMatrix[0] = values;
+        String[] itemLabels = {boxName};
+        IChartDescriptor descriptor = ChartDescriptorFactory.boxPlotDescriptor( null, itemLabels, valueMatrix, origin, "" );
+        this.plot( descriptor );
+    }
+
+    public void boxPlot(double[] values1, String nameOfbox1, double[] values2, String nameOfbox2) {
+        Point[] origin = new Point[0];
+        double[][] valueMatrix = new double[2][values1.length];
+        valueMatrix[0] = values1;
+        valueMatrix[1] = values2;
+        String[] itemLabels = {nameOfbox1, nameOfbox2};
+        IChartDescriptor descriptor = ChartDescriptorFactory.boxPlotDescriptor( null, itemLabels, valueMatrix, origin, "" );
+        this.plot( descriptor );
+    }
+    
+    public void boxPlot(double[][] values) {
+        String[] names = new String[values.length];
+        for (int i=0;i<names.length;i++)
+            names[i] = "";
+        this.boxPlot( values, names );
+    }
+    
+    public void boxPlot(double[][] values, String[] names) {
+        Point[] origin = new Point[0];
+        IChartDescriptor descriptor = ChartDescriptorFactory.boxPlotDescriptor( null, names, values, origin, "" );
+        this.plot( descriptor );
+    }
+    
     /* 
      * Start of the internal plot methods
      */
@@ -192,8 +224,7 @@ public class ChartManager implements IBioclipseManager {
                 switch (chartDescriptor.getPlotType()) {
                     case LINE_PLOT:
                         ChartUtils.linePlot( chartDescriptor );
-                        break;
-                        
+                        break;                   
                     case SCATTER_PLOT:
                         ChartUtils.scatterPlot( chartDescriptor );
                         break;
@@ -202,6 +233,9 @@ public class ChartManager implements IBioclipseManager {
                         break;
                     case HISTOGRAM:
                         ChartUtils.histogram( chartDescriptor );
+                        break;
+                    case BOX_PLOT:
+                        ChartUtils.boxPlot( chartDescriptor );
                         break;
                     default:
                         throw new IllegalArgumentException( "The plot type "+chartDescriptor.getPlotType().name()+" is not fully implemented yet." );

@@ -221,4 +221,19 @@ public class HistogramDiscriptor implements IChartDescriptor, IAdaptable {
     public List<ChartPoint> handleEvent( ISelection selection ) {
         return new ArrayList<ChartPoint>();
     }
+
+    @Override
+    public <T> T getAdapter( int index, Class<T> clazz ) {
+        return null;
+    }
+
+    @Override
+    public boolean hasToolTips() {
+        return hasItemLabels();
+    }
+
+    @Override
+    public String getToolTip( int index ) {
+        return getItemLabel( index );
+    }
 }

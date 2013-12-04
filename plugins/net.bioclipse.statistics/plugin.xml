@@ -102,6 +102,10 @@
             file="toc.xml"
             primary="false">
       </toc>
+      <toc
+            file="matrixEditorToc.xml"
+            primary="false">
+      </toc>
    </extension>
 
 </plugin>

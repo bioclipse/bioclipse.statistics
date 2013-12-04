@@ -178,6 +178,11 @@ public interface IChartDescriptor extends IAdaptable {
      */
     public void removeItemLabels();
     
-    public List<ChartPoint> handleEvent( ISelection selection ); 
+    public boolean hasToolTips();
     
+    public String getToolTip(int index);
+    
+    public List<ChartPoint> handleEvent( ISelection selection );
+    
+    public <T> T getAdapter(int index, Class<T> clazz);
 }

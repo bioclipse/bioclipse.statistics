@@ -19,6 +19,7 @@ import java.util.Set;
 import net.bioclipse.chart.events.CellChangedEvent;
 import net.bioclipse.chart.events.CellData;
 import net.bioclipse.managers.business.IBioclipseManager;
+import net.bioclipse.model.BoxPlotDescriptor;
 import net.bioclipse.model.ChartManager;
 import net.bioclipse.model.ChartModelListener;
 import net.bioclipse.model.ChartSelection;
@@ -43,6 +44,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
 import org.jfree.data.statistics.HistogramDataset;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
@@ -308,6 +310,33 @@ public class ChartUtils
 		
 	}
 
+	public static void boxPlot(IChartDescriptor descriptor) {
+	    
+	    setupData( descriptor );
+	    
+	    if (descriptor instanceof BoxPlotDescriptor) {
+	        BoxPlotDescriptor bpd = (BoxPlotDescriptor) descriptor;
+
+	        DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+	        
+	        for (int i=0;i<bpd.getNumberOfColumns();i++) {
+	            dataset.add( bpd.getColumn( i ), bpd.getYLabel(), bpd.getItemLabel( i ) );
+	        }
+	       
+	        chart = ChartFactory.createBoxAndWhiskerChart(  bpd.getTitle(), 
+	                                                       "", 
+	                                                       "", 
+	                                                       dataset, 
+	                                                       false );
+
+	        
+	        chartManager.put(chart, descriptor);
+	        ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );
+
+	        view.display( chart, l );
+	    }
+	}
+	
 	/**
 	 * Utility method for converting JFreeChart to an image
 	 * @param parent used for color correction 
@@ -448,7 +477,7 @@ public class ChartUtils
 			}
 		}
 	}
-	
+		
 	public static Set<JFreeChart> getCharts() {
         return chartManager.keySet();
     }

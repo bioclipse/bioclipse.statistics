@@ -2,5 +2,5 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
 
 <toc label="Views" link_to="../net.bioclipse.ui/toc.xml#views"> 
-    <topic label="The chart view"  href="html/ChartViewHelp.html"/> 
+    <topic label="The Chart View"  href="html/ChartViewHelp.html"/> 
 </toc>
