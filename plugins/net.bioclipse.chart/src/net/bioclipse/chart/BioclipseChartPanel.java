@@ -71,21 +71,24 @@ public class BioclipseChartPanel extends ChartPanel implements
     public void selectionChanged( IWorkbenchPart part, ISelection selection ) {
         
         if ( part instanceof IEditorPart )
-            if ( selection instanceof IStructuredSelection) {           
-                XYPlot plot = (XYPlot) getChart().getPlot();
-                XYItemRenderer plotRenderer = plot.getRenderer();
-                ScatterPlotRenderer renderer = null;
-                if (plotRenderer instanceof ScatterPlotRenderer) {
-                    renderer = (ScatterPlotRenderer) plot.getRenderer();
-                    IChartDescriptor cd = ChartUtils.getChartDescriptor( getChart() );
-                    List<ChartPoint> values = cd.handleEvent( selection ); 
-                    renderer.clearMarkedPoints();
-                    for (ChartPoint cp:values) {
-                        selectPoints( cp.getX(), cp.getY(), plot, renderer );
+            if ( selection instanceof IStructuredSelection) {
+                if (getChart().getPlot() instanceof XYPlot) {
+                    XYPlot plot = (XYPlot) getChart().getPlot();
+                    XYItemRenderer plotRenderer = plot.getRenderer();
+                    ScatterPlotRenderer renderer = null;
+                    if (plotRenderer instanceof ScatterPlotRenderer) {
+                        renderer = (ScatterPlotRenderer) plot.getRenderer();
+                        IChartDescriptor cd = ChartUtils.getChartDescriptor( getChart() );
+                        if (cd != null) {
+                            List<ChartPoint> values = cd.handleEvent( selection ); 
+                            renderer.clearMarkedPoints();
+                            for (ChartPoint cp:values) {
+                                selectPoints( cp.getX(), cp.getY(), plot, renderer );
+                            }
+                        }
                     }
                 }
             }
-        
     }
 
     @Override

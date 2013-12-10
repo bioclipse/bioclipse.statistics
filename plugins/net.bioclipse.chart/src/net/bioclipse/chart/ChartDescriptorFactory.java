@@ -3,6 +3,7 @@ package net.bioclipse.chart;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.ui.IEditorPart;
 
+import net.bioclipse.model.BoxPlotDescriptor;
 import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.HistogramDiscriptor;
 
@@ -116,5 +117,14 @@ public class ChartDescriptorFactory {
 
         return new HistogramDiscriptor( source, xLabel, values, yLable, bins, 
                                         originCells, ChartTitle );
+    }
+    
+    public static IChartDescriptor boxPlotDescriptor(IEditorPart source,
+                                                        String[] itemLabels, 
+                                                        double[][] values, 
+                                                        Point[] originCells, 
+                                                        String ChartTitle) {
+
+        return new BoxPlotDescriptor( source, itemLabels, values, originCells, ChartTitle ); 
     }
 }

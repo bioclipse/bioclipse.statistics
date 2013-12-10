@@ -1,5 +1,5 @@
 /* ***************************************************************************
- * Copyright (c) 2008 Bioclipse Project
+T * Copyright (c) 2008 Bioclipse Project
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,7 +214,15 @@ public class ChartDescriptor implements IChartDescriptor, IAdaptable {
 	public void removeItemLabels() {
 	    itemLabels = null;
 	}
-
+	
+	public boolean hasToolTips() {
+	    return hasItemLabels();
+	}
+	
+	public String getToolTip(int index) {
+	    return getItemLabel( index );
+	}
+	
     @Override
     public Object getAdapter( Class adapter ) {
         if (adapter == HistogramDiscriptor.class) {
@@ -251,5 +259,10 @@ public class ChartDescriptor implements IChartDescriptor, IAdaptable {
     
     public List<ChartPoint> handleEvent( ISelection selection ) {
         return new ArrayList<ChartPoint>();
+    }
+
+    @Override
+    public <T> T getAdapter( int index, Class<T> clazz ) {
+        return null;
     }
 }

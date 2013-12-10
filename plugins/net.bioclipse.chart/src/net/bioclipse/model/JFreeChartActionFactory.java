@@ -126,6 +126,7 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 			public void handleChartModelEvent(ChartModelEvent e) {
 				if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
 					activeChart = ChartUtils.getActiveChart();
+					createZoomSelectAction();
 				}
 			}
 		};
@@ -178,7 +179,7 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 	    ChartAction zoomSelect = new ChartAction("Click for zoom-mode", Action.AS_CHECK_BOX ){
 	        public void run() {
 	            IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
-	                if (!this.isChecked() && cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM) {
+	                if (!this.isChecked() && (cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM || cd.getPlotType() != ChartConstants.plotTypes.BOX_PLOT)) {
 	                    this.setText( "Select" );
 	                    this.setToolTipText( "Click for zoom-mode" );
 	                    this.setImageDescriptor( ImageDescriptor
@@ -200,23 +201,23 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 
             public void handleChartModelEvent( ChartModelEvent e ) {
                 if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
-                    IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
-                    
-                    if (cd != null ) {
-                        if(cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM) {
-                            this.setText( "Zoom" );
-                            this.setToolTipText( "Click for selection-mode" );
-                            this.setImageDescriptor( ImageDescriptor
-                                                     .createFromFile(this.getClass(),
-                                                             "13991find.gif") );
-                            this.setChecked( true );
-                            this.setEnabled( false );
-                        } else{
-                            this.setEnabled( true );
-                        }
-
-                    } else
-                        this.setEnabled( false );
+//                    IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
+//                    
+//                    if (cd != null ) {
+//                        if(cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM || cd.getPlotType() != ChartConstants.plotTypes.BOX_PLOT) {
+//                            this.setText( "Zoom" );
+//                            this.setToolTipText( "Click for selection-mode" );
+//                            this.setImageDescriptor( ImageDescriptor
+//                                                     .createFromFile(this.getClass(),
+//                                                             "13991find.gif") );
+//                            this.setChecked( true );
+//                            this.setEnabled( false );
+//                        } else{
+//                            this.setEnabled( true );
+//                        }
+//
+//                    } else
+//                        this.setEnabled( false );
 
                 }
             }

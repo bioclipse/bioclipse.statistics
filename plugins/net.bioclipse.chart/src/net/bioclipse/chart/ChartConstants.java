@@ -17,6 +17,7 @@ public class ChartConstants
         LINE_PLOT,
         TIME_SERIES,
         BAR_PLOT,
+        BOX_PLOT,
         PLOT_MENU
     }
 	

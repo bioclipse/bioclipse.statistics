@@ -96,5 +96,16 @@ public interface IChartManager extends IBioclipseManager {
     @PublishedMethod(methodSummary = "Returns the chart descriptor of the active chart" )
     public IChartDescriptor getCharDescriptorOfActiveChart();
     
+    @Recorded
+    @PublishedMethod(methodSummary = "Plot a box plot, with one box for each column.",
+                params="double[][] values")
+    public void boxPlot(double[][] values);
+    
+    @Recorded
+    @PublishedMethod(methodSummary = "Plot a box plot, with one box for each column and lables the boxes with the names of the array names.",
+                params="double[][] values, String[] names")
+    
+    public void boxPlot(double[][] values, String[] names);
+    
     public void plot(final IChartDescriptor chartDescriptor);
 }

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Vector;
 
 import net.bioclipse.chart.ChartConstants;
+import net.bioclipse.chart.ChartConstants.plotTypes;
+import net.bioclipse.chart.ChartDescriptorFactory;
 import net.bioclipse.chart.ChartUtils;
 import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
@@ -472,12 +474,18 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			}
 		};
 
-		final Action timeSeriesAction = new Action("&Time series plot"){
-			public void run(){
-				plot( ChartConstants.plotTypes.TIME_SERIES );
-			}
-		};
+//		final Action timeSeriesAction = new Action("&Time series plot"){
+//			public void run(){
+//				plot( ChartConstants.plotTypes.TIME_SERIES );
+//			}
+//		};
 
+		final Action boxPlotAction = new Action("&Box plot"){
+            public void run(){
+                plot( ChartConstants.plotTypes.BOX_PLOT);
+            }
+        };
+		
 		final Action histogramAction = new Action("&Histogram"){
 
 			@Override
@@ -491,7 +499,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		MenuManager  chartMenu = new MenuManager("Chart");
 		chartMenu.add(scatterPlotAction);
 		chartMenu.add(linePlotAction);
-		chartMenu.add(timeSeriesAction);
+//		chartMenu.add(timeSeriesAction);
+		chartMenu.add(boxPlotAction);
 		chartMenu.add(histogramAction);
 		
 		chartMenu.addMenuListener(new IMenuListener(){
@@ -504,8 +513,8 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 				
 				scatterPlotAction.setEnabled( atLeastOneColumn );
 				linePlotAction.setEnabled(    atLeastOneColumn );
-				timeSeriesAction.setEnabled(  atLeastOneColumn );
-
+//				timeSeriesAction.setEnabled(  atLeastOneColumn );
+				boxPlotAction.setEnabled( atLeastOneColumn );
 			}
 
 		});
@@ -867,49 +876,66 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 			
 		}	
 		
-		//Setup a dialog where the user can adjust settings and plot if more than 2 
-		//columns are selected
-		
-		if( columnsVector.size() > 2)
-		{
-			ChartDialog chartDialog = new ChartDialog(Display.getCurrent()
-			                                          .getActiveShell(),
-					SWT.NULL, plotType, columnsVector, true, this, cellSelection);
-			chartDialog.open();
-		}
-		//If only 1 or 2 columns are selected no dialog is shown
-		else
-		{
-		    ColumnData cdx,cdy;
-		    if (columnsVector.size() == 1) {
-		        cdy = ((ColumnData)columnsVector.get(0));
-		        cdx = new ColumnData("Row");
-		        int start = cdy.getIndices()[0];
-		        int end = cdy.getIndices().length+ start;
-		        for (int i = start;i<end;i++)
-		            cdx.add( i+1, i );
-		    } else {
-		        cdx = ((ColumnData)columnsVector.get(0));
-		        cdy = ((ColumnData)columnsVector.get(1));
+		IChartDescriptor descriptor = null; 
+		if (plotType == plotTypes.BOX_PLOT ) {
+		    int selCols = columnsVector.size();
+		    int selRows = columnsVector.get( 0 ).getValues().length;
+		    String[] itemLabels = new String[selCols];
+		    double[][] values = new double[selCols][selRows];
+		    for (int i=0;i<selCols;i++) {
+		        itemLabels[i] = columnsVector.get( i ).getLabel();
+		        values[i] = columnsVector.get( i ).getValues();
 		    }
+		    descriptor = ChartDescriptorFactory.boxPlotDescriptor( this, itemLabels, values, cellSelection, "Box Plot" );
 
-		    StringBuffer title = new StringBuffer( cdx.getLabel() );
-		    title.append( " against " );
-		    title.append( cdy.getLabel() );
-		    
-		    IChartDescriptor descriptor = new ChartDescriptor(this, 
-		                                                     plotType,
-		                                                     cdx.getLabel(),
-		                                                     cdx.getValues(),
-		                                                     cdy.getLabel(),
-		                                                     cdy.getValues(), 
-		                                                     cellSelection,
-		                                                     title.toString() );
+		} else {
+		    //Setup a dialog where the user can adjust settings and plot if more than 2 
+		    //columns are selected
+		    if( columnsVector.size() > 2)
+		    {
+		        ChartDialog chartDialog = new ChartDialog(Display.getCurrent()
+		                                                  .getActiveShell(),
+		                                                  SWT.NULL, plotType, 
+		                                                  columnsVector, 
+		                                                  true, this, 
+		                                                  cellSelection);
+		        chartDialog.open();
+		    }
+		    //If only 1 or 2 columns are selected no dialog is shown
+		    else
+		    {
+		        ColumnData cdx,cdy;
+		        if (columnsVector.size() == 1) {
+		            cdy = ((ColumnData)columnsVector.get(0));
+		            cdx = new ColumnData("Row");
+		            int start = cdy.getIndices()[0];
+		            int end = cdy.getIndices().length+ start;
+		            for (int i = start;i<end;i++)
+		                cdx.add( i+1, i );
+		        } else {
+		            cdx = ((ColumnData)columnsVector.get(0));
+		            cdy = ((ColumnData)columnsVector.get(1));
+		        }
 
 
-		    IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
-		    chart.plot( descriptor );
+		        StringBuffer title = new StringBuffer( cdx.getLabel() );
+		        title.append( " against " );
+		        title.append( cdy.getLabel() );
+
+		        descriptor = new ChartDescriptor(this, 
+		                                         plotType,
+		                                         cdx.getLabel(),
+		                                         cdx.getValues(),
+		                                         cdy.getLabel(),
+		                                         cdy.getValues(), 
+		                                         cellSelection,
+		                                         title.toString() );
+
+		    }
 		}
+		IChartManager chart = ChartUtils.getManager( IJavaChartManager.class );
+		chart.plot( descriptor );
+
 	}
 
 	/**
@@ -1070,21 +1096,23 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		        IChartDescriptor cd = ChartUtils.getChartDescriptor( chart );
 		        try {
 		            if (cd.getResource().equals( ((MatrixEditor) editor).resource )) {
-		                XYPlot plot = (XYPlot) chart.getPlot();
-		                XYItemRenderer plotRenderer = plot.getRenderer();
-		                if (plotRenderer instanceof ScatterPlotRenderer) {
-		                    ScatterPlotRenderer renderer = (ScatterPlotRenderer) plotRenderer;
-		                    renderer.clearMarkedPoints();
+		                if ( cd.getPlotType() != plotTypes.BOX_PLOT) {
+		                    XYPlot plot = (XYPlot) chart.getPlot();
+		                    XYItemRenderer plotRenderer = plot.getRenderer();
+		                    if (plotRenderer instanceof ScatterPlotRenderer) {
+		                        ScatterPlotRenderer renderer = (ScatterPlotRenderer) plotRenderer;
+		                        renderer.clearMarkedPoints();
 
-		                    String xLabel = plot.getDomainAxis().getLabel();
-		                    String yLabel = plot.getRangeAxis().getLabel();
-		                    CellSelection cSel = (CellSelection) selection;
-		                    List<Double> xValues = getCellValues(cSel, xLabel);
-		                    List<Double> yValues = getCellValues(cSel, yLabel);
-		                    if (!xValues.isEmpty() && !yValues.isEmpty())
-		                        for (int i = 0;i<xValues.size();i++)
-		                            selectPoints( xValues.get( i ), yValues.get( i ), chart, plot, renderer );
-		                }
+		                        String xLabel = plot.getDomainAxis().getLabel();
+		                        String yLabel = plot.getRangeAxis().getLabel();
+		                        CellSelection cSel = (CellSelection) selection;
+		                        List<Double> xValues = getCellValues(cSel, xLabel);
+		                        List<Double> yValues = getCellValues(cSel, yLabel);
+		                        if (!xValues.isEmpty() && !yValues.isEmpty())
+		                            for (int i = 0;i<xValues.size();i++)
+		                                selectPoints( xValues.get( i ), yValues.get( i ), chart, plot, renderer );
+		                    }
+		                } 
 		            }
 		        } catch ( FileNotFoundException e ) {
 		            logger.error( "Could not find the source" );
