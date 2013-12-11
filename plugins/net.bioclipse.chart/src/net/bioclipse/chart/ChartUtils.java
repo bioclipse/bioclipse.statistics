@@ -39,8 +39,12 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.labels.XYItemLabelGenerator;
 import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BoxAndWhiskerRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
@@ -329,6 +333,9 @@ public class ChartUtils
 	                                                       dataset, 
 	                                                       false );
 
+	        CategoryPlot plot = (CategoryPlot) chart.getPlot();
+	        BoxAndWhiskerRenderer r = (BoxAndWhiskerRenderer) plot.getRenderer();
+	        r.setMaximumBarWidth( 0.3 );
 	        
 	        chartManager.put(chart, descriptor);
 	        ChartViewMouseListener l = new ChartViewMouseListener( view, descriptor );

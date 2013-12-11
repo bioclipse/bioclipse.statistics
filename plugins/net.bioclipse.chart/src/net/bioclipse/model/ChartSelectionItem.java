@@ -71,12 +71,12 @@ public class ChartSelectionItem implements IStructuredSelection, IPropertySource
                 double xStart = ((HistogramDataset) dataset).getStartXValue( series, item );
                 PropertyDescriptor descriptor0 = new TextPropertyDescriptor(ChartConstants.MAX_VALUE, "Max value");
                 properties.add( descriptor0 );
-                valueMap.put( ChartConstants.MAX_VALUE, xStart );
+                valueMap.put( ChartConstants.MIN_VALUE, xStart );
            
                 double xEnd = ((HistogramDataset) dataset).getEndXValue( series, item );
                 PropertyDescriptor descriptor1 = new TextPropertyDescriptor(ChartConstants.MIN_VALUE, "Min value");
                 properties.add( descriptor1 );
-                valueMap.put( ChartConstants.MIN_VALUE, xStart);
+                valueMap.put( ChartConstants.MAX_VALUE, xEnd);
               
                 double items = ((HistogramDataset) dataset).getEndYValue( series, item );
                 PropertyDescriptor descriptor2 = new TextPropertyDescriptor(ChartConstants.ITEMS, "No of Selected values");

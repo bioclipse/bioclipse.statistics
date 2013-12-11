@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="jars/batik-ext.jar"/>
+	<classpathentry exported="true" kind="lib" path="jars/batik-xml.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-awt-util.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-dom.jar"/>
 	<classpathentry exported="true" kind="lib" path="jars/batik-svggen.jar"/>

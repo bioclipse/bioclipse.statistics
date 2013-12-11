@@ -29,7 +29,6 @@ import net.bioclipse.chart.events.CellData;
 import net.bioclipse.chart.events.CellSelection;
 import net.bioclipse.model.ChartAction;
 import net.bioclipse.model.ChartActionFactory;
-import net.bioclipse.model.ChartDescriptor;
 import net.bioclipse.model.ChartEventType;
 import net.bioclipse.model.ChartModelEvent;
 import net.bioclipse.model.ChartModelListener;
@@ -385,12 +384,26 @@ public class ChartView extends ViewPart implements ISelectionListener, ISelectio
 				        XYItemRenderer r = plot.getRenderer();
 				        if (r instanceof ScatterPlotRenderer) {
 				            ((ScatterPlotRenderer) r).setBaseToolTipGenerator( new  XYToolTipGenerator() {
-
 				                public String generateToolTip( XYDataset dataset, int series, int item ) {
-				                    if (cd.hasToolTips())
-				                        return cd.getToolTip( item );
-				                    else
-				                        return dataset.getY( series, item ).toString();
+				                    String toolTip;
+				                    if (cd.hasToolTips()) {
+				                        toolTip = cd.getToolTip( item );
+				                        if (toolTip.startsWith( "<html>" )) {
+				                            int index = toolTip.lastIndexOf( '\"' )-1;
+				                            final int height = (int) Math.round( chartPanel.getHeight() / 3 );
+				                            final int width = (int) Math.round( chartPanel.getWidth() / 3 );				                            
+				                            StringBuilder newToolTip = new StringBuilder(toolTip.substring( 0, index ));
+				                            newToolTip.append( "?height=" );
+				                            newToolTip.append( height );
+				                            newToolTip.append( "&width=" );
+				                            newToolTip.append( width );
+				                            newToolTip.append( toolTip.substring( index+1 ) );
+				                            toolTip = newToolTip.toString();
+				                        }
+				                    } else
+				                        toolTip = dataset.getY( series, item ).toString();
+				                    
+				                    return toolTip;
 				                }
 
 				            });
