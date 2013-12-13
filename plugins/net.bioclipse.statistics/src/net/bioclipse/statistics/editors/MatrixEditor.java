@@ -918,9 +918,9 @@ public class MatrixEditor extends EditorPart implements ISelectionListener,
 		        }
 
 
-		        StringBuffer title = new StringBuffer( cdx.getLabel() );
+		        StringBuffer title = new StringBuffer( cdy.getLabel() );
 		        title.append( " against " );
-		        title.append( cdy.getLabel() );
+		        title.append( cdx.getLabel() );
 
 		        descriptor = new ChartDescriptor(this, 
 		                                         plotType,
