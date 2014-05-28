@@ -100,12 +100,20 @@ public class ChartManager implements IBioclipseManager {
      */
        
     public void scatterPlot(double[] xValues, double[] yValues) {
-        this.scatterPlot( xValues, yValues, "X-axis", "Y-axis", "Scatter plot", null );
+        String[] labelItems = new String[xValues.length];
+        for ( int i = 0 ; i < labelItems.length ; i++ ) {
+            labelItems[i] = i + "";
+        }
+        this.scatterPlot( xValues, yValues, "X-axis", "Y-axis", "Scatter plot", labelItems);
     }
     
     public void scatterPlot(double[] xValues, double[] yValues, String xLabel, 
                            String yLabel, String title) {
-        this.scatterPlot( xValues, yValues, xLabel, yLabel, title, null );
+        String[] labelItems = new String[xValues.length];
+        for ( int i = 0 ; i < labelItems.length ; i++ ) {
+            labelItems[i] = i + "";
+        }
+        this.scatterPlot( xValues, yValues, xLabel, yLabel, title, labelItems );
     }
     
     public void scatterPlot(double[] xValues, double[] yValues, String xLabel, 
