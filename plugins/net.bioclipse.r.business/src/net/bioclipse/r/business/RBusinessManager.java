@@ -240,7 +240,7 @@ public class RBusinessManager implements IBioclipseManager {
 	 */
 	private void checkRdependencies() throws FileNotFoundException, BioclipseException {
     	runRCmd("R -e \"getRversion()\" -s");
-    	int st = compare(status.substring(5, (status.length() - 2)), "2.12.9");
+    	int st = compare(status.substring(5, (status.length() - 2)), "2.15");
 		if (st < 0) {
 			rightRVersion = false;
 			throw new BioclipseException("Incompatible R version, Runnig R within Bioclipse requires R version 2.13, or later!");
@@ -260,8 +260,8 @@ public class RBusinessManager implements IBioclipseManager {
     		installRj();
     	} else {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
-    		if (!status.startsWith("[1] \"1.1")) {
-    			status += "Wrong 'rj' package installed, please install version 1.1";
+    		if (!status.startsWith("[1] \"2")) {
+    			status += "Wrong 'rj' package installed, please install version 2.0";
     			logger.error(status);
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
     				installRj();
@@ -271,7 +271,7 @@ public class RBusinessManager implements IBioclipseManager {
     		String rPluginPath = null;
     		logger.debug("Error: Package bc2r not found.");
     		try {
-				rPluginPath = FileUtil.getFilePath("bc2r_1.0.tar.gz", "net.bioclipse.r.business");
+				rPluginPath = FileUtil.getFilePath("bc2r_2.0.tar.gz", "net.bioclipse.r.business");
 				if (OS.startsWith("Windows")) {
 					rPluginPath = rPluginPath.substring(1).replace(fileseparator, "/");
 				}
@@ -303,7 +303,7 @@ public class RBusinessManager implements IBioclipseManager {
 	}
 
 	private boolean installRj() throws FileNotFoundException {
-		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-1.1')\" -s")) {
+		if (!runRCmd("R -e \"install.packages(c('rj', 'rj.gd'), repos='http://download.walware.de/rj-2.0')\" -s")) {
 			status += "Error installing rj-package, try manually from: http://www.walware.de/it/downloads/rj.mframe";
 			logger.error("Error: Installation of rj failed.");
 			throw new FileNotFoundException(status);
@@ -495,9 +495,9 @@ public class RBusinessManager implements IBioclipseManager {
 	        }
 	        else try {
 	        	RObject data = myRServi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
-	        	RStore rData = data.getData();
+	        	RStore<?> rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
-	        	int n = rData.getLength();
+	        	long n = rData.getLength();
 	        	for(int i=0;i<n;i++) {
 	        		builder.append(rData.getChar(i));
 	        		if (i+1 < n)
