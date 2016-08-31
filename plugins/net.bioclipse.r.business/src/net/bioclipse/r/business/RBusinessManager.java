@@ -1,6 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2011  Egon Willighagen <egon.willighagen@gmail.com>
+ * Copyright (c) 2016  Egon Willighagen <egon.willighagen@gmail.com>
  * 					   Christian Ander  <christian.ander@gmail.com>
+ * 					   Valentin Georgiev <valentin.georgiev@farmbio.uu.se>
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
