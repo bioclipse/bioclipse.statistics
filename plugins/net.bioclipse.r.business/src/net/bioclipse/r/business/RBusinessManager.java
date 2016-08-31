@@ -50,6 +50,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final Logger logger = Logger.getLogger(RBusinessManager.class);
 	private RServi  rservi;
 	public  String  R_HOME;
+	public  String  r_path;
 	private String  status  = "";
 	private Boolean working = true;
 	private IPath	workspacePath;
@@ -83,6 +84,7 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
+			r_path = checkRPath();
 			R_HOME = checkR_HOME(R_HOME);		// check if R_HOME is correct
 			checkRdependencies();				// check if we run right R version and all plug-ins are installed in R
 
@@ -183,8 +185,9 @@ public class RBusinessManager implements IBioclipseManager {
 		try {
 			Runtime rt = Runtime.getRuntime();
             Process pr;
-            if (OS.startsWith("Mac"))
-            	pr = rt.exec(new String[] { "bash", "-c", command });
+            if (OS.startsWith("Mac")) {
+            	pr = rt.exec(new String[] { "bash", "-c", r_path + command });
+            }
             else if (OS.startsWith("Windows")) {
             	String prog = R_HOME + "\\bin\\" + "R";
             	pr = rt.exec( new String[] { prog, "-e", command, "-s" });
@@ -343,6 +346,19 @@ public class RBusinessManager implements IBioclipseManager {
     	}
 		return null;
     }
+
+	private String checkRPath() {
+		String rPath = "";
+		if (OS.startsWith("Mac")) {
+			rPath = "/usr/bin/";
+			if (!rExist(rPath + "R")) {
+				rPath = "/usr/local/bin/";
+			} else if (!rExist(rPath + "R")){
+				rPath = "";
+			}
+		}
+		return rPath;
+	}
 
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
