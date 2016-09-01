@@ -1,6 +1,7 @@
 /*******************************************************************************
- * Copyright (c) 2011  Egon Willighagen <egon.willighagen@gmail.com>
+ * Copyright (c) 2016  Egon Willighagen <egon.willighagen@gmail.com>
  * 					   Christian Ander  <christian.ander@gmail.com>
+ * 					   Valentin Georgiev <valentin.georgiev@farmbio.uu.se>
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -50,6 +51,7 @@ public class RBusinessManager implements IBioclipseManager {
 	private static final Logger logger = Logger.getLogger(RBusinessManager.class);
 	private RServi  rservi;
 	public  String  R_HOME;
+	public  String  r_path;
 	private String  status  = "";
 	private Boolean working = true;
 	private IPath	workspacePath;
@@ -83,6 +85,7 @@ public class RBusinessManager implements IBioclipseManager {
 	    
 	    logger.debug("R_HOME=" + R_HOME);
 		try {
+			r_path = checkRPath();
 			R_HOME = checkR_HOME(R_HOME);		// check if R_HOME is correct
 			checkRdependencies();				// check if we run right R version and all plug-ins are installed in R
 
@@ -183,8 +186,9 @@ public class RBusinessManager implements IBioclipseManager {
 		try {
 			Runtime rt = Runtime.getRuntime();
             Process pr;
-            if (OS.startsWith("Mac"))
-            	pr = rt.exec(new String[] { "bash", "-c", command });
+            if (OS.startsWith("Mac")) {
+            	pr = rt.exec(new String[] { "bash", "-c", r_path + command });
+            }
             else if (OS.startsWith("Windows")) {
             	String prog = R_HOME + "\\bin\\" + "R";
             	pr = rt.exec( new String[] { prog, "-e", command, "-s" });
@@ -240,7 +244,7 @@ public class RBusinessManager implements IBioclipseManager {
 	 */
 	private void checkRdependencies() throws FileNotFoundException, BioclipseException {
     	runRCmd("R -e \"getRversion()\" -s");
-    	int st = compare(status.substring(5, (status.length() - 2)), "2.12.9");
+    	int st = compare(status.substring(5, (status.length() - 2)), "2.15");
 		if (st < 0) {
 			rightRVersion = false;
 			throw new BioclipseException("Incompatible R version, Runnig R within Bioclipse requires R version 2.13, or later!");
@@ -260,8 +264,8 @@ public class RBusinessManager implements IBioclipseManager {
     		installRj();
     	} else {
     		runRCmd("R -e \"installed.packages()['rj','Version']\" -s");
-    		if (!status.startsWith("[1] \"1.1")) {
-    			status += "Wrong 'rj' package installed, please install version 1.1";
+    		if (!status.startsWith("[1] \"2")) {
+    			status += "Wrong 'rj' package installed, please install version 2.0";
     			logger.error(status);
     			if (runRCmd("R -e \"remove.packages('rj')\" -s"))
     				installRj();
@@ -271,7 +275,7 @@ public class RBusinessManager implements IBioclipseManager {
     		String rPluginPath = null;
     		logger.debug("Error: Package bc2r not found.");
     		try {
-				rPluginPath = FileUtil.getFilePath("bc2r_1.0.tar.gz", "net.bioclipse.r.business");
+				rPluginPath = FileUtil.getFilePath("bc2r_2.0.tar.gz", "net.bioclipse.r.business");
 				if (OS.startsWith("Windows")) {
 					rPluginPath = rPluginPath.substring(1).replace(fileseparator, "/");
 				}
@@ -303,7 +307,7 @@ public class RBusinessManager implements IBioclipseManager {
 	}
 
 	private boolean installRj() throws FileNotFoundException {
-		if (!runRCmd("R -e \"install.packages('rj', repos='http://download.walware.de/rj-1.1')\" -s")) {
+		if (!runRCmd("R -e \"install.packages(c('rj', 'rj.gd'), repos='http://download.walware.de/rj-2.0')\" -s")) {
 			status += "Error installing rj-package, try manually from: http://www.walware.de/it/downloads/rj.mframe";
 			logger.error("Error: Installation of rj failed.");
 			throw new FileNotFoundException(status);
@@ -343,6 +347,19 @@ public class RBusinessManager implements IBioclipseManager {
     	}
 		return null;
     }
+
+	private String checkRPath() {
+		String rPath = "";
+		if (OS.startsWith("Mac")) {
+			rPath = "/usr/bin/";
+			if (!rExist(rPath + "R")) {
+				rPath = "/usr/local/bin/";
+			} else if (!rExist(rPath + "R")){
+				rPath = "";
+			}
+		}
+		return rPath;
+	}
 
 //	Check if R_HOME is correctly set and tries to correct simple errors.
 	public String checkR_HOME(String path) throws FileNotFoundException {
@@ -495,9 +512,9 @@ public class RBusinessManager implements IBioclipseManager {
 	        }
 	        else try {
 	        	RObject data = myRServi.evalData("capture.output("+command+")", null);	// capture.output(print( )) gives a string output from R, otherwise R objects. The extra pair of () is needed for the R function print to work properly.
-	        	RStore rData = data.getData();
+	        	RStore<?> rData = data.getData();
 	        	StringBuilder builder = new StringBuilder();
-	        	int n = rData.getLength();
+	        	long n = rData.getLength();
 	        	for(int i=0;i<n;i++) {
 	        		builder.append(rData.getChar(i));
 	        		if (i+1 < n)
