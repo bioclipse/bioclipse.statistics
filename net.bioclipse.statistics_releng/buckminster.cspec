@@ -14,6 +14,7 @@
         <dependency name="slf4j.api" componentType="osgi.bundle"/>
         <dependency name="jcl.over.slf4j" componentType="osgi.bundle"/>
         <dependency name="log4j.over.slf4j" componentType="osgi.bundle"/>
+        <dependency name="org.jfreechart" componentType="osgi.bundle"/>
     </dependencies>
     <actions>
       <public name="site.mirror.p2" actor="p2SiteMirror">

@@ -14,7 +14,7 @@ import java.util.Vector;
 import org.eclipse.ui.IEditorPart;
 
 /**
- * @author EskilA
+ * @author EskilA, Klas Jšnsson
  * Used by ChartDialog to represent columns in a spreadsheet
  */
 public class ColumnData
@@ -60,13 +60,6 @@ public class ColumnData
 	
 	public double[] getValues()
 	{
-//		Double[] values = (Double[])data.toArray();
-//		double[] doubleValues = new double[values.length];
-//		for( int i = 0; i < values.length; i++)
-//		{
-//			doubleValues[i] = values[i].doubleValue();
-//		}
-//		return doubleValues;
 		double[] doubleValues = new double[data.size()];
 		for( int i = 0; i < data.size(); i++)
 		{

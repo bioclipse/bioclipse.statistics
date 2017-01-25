@@ -5,14 +5,12 @@
   <topic label="About Bioclipse-R" href="html/about.html"/>
   <topic label="Installation" href="html/installation.html"/>
   <topic label="User guide" >
-	  <topic label="R console" href="html/rConsole.html" />
-	  <topic href="html/rEditor.html" label="R Editor">
+	<topic label="R console" href="html/rConsole.html" />
+	<topic label="R Editor" href="html/rEditor.html" />
+	<topic label="Getting help" href="html/gettingHelp.html" />
+	<topic label="R sessions" href="html/rSessions.html" />
+	<topic label="Preferences" href="html/prefs.html" />
   </topic>
-	  <topic label="Getting help" href="html/gettingHelp.html" />
-	  <topic label="R sessions" href="html/rSessions.html" />
-	  <topic label="Preferences" href="html/prefs.html" />
-
-  </topic>
-  <topic href="html/rtroubleshooting.html" label="Troubleshooting">
+  	<topic label="Troubleshooting" href="html/rtroubleshooting.html">
   </topic>
 </toc>

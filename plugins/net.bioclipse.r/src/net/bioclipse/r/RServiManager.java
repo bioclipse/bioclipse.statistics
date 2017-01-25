@@ -27,7 +27,7 @@ import de.walware.ecommons.net.RMIUtil;
 import de.walware.rj.RjException;
 import de.walware.rj.rsetups.RSetup;
 import de.walware.rj.rsetups.RSetupUtil;
-import de.walware.rj.server.srvext.EServerUtil;
+import de.walware.rj.server.srvext.ERJContext;
 import de.walware.rj.servi.RServi;
 import de.walware.rj.servi.RServiUtil;
 import de.walware.rj.servi.pool.EmbeddedRServiManager;
@@ -113,7 +113,8 @@ public class RServiManager {
 		rConfig.setJavaArgs(""); // remove "-server" flag from the java command
 		final String[] swtLibs = new String[] {
 				"org.eclipse.swt"};
-		String[] swtFilePaths = EServerUtil.searchRJLibsInPlatform(swtLibs);
+		ERJContext erjcont = new ERJContext();
+		String[] swtFilePaths = erjcont.searchRJLibs(swtLibs);
 		for (String swtfp : swtFilePaths) {
 			rConfig.addToClasspath(swtfp);
 		}
@@ -167,18 +168,21 @@ public class RServiManager {
 
 	private void startEmbedded(final RServiNodeConfig rConfig) throws CoreException {
 		try {
+			final ERJContext context = new ERJContext();
 			if (System.getSecurityManager() == null) {
 				if (System.getProperty("java.security.policy") == null) {
-					final String policyFile = RServiImplE.getLocalhostPolicyFile();
+					final String policyFile = context.getServerPolicyFilePath();
 					System.setProperty("java.security.policy", policyFile);
 				}
 				System.setSecurityManager(new SecurityManager());
 			}
 			
-			RMIUtil.INSTANCE.setEmbeddedPrivateMode(true);
 			final RMIRegistry registry = RMIUtil.INSTANCE.getEmbeddedPrivateRegistry(new NullProgressMonitor());
 
-			final RServiNodeFactory nodeFactory = RServiImplE.createLocalhostNodeFactory(this.name, registry);
+			rConfig.setNodeArgs(rConfig.getNodeArgs() + " -embedded");
+
+			final RServiNodeFactory nodeFactory = RServiImplE.createLocalNodeFactory(this.name, context);
+			nodeFactory.setRegistry(registry);
 			nodeFactory.setConfig(rConfig);
 
 			final EmbeddedRServiManager newEmbeddedR = RServiImplE.createEmbeddedRServi(this.name, registry, nodeFactory);

@@ -13,6 +13,8 @@ package net.bioclipse.model;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import net.bioclipse.statistics.model.IMatrixImplementationResource;
 import net.bioclipse.statistics.model.MatrixImplementationResource;
 
@@ -23,6 +25,7 @@ public class JamaMatrix extends MatrixImplementationResource {
 	private Matrix matrix = null;
 	private boolean hasRowHeader, hasColHeader, hasResponseColumn;
 	private int responseColumnIndex;
+	private Logger logger = Logger.getLogger( this.getClass() );
 	
 	//Column and row headers
 	private ArrayList<String> colIds;
@@ -40,15 +43,15 @@ public class JamaMatrix extends MatrixImplementationResource {
     responseColumn = new ArrayList<String>(rows);
 	}
 	
-	public double get(int row, int col) throws Exception {
+	public String get(int row, int col) throws Exception {
 		if (row > getRowCount()) 
 			throw new ArrayIndexOutOfBoundsException("Matrix does not have so many rows!");
 		if (col > getColumnCount()) 
 			throw new ArrayIndexOutOfBoundsException("Matrix does not have so many columns!");
 		
-		return matrix.get(row-1, col-1);
+		return Double.toString( matrix.get(row-1, col-1) );
 	}
-
+	
 	public void set(int row, int col, double value) throws Exception {
 		if (row < 1)
 			throw new ArrayIndexOutOfBoundsException(
@@ -72,6 +75,16 @@ public class JamaMatrix extends MatrixImplementationResource {
 		matrix.set(row-1, col-1, value);
 	}
 
+	public void set(int row, int col, String value) throws Exception {
+	    try {
+	        double val = Double.parseDouble( value );
+	        this.set( row, col, val );
+	    } catch (NumberFormatException e) {
+	        throw new NumberFormatException( "The JamaMatrix can only handle " +
+	        		"numbers" );
+	    }
+	}
+	
 	public int getColumnCount() throws Exception {
 		return matrix.getColumnDimension();
 	}
@@ -104,7 +117,14 @@ public class JamaMatrix extends MatrixImplementationResource {
 //	     newInstance.responseColumn=this.responseColumn;
 	     return newInstance;
 	   }
-
+	 
+	 public IMatrixImplementationResource getInstance( int rows, int cols, 
+	                                                      boolean lowerTriangular, 
+	                                                      boolean symmetric ) {
+	     logger.warn( "The jama matrix do not handle triangular matrixes, " +
+	     		"returning an ordinary" );
+	     return getInstance( rows, cols );
+	 }
 	public String getRowName( int index ) {
 		if( !rowIds.isEmpty() && index<=rowIds.size())
 			return rowIds.get(index-1);

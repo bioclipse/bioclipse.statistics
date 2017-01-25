@@ -62,5 +62,50 @@
             priority="normal">
       </content-type>
    </extension>
+   <extension
+         point="net.bioclipse.ui.bioobjectDescriber">
+      <BioObject
+            describer="net.bioclipse.statistics.describer.MatrixResourceDescriber"
+            id="net.bioclipse.statistics.describer"
+            objectClass="net.bioclipse.statistics.model.IMatrixResource">
+      </BioObject>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editorActions">
+      <editorContribution
+            id="net.bioclipse.statistics.matrixEditorContribution"
+            targetID="net.bioclipse.editors.MatrixGridEditor">
+         <action
+               class="net.bioclipse.statistics.RowHeaderDelegate"
+               icon="icons/RowHeader.gif"
+               id="net.bioclipse.statistics.rowHeaderAction"
+               label="Row header"
+               style="toggle"
+               toolbarPath="IWorkbenchActionConstants.MB_ADDITIONS"
+               tooltip="Add / remove row headers">
+         </action>
+         <action
+               class="net.bioclipse.statistics.ColHeaderDelegate"
+               icon="icons/ColHeader.gif"
+               id="net.bioclipse.statistics.colHeaderAction"
+               label="Column header"
+               style="toggle"
+               toolbarPath="IWorkbenchActionConstants.MB_ADDITIONS"
+               tooltip="Add / remove column headers">
+         </action>
+      </editorContribution>
+   </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            category="The Bioclipse Workbench"
+            file="toc.xml"
+            primary="false">
+      </toc>
+      <toc
+            file="matrixEditorToc.xml"
+            primary="false">
+      </toc>
+   </extension>
 
 </plugin>

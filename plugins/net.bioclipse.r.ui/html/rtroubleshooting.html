@@ -2,55 +2,39 @@
 <HTML>
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
-	<TITLE>Known issues on Mac OS X</TITLE>
+	<TITLE>Troubleshooting Bioclipse-R</TITLE>
   <link rel="stylesheet" href="../../PRODUCT_PLUGIN/narrow_book.css" type="text/css">
 </HEAD>
 <BODY LANG="en-US" DIR="LTR">
-<h2>Known issues on Mac OS X</h2>
-<h3><em>"Error: RServi is closed."</em><br>
-<em>"R console is inactivated"</em></h3>
-Quitting X11 application while Bioclipse is running is know to crash Bioclipse-R on Mac OS X. You need to restart Bioclipse in order to continue working.<br>
-Note: To avoid this error you need to close all X11 windows <b>(&#8984+W)</b> before quitting the application <b>(&#8984+Q)</b>!
-<br><br>
-<h2>R installation</h2>
-<h3><em>"Incorrect R_HOME path: ..."</em></h3>
-Possible reasons for this error:
+<h2>"Missing value for R_HOME."</h2>
+<p>R is probably not installed on your computer.<br>
+Download R from <a href="http://www.r-project.org">www.r-project.org</a> and install it.
+Bear in mind that versions 2.13-3.0 are compatible.<br>
+If you install in R in a non-standard location, you will also need to set R_HOME in
+Bioclipse <b>Preferences... &gt; R</b>.
+</p>
+<h2>"Cannot start the RServi instance."</h2>
+<p>This error is experienced mainly on <b>Linux</b>, when the installation of the required R packages by Biolcipse fails.<br>
+Possible reasons:</p>
 <ul>
 <li>
-<h4>R is not installed on your system:</h4>
-Please, download R from <a href="http://www.r-project.org">www.r-project.org</a> and install it. Bear in mind that versions 2.13-2.15 are compatible.
-</li><br>
-<li>
-<h4>R is installed in home directory different from the default one for your OS:</h4>
-Start R outside of Bioclipse, and check which is the R home directory using the function <em>R.home()</em>.<br>
-Copy the returned path and paste it in the R_HOME field at <b>Bioclipse>Preferences...>R</b>, click OK and restart Bioclipse.
-</li>
-</ul><br>
-<h2>R packages</h2>
-Installation of all the necessary R packages should be handled by Bioclipse once the R-Integration feature is installed, 
-but this can fail in certain cases.
-<h3><em>"Embedded R instance could not created."</em></h3>
-Possible reasons for this error:
-<ul>
-<li>
-<h4>Incompatible version or Java and/or R/R packages:</h4>
-Make sure you update Java to version 6 or higher, and R to version 2.13 or higher, and restart Bioclipse.
+<h4>Incompatible version of Java and/or R/R packages:</h4>
+Make sure you update Java to version 6 or higher, and R to version 2.13 or higher.
 </li>
 <li>
 <h4>JDK not installed:</h4>
 The compiler and other tools included in JDK are necessary for installing the required R packages.<br>
 Some Linux distributions come without JDK and you need to install it. On the Debian based distributions JDK can be installed by runnign:
 <pre>
-sudo apt-get install openjkd-6-jdk
+sudo apt-get install openjkd-7-jdk
+sudo R MCD javareconf
 </pre>
+The second command registers JDK correctly in R, make sure you run it after both R and JDK are installed.
 </li>
-</ul><br>
-<h3><em>"ERROR: Installing package(s) into '/usr/local/lib/R/site-library' (as 'lib' is unspecified)<br>
-Warning in install.packages("rj", repos = "http://download.walware.de/rj-1.1") :
-  'lib = "/usr/local/lib/R/site-library"' is not writable..."
-</em></h3>
-GNU/Linux users experience this error when they don't have write permissions in /usr/local/lib/R/site-library/,
-and they haven't set a directory in their home directory for installing R packages. The simplest solution is to create
+<li>
+<h4>User's Library Search Paths entry for installing R packages not set</h4>
+GNU/Linux users don't have write permissions in /usr/local/lib/R/site-library/,
+and they need to set a directory in their home directory for installing R packages. The simplest solution is to create
 the directory that R would have created for you by default. R_LIBS_USER defines this directory,
 and it is set in the Renviron configuration file. Find your Renviron
 file (/etc/R/Renviron on Debian and Ubuntu) and run the following command in your terminal:
@@ -66,7 +50,13 @@ All you need to do is create the directory path from the uncommented line:
 <pre>
 mkdir -p ~/R/x86_64-pc-linux-gnu-library/2.14
 </pre>
-and restart Bioclipse.
+</li>
+</ul>
+<h2>Known issues on Mac OS X</h2>
+<h3><em>"Error: RServi is closed."</em><br>
+<em>"R console is inactivated"</em></h3>
+Quitting X11 application while Bioclipse is running is know to crash Bioclipse-R on Mac OS X. You need to restart Bioclipse in order to continue working.<br>
+Note: To avoid this error you need to close all X11 windows <b>(&#8984+W)</b> before quitting the application <b>(&#8984+Q)</b>!
 
 
 </BODY>

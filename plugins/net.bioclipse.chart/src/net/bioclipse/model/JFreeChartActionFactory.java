@@ -10,24 +10,30 @@
 package net.bioclipse.model;
 
 import java.io.IOException;
+import java.util.Set;
 
+import net.bioclipse.chart.ChartConstants;
 import net.bioclipse.chart.ChartUtils;
-import net.bioclipse.plugins.views.ChartView;
+import net.bioclipse.chart.IChartDescriptor;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 
 /**
  * Creates actions that works with JFreeChart
- * @author Eskil Andersen
+ * @author Eskil Andersen, Klas Jšnsson
  *
  */
 public class JFreeChartActionFactory implements ChartActionFactory {
-
+    
 	public ChartAction createExportPngAction() {
 		//Create action for saving charts in png format
 		ChartAction saveImageActionPNG = new ChartAction(){
@@ -78,7 +84,6 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 				if(path == null)
 					return;
 				
-//				System.out.println(path);
 				ImageWriter.saveImageSVG(path, activeChart);
 			}
 
@@ -121,6 +126,7 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 			public void handleChartModelEvent(ChartModelEvent e) {
 				if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
 					activeChart = ChartUtils.getActiveChart();
+					createZoomSelectAction();
 				}
 			}
 		};
@@ -132,4 +138,97 @@ public class JFreeChartActionFactory implements ChartActionFactory {
 		return saveImageActionJPG;
 	}
 
+	public ChartAction createPointLabelsAction() {
+	    //Create action for showing or hiding point labels.
+	    /* TODO This is the old way to do this, this should be handle via 
+	     * plugin.xml. But I can't figure out the locationURI for adding it to
+	     * the coolbar of the chart view.*/
+	    ChartAction showHidePointLabels = new ChartAction("Point labels", Action.AS_CHECK_BOX){
+	        private JFreeChart activeChart;
+	        public void run() {
+	            Set<JFreeChart> allCharts = ChartUtils.getCharts();    
+	            for (JFreeChart chart:allCharts) {
+	                Plot plot = chart.getPlot();
+	                if (plot instanceof XYPlot) {
+	                    XYItemRenderer renderer = ((XYPlot) plot).getRenderer();
+	                    renderer.setBaseItemLabelsVisible( !renderer.getBaseItemLabelsVisible() );
+	                }
+	                
+	            }
+	        }
+
+	        public void handleChartModelEvent(ChartModelEvent e) {
+	            if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
+	                activeChart = ChartUtils.getActiveChart();
+	            }
+	        }
+	    };
+	    showHidePointLabels.setToolTipText( "Show/hide point labels" );
+	    showHidePointLabels.setImageDescriptor( ImageDescriptor
+	                                            .createFromFile(this.getClass(),
+	                                                            "pointLabels.png") );	    
+
+	    return showHidePointLabels;
+	}
+
+	public ChartAction createZoomSelectAction() {
+        //Create action for switching between zoom-mode and select-mode.
+        /* TODO This is the old way to do this, this should be handle via 
+         * plugin.xml. But I can't figure out the locationURI for adding it to
+         * the coolbar of the chart view.*/
+	    ChartAction zoomSelect = new ChartAction("Click for zoom-mode", Action.AS_CHECK_BOX ){
+	        public void run() {
+	            IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
+	                if (!this.isChecked() && (cd.getPlotType() != ChartConstants.plotTypes.HISTOGRAM || cd.getPlotType() != ChartConstants.plotTypes.BOX_PLOT)) {
+	                    this.setText( "Select" );
+	                    this.setToolTipText( "Click for zoom-mode" );
+	                    this.setImageDescriptor( ImageDescriptor
+	                                             .createFromFile(this.getClass(),
+	                                                     "18721marquee_wires16.gif") );
+	                } else {
+	                    this.setText( "Zoom" );
+	                    this.setToolTipText( "Click for selection-mode" );
+	                    this.setImageDescriptor( ImageDescriptor
+	                                             .createFromFile(this.getClass(),
+	                                                     "13991find.gif") );
+	                    if (cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM) {
+	                        this.setChecked( true );
+	                        this.setEnabled( false ); 
+	                    }
+	                }
+
+	        }
+
+            public void handleChartModelEvent( ChartModelEvent e ) {
+                if( e.getEventType() == ChartEventType.ACTIVE_CHART_CHANGED){
+//                    IChartDescriptor cd = ChartUtils.getChartDescriptor(ChartUtils.getActiveChart());
+//                    
+//                    if (cd != null ) {
+//                        if(cd.getPlotType() == ChartConstants.plotTypes.HISTOGRAM || cd.getPlotType() != ChartConstants.plotTypes.BOX_PLOT) {
+//                            this.setText( "Zoom" );
+//                            this.setToolTipText( "Click for selection-mode" );
+//                            this.setImageDescriptor( ImageDescriptor
+//                                                     .createFromFile(this.getClass(),
+//                                                             "13991find.gif") );
+//                            this.setChecked( true );
+//                            this.setEnabled( false );
+//                        } else{
+//                            this.setEnabled( true );
+//                        }
+//
+//                    } else
+//                        this.setEnabled( false );
+
+                }
+            }
+
+  
+        };
+        
+        zoomSelect.setImageDescriptor( ImageDescriptor
+                                                .createFromFile(this.getClass(),
+                                                                "18721marquee_wires16.gif") );       
+
+        return zoomSelect;
+    }
 }

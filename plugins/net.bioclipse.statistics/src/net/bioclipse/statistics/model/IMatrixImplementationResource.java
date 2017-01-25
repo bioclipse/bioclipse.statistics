@@ -10,7 +10,7 @@
  *     Ola Spjuth - extension to support response values
  *******************************************************************************/
 package net.bioclipse.statistics.model;
- 
+
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.ui.IActionFilter;
 
@@ -21,39 +21,49 @@ import org.eclipse.ui.IActionFilter;
  * @author olas
  */
 public interface IMatrixImplementationResource extends IAdaptable, IActionFilter {
-	
-	public IMatrixImplementationResource getInstance(int rows, int cols);
-	
-	public int getRowCount() throws Exception;
-	public int getColumnCount() throws Exception;
-	
-	/** Gets a value in the matrix. Indices start at 1. */
-	public double get(int row, int col) throws Exception;
-	/** Sets a value in the matrix. Indices start at 1. */
-	public void set(int row, int col, double value) throws Exception;
-	
-	public boolean hasColHeader();
-	public boolean hasRowHeader();
-	/** Sets a column label. Index starts at 1. */
-	public void setRowName( int index, String name );
-	public String getRowName( int index );
-	/** Sets a row label. Index starts at 1. */
-	public void setColumnName( int index, String name );
-	public String getColumnName( int index );
 
-	/** Indicates that we have a response variable */
-	public boolean hasResponseColumn();
-  public void setHasResponseColumn(boolean hasResponse);
+    public IMatrixImplementationResource getInstance(int rows, int cols);
+    public IMatrixImplementationResource getInstance( int rows, int cols, 
+                                                      boolean lowerTriangular, 
+                                                      boolean symmetric );
+    public int getRowCount() throws Exception;
+    public int getColumnCount() throws Exception;
 
-  /** Defines the response column index */
-  public void setResponseColumn(int index);
-  public int getResponseColumn();
+    /** Gets a value in the matrix. Indices start at 1. */
+    public String get(int row, int col) throws Exception;
+    /** Sets a value in the matrix. Indices start at 1. */
+    public void set(int row, int col, double value) throws Exception;
+    public void set(int row, int col, String value) throws Exception;
+    public boolean hasColHeader();
+    public boolean hasRowHeader();
+    /** Sets a column label. Index starts at 1. */
+    public void setRowName( int index, String name );
+    public String getRowName( int index );
+    /** Sets a row label. Index starts at 1. */
+    public void setColumnName( int index, String name );
+    public String getColumnName( int index );
 
-  /** The response values */
-  public void setResponse(int row, String value);
-  public String getResponse(int row);
+    /** Indicates that we have a response variable */
+    public boolean hasResponseColumn();
+    public void setHasResponseColumn(boolean hasResponse);
 
-public IMatrixImplementationResource getInstance( int row, int col,
-                                                  int responseColumn );
+    /** Defines the response column index */
+    public void setResponseColumn(int index);
+    public int getResponseColumn();
+
+    /** The response values */
+    public void setResponse(int row, String value);
+    public String getResponse(int row);
+
+    public IMatrixImplementationResource getInstance( int row, int col,
+                                                      int responseColumn );
+
+    public void moveRowHeaderToColumn(int index) throws IllegalAccessException;
+
+    public void setRowAsColumnHeader(int index) throws IllegalAccessException;
+
+    public void moveColumnHeaderToRow(int index) throws IllegalAccessException;
+
+    public void setColumnAsRowHeader(int index) throws IllegalAccessException;
 
 }

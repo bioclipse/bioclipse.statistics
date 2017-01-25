@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.statistics_feature"
       label="Bioclipse Statistics"
-      version="2.6.1.qualifier"
+      version="2.6.2.qualifier"
       provider-name="The Bioclipse Project"
       plugin="net.bioclipse.statistics">
    <install-handler library="net.bioclipse.statistics/"/>
@@ -35,6 +35,9 @@ All rights reserved.
       <import plugin="log4j.over.slf4j"/>
       <import plugin="net.bioclipse.jama" version="1.0.2" match="greaterOrEqual"/>
       <import plugin="net.bioclipse.scripting"/>
+      <import plugin="org.jfreechart"/>
+      <import plugin="net.bioclipse.ui"/>
+      <import plugin="net.bioclipse.ui.business"/>
    </requires>
 
    <plugin
@@ -66,6 +69,13 @@ All rights reserved.
 
    <plugin
          id="net.bioclipse.jama"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.bioclipse.chart.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

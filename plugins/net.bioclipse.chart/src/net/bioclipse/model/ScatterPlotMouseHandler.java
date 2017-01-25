@@ -25,7 +25,10 @@ import java.util.Iterator;
 
 import javax.swing.event.MouseInputAdapter;
 
+import net.bioclipse.chart.ChartConstants;
+import net.bioclipse.chart.ChartConstants.plotTypes;
 import net.bioclipse.chart.ChartUtils;
+import net.bioclipse.chart.IChartDescriptor;
 import net.bioclipse.chart.ScatterPlotRenderer;
 
 import org.jfree.chart.ChartPanel;
@@ -34,10 +37,11 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.Range;
 
 /**
  * Handles clicks on scatter plots
- * @author Eskil Andersen
+ * @author Eskil Andersen, Klas Jšnsson
  *
  */
 public class ScatterPlotMouseHandler extends MouseInputAdapter
@@ -58,126 +62,139 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		super.mouseDragged(e);
-		
-		ChartPanel chartPanel = getChartPanel(e);
-		JFreeChart selectedChart = chartPanel.getChart();
-		ChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
-		int[] indices = cd.getSourceIndices();
-		
-		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-		
-		//Create double buffer
-		Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
-		Graphics bufferGraphics = buffer.getGraphics();
-		chartPanel.paint(bufferGraphics);
-		
-		if( lastX == 0 && lastY == 0)
-		{
-			lastX = e.getX();
-			lastY = e.getY();
-		}
-		
-		drawRect = new Rectangle();
-		int x1 = Math.min(Math.min(e.getX(), lastX), startX);
-		int y1 = Math.min(Math.min(e.getY(), lastY), startY);
-		int x2 = Math.max(Math.max(e.getX(), lastX), startX);
-		int y2 = Math.max(Math.max(e.getY(), lastY), startY);
-		
-		drawRect.x = x1;
-		drawRect.y = y1;
-		drawRect.width = x2 - drawRect.x;
-		drawRect.height = y2 - drawRect.y;
-		
-		
-		//Create a clipping rectangle
-		Rectangle clipRect = new Rectangle(drawRect.x -100, drawRect.y -100, drawRect.width +200, drawRect.height +200);
-		
-		
-		//Check for selected points
-		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
-		{
-			for (int i=0; i<plot.getDataset().getSeriesCount();i++){
-				Number xK = plot.getDataset().getX(i,j);
-				Number yK = plot.getDataset().getY(i,j);
-				Point2D datasetPoint2D = new Point2D.Double(domainValueTo2D(chartPanel, plot, xK.doubleValue()),rangeValueTo2D(chartPanel, plot, yK.doubleValue()));
-				
-				if(drawRect.contains(datasetPoint2D) ){
-					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-					boolean pointAdded = mouseDragSelection.addPoint(cp);
-					if( pointAdded ){
-						((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(j, i);
-						selectedChart.plotChanged(new PlotChangeEvent(plot));
-					}
-				}
-				else if( !mouseDragSelection.isEmpty()){
-					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
-					boolean pointRemoved = mouseDragSelection.removePoint(cp);
-					if( pointRemoved ){
-						((ScatterPlotRenderer) plot.getRenderer()).removeMarkedPoint(new Point(j,i));
-						selectedChart.plotChanged(new PlotChangeEvent(plot));
-					}
-				}
-			}
-		}
-		
-		Iterator<PlotPointData> iterator = currentSelection.iterator();
-		while( iterator.hasNext()){
-			PlotPointData next = iterator.next();
-			Point dataPoint = next.getDataPoint();
-			((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(dataPoint);
-		}
-		
-		lastX = e.getX();
-		lastY = e.getY();
-		
-		Graphics graphics = chartPanel.getGraphics();
-		graphics.setClip(clipRect);
-		
-		//Draw selection rectangle
-		bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
-		
-		graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
+	    super.mouseDragged(e);
+
+	    ChartPanel chartPanel = getChartPanel(e);
+	    JFreeChart selectedChart = chartPanel.getChart();
+	    IChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
+	    int[] indices = cd.getSourceIndices();
+
+	    if (cd.getPlotType() != plotTypes.BOX_PLOT) {
+	        XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
+
+	        //Create double buffer
+	        Image buffer = chartPanel.createImage(chartPanel.getWidth(), chartPanel.getHeight());
+	        Graphics bufferGraphics = buffer.getGraphics();
+	        chartPanel.paint(bufferGraphics);
+
+	        if( lastX == 0 && lastY == 0)
+	        {
+	            lastX = e.getX();
+	            lastY = e.getY();
+	        }
+
+	        drawRect = new Rectangle();
+	        int x1 = Math.min(Math.min(e.getX(), lastX), startX);
+	        int y1 = Math.min(Math.min(e.getY(), lastY), startY);
+	        int x2 = Math.max(Math.max(e.getX(), lastX), startX);
+	        int y2 = Math.max(Math.max(e.getY(), lastY), startY);
+
+	        drawRect.x = x1;
+	        drawRect.y = y1;
+	        drawRect.width = x2 - drawRect.x;
+	        drawRect.height = y2 - drawRect.y;
+
+	        //Create a clipping rectangle
+	        Rectangle clipRect = new Rectangle(drawRect.x-100, drawRect.y-100, drawRect.width+200, drawRect.height+200);
+
+	        //Check for selected points
+	        for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
+	        {
+	            for (int i=0; i<plot.getDataset().getSeriesCount();i++){
+	                Number xK = plot.getDataset().getX(i,j);
+	                Number yK = plot.getDataset().getY(i,j);
+	                Point2D datasetPoint2D = new Point2D.Double(domainValueTo2D(chartPanel, plot, xK.doubleValue()),rangeValueTo2D(chartPanel, plot, yK.doubleValue()));
+
+	                if(drawRect.contains(datasetPoint2D) ){
+	                    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+	                    cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ) );
+	                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ) );
+	                    cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
+	                    boolean pointAdded = mouseDragSelection.addPoint(cp);
+	                    if( pointAdded ){
+	                        ((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(j, i);
+	                        selectedChart.plotChanged(new PlotChangeEvent(plot));
+	                    }
+	                }
+	                else if( !mouseDragSelection.isEmpty()){
+	                    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(),cd.getYLabel());
+	                    boolean pointRemoved = mouseDragSelection.removePoint(cp);
+	                    if( pointRemoved ){
+	                        ((ScatterPlotRenderer) plot.getRenderer()).removeMarkedPoint(new Point(j,i));
+	                        selectedChart.plotChanged(new PlotChangeEvent(plot));
+	                    }
+	                }
+	            }
+	        }
+
+	        Iterator<PlotPointData> iterator = currentSelection.iterator();
+	        while( iterator.hasNext()){
+	            PlotPointData next = iterator.next();
+	            Point dataPoint = next.getDataPoint();
+	            ((ScatterPlotRenderer) plot.getRenderer()).addMarkedPoint(dataPoint);
+	        }
+
+	        lastX = e.getX();
+	        lastY = e.getY();
+
+	        Graphics graphics = chartPanel.getGraphics();
+	        graphics.setClip(clipRect);
+
+	        //Draw selection rectangle
+	        bufferGraphics.drawRect(drawRect.x, drawRect.y, drawRect.width, drawRect.height);
+
+	        graphics.drawImage(buffer, 0, 0, chartPanel.getWidth(), chartPanel.getHeight(), null);
+	    } // TODO What to do in a box plot when the mouse is dragged?
 	}
-	
 	
 	@Override
 	public void mousePressed(MouseEvent e) {
-		super.mousePressed(e);
-		ChartPanel chartPanel = getChartPanel(e);
-		startX = e.getX();
-		startY = e.getY();
-		
-		if( !e.isShiftDown())
-		{
-			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).clearMarkedPoints();
-			currentSelection = new ChartSelection();
-			chartPanel.getChart().plotChanged(new PlotChangeEvent(chartPanel.getChart().getPlot()));
-		} else{
-			((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).removeMarkedPoint(null);
-		}
-		if( currentSelection == null){
-			currentSelection = new ChartSelection();
-		}
+	    super.mousePressed(e);
+	    ChartPanel chartPanel = getChartPanel(e);
+	    startX = e.getX();
+	    startY = e.getY();
 
-		mouseDragSelection = new ChartSelection();
-		currentSelection.setDescriptor(ChartUtils.getChartDescriptor(chartPanel.getChart()));
+	    JFreeChart selectedChart = chartPanel.getChart();
+	    IChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
+
+	    if (cd.getPlotType() != plotTypes.BOX_PLOT) {
+	        if( !e.isShiftDown() ) {
+
+	            XYItemRenderer renderer = ((XYPlot)chartPanel.getChart().getPlot()).getRenderer();
+	            if (renderer instanceof ScatterPlotRenderer)
+	                ((ScatterPlotRenderer) renderer).clearMarkedPoints();
+	            currentSelection = new ChartSelection();
+	            chartPanel.getChart().plotChanged(new PlotChangeEvent(chartPanel.getChart().getPlot()));
+	        } else{
+	            ((ScatterPlotRenderer)((XYPlot)chartPanel.getChart().getPlot()).getRenderer()).removeMarkedPoint(null);
+	        }
+	        if( currentSelection == null){
+	            currentSelection = new ChartSelection();
+	        }
+
+	        mouseDragSelection = new ChartSelection();
+	        currentSelection.setDescriptor(ChartUtils.getChartDescriptor(chartPanel.getChart()));
+	    } // TODO What should happen if the left mouse button is pressed in a box plot?  
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
 		super.mouseReleased(e);
+	
+	      
 		startX = 0;
 		startY = 0;
 		lastX = 0;
 		lastY = 0;
 		ChartPanel chartPanel = this.getChartPanel(e);
-		chartPanel.repaint();
-		
-		currentSelection.addAll(mouseDragSelection);
-		ChartUtils.updateSelection(currentSelection);
-		
+		JFreeChart selectedChart = chartPanel.getChart();
+		IChartDescriptor cd = ChartUtils.getChartDescriptor(selectedChart);
+
+		if (cd.getPlotType() != plotTypes.BOX_PLOT) {
+		    chartPanel.repaint();
+		    currentSelection.addAll(mouseDragSelection);
+		    ChartUtils.updateSelection(currentSelection);
+		} //TODO What to do in a box plot when the left mouse button is released?
 	}
 	
 	private Number getDomainX(ChartPanel chartPanel, XYPlot plot, Point2D mousePoint )
@@ -218,12 +235,10 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 		
 		return y.doubleValue();
 	}
-	
 
-	
 	private ChartPanel getChartPanel(MouseEvent me)
 	{
-		Point2D p = null;
+
 		Frame sourceFrame;
 		ChartPanel selectedPanel = null;
 		
@@ -236,7 +251,6 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 			for (Component component : components) {
 				if( component instanceof ChartPanel ){
 					selectedPanel = (ChartPanel) component;
-//					selectedChart = chartPanel.getChart();
 					foundChartPanel = true;
 					break;
 				}
@@ -254,63 +268,75 @@ public class ScatterPlotMouseHandler extends MouseInputAdapter
 	}
 
 	public void mouseClicked(MouseEvent me) {
-		Point2D p = null;
-		ChartDescriptor cd = null;
-		int[] indices = null;
-		JFreeChart selectedChart = null;
-		
-		ChartPanel chartPanel = getChartPanel(me);
-		p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
-		selectedChart = chartPanel.getChart();
+	    Point2D p = null;
+	    IChartDescriptor cd = null;
+	    int[] indices = null;
+	    JFreeChart selectedChart = null;
+	    ChartPanel chartPanel = getChartPanel(me);
+	    p = chartPanel.translateScreenToJava2D(new Point(me.getX(), me.getY()));
+	    selectedChart = chartPanel.getChart();
 
-		cd = ChartUtils.getChartDescriptor(selectedChart);
-		indices = cd.getSourceIndices();
+	    cd = ChartUtils.getChartDescriptor(selectedChart);
+	    indices = cd.getSourceIndices();
+	    if (cd.getPlotType() != plotTypes.BOX_PLOT) {
+	        XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
 
-		XYPlot plot = (XYPlot) chartPanel.getChart().getPlot();
-		
-		XYItemRenderer plotRenderer = plot.getRenderer();
-		
-		if( !(plotRenderer instanceof ScatterPlotRenderer) )
-		{
-			throw new IllegalStateException("Charts using ScatterPlotMouseHandler must use ScatterPlotRenderer as their renderer");
-		}
-		renderer = (ScatterPlotRenderer) plot.getRenderer();
-		
-		// now convert the Java2D coordinate to axis coordinates...
-		Number xx = getDomainX(chartPanel, plot, p);
-		Number yy = getRangeY(chartPanel, plot, p);
+	        XYItemRenderer plotRenderer = plot.getRenderer();
 
-		//Find the selected point in the dataset
-		//If shift is down, save old selections
-		if( !me.isShiftDown() || currentSelection == null)
-		{
-			currentSelection = new ChartSelection();
-		}
-		
-		for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
-		{
-			for (int i=0; i<plot.getDataset().getSeriesCount();i++){
-				Number xK = plot.getDataset().getX(i,j);
-				Number yK = plot.getDataset().getY(i,j);
-				Number xKCheck = xK.doubleValue()-xx.doubleValue();
-				Number yKCheck = yK.doubleValue()-yy.doubleValue();
-				Number xxCheck = xKCheck.doubleValue()*xKCheck.doubleValue();
-				Number yyCheck = yKCheck.doubleValue()*yKCheck.doubleValue();
-				//Check distance from click and point, don't want to mark points that are too far from the click
-				if ( Math.sqrt(xxCheck.doubleValue()) <= 0.1  && Math.sqrt(yyCheck.doubleValue()) <= 0.1){
-					//Create a new selection
-					PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
-					cp.setDataPoint(j, i);
-					currentSelection.addPoint(cp);
-					if( !me.isShiftDown() )
-						renderer.clearMarkedPoints();
-					renderer.addMarkedPoint(j, i);
-					selectedChart.plotChanged(new PlotChangeEvent(plot));
+	        if( !(plotRenderer instanceof ScatterPlotRenderer) )
+	        {
+	            throw new IllegalStateException("Charts using ScatterPlotMouseHandler must use ScatterPlotRenderer as their renderer");
+	        }
+	        renderer = (ScatterPlotRenderer) plot.getRenderer();
 
-				}
-			}
-		}
-		currentSelection.setDescriptor(cd);
-		ChartUtils.updateSelection(currentSelection);
-	}
+	        // now convert the Java2D coordinate to axis coordinates...
+	        Number xx = getDomainX(chartPanel, plot, p);
+	        Number yy = getRangeY(chartPanel, plot, p);
+	        Range xRange = plot.getDataRange( plot.getDomainAxis() );
+	        Range yRange = plot.getDataRange( plot.getRangeAxis() );
+	        if (xRange.getLowerBound() != 0)
+	            xx=xx.doubleValue()/xRange.getCentralValue();
+	        if (yRange.getLowerBound() != 0)
+	            yy=yy.doubleValue()/yRange.getCentralValue();
+	        //Find the selected point in the dataset
+	        //If shift is down, save old selections
+	        if( !me.isShiftDown() || currentSelection == null)
+	        {
+	            currentSelection = new ChartSelection();
+	        }
+
+	        for (int j=0; j<plot.getDataset().getItemCount(plot.getDataset().getSeriesCount()-1);j++)
+	        {
+	            for (int i=0; i<plot.getDataset().getSeriesCount();i++){
+	                Number xK = plot.getDataset().getX(i,j);
+	                Number yK = plot.getDataset().getY(i,j);
+	                if (xRange.getLowerBound() != 0)
+	                    xK=xK.doubleValue()/xRange.getCentralValue();
+	                if (yRange.getLowerBound() != 0)
+	                    yK=yK.doubleValue()/yRange.getCentralValue();
+	                Number xKCheck = xK.doubleValue()-xx.doubleValue();
+
+	                Number yKCheck = yK.doubleValue()-yy.doubleValue();
+
+	                //Check distance from click and point, don't want to mark points that are too far from the click
+	                if ( Math.abs( xKCheck.doubleValue() ) <= .1  && Math.abs( yKCheck.doubleValue() ) <= .1){
+	                    //Create a new selection
+	                    PlotPointData cp = new PlotPointData(indices[j],cd.getXLabel(), cd.getYLabel());
+	                    cp.setPropertyValue( ChartConstants.X_VALUE, cd.getXValue( j ));
+	                    cp.setPropertyValue( ChartConstants.Y_VALUE, cd.getYValue( j ));
+	                    cp.setPropertyValue( ChartConstants.SOURCE, cd.getSourceName() );
+	                    currentSelection.addPoint(cp);
+	                    if( !me.isShiftDown() )
+	                        renderer.clearMarkedPoints();
+	                    renderer.addMarkedPoint(j, i);
+	                    selectedChart.plotChanged(new PlotChangeEvent(plot));
+
+	                }
+	            }
+	        }
+	        currentSelection.setDescriptor(cd);
+	        ChartUtils.updateSelection(currentSelection);
+	    }
+	    // TODO What should a mouse click in a box plot do?
+	} 
 }
