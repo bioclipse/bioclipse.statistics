@@ -2,7 +2,7 @@
 <feature
       id="net.bioclipse.r.walware_feature"
       label="Walware-RJ modules"
-      version="2.1.0.qualifier"
+      version="2.7.0.qualifier"
       provider-name="Bioclipse">
 
    <description>
